@@ -1,0 +1,38 @@
+rules_version = '2';
+service cloud.firestore {
+  match /databases/{database}/documents {
+
+    function isAuth() { return request.auth != null; }
+
+    function userRole() {
+      return get(/databases/$(database)/documents/users/$(request.auth.uid)).data.get('role', 'supervisor');
+    }
+
+    function isAdmin() { return isAuth() && userRole() == 'admin'; }
+
+    // Users: anyone authenticated can read; write own profile; admin writes all
+    match /users/{userId} {
+      allow read: if isAuth();
+      allow write: if isAuth() && (request.auth.uid == userId || isAdmin());
+    }
+
+    // Campuses: anyone auth can read; admin writes
+    match /campuses/{campusId} {
+      allow read: if isAuth();
+      allow write: if isAdmin();
+    }
+
+    // Students: anyone auth can read; admin full write; supervisors can update (except studentPreference)
+    match /students/{studentId} {
+      allow read: if isAuth();
+      allow create, delete: if isAdmin();
+      allow update: if isAuth();
+    }
+
+    // Settings: anyone auth can read; admin writes
+    match /settings/{docId} {
+      allow read: if isAuth();
+      allow write: if isAdmin();
+    }
+  }
+}
