@@ -106,6 +106,10 @@ tr:hover td{background:rgba(255,255,255,.02)}
 .sup-select{background:var(--bg3);border:1px solid var(--border);border-radius:7px;padding:5px 8px;color:var(--text);font-size:12px;min-width:160px;font-family:var(--font);cursor:pointer}
 .sup-select:disabled{opacity:.5;cursor:not-allowed}
 
+/* Export bar */
+.export-bar{display:flex;gap:14px;flex-wrap:wrap;align-items:flex-end;background:var(--bg2);border:1px solid var(--border);border-radius:var(--r);padding:14px 16px}
+.export-group{display:flex;flex-direction:column;gap:6px}
+
 /* Preference chip */
 .pref-warn{display:inline-flex;align-items:center;gap:4px;background:rgba(245,158,11,.12);border:1px solid rgba(245,158,11,.25);border-radius:6px;padding:2px 7px;font-size:11px;color:var(--amber)}
 
@@ -427,7 +431,26 @@ tr:hover td{background:rgba(255,255,255,.02)}
             <tbody id="alloc-tbody"><tr><td colspan="8" style="text-align:center;padding:32px;color:var(--text2)">Click Allocations in the sidebar…</td></tr></tbody></table>
           </div>
         </div>
-        <div style="margin-top:12px"><button class="btn" id="export-csv-btn">⬇ Export CSV</button></div>
+        <div class="export-bar" style="margin-top:14px">
+          <div class="export-group">
+            <label>Export by Campus</label>
+            <div class="flex gap-8">
+              <select id="export-campus-select" style="min-width:180px"><option value="">— Select campus —</option></select>
+              <button class="btn btn-primary btn-sm" id="export-campus-btn">⬇ Export</button>
+            </div>
+          </div>
+          <div class="export-group">
+            <label>Export by Principal Supervisor</label>
+            <div class="flex gap-8">
+              <select id="export-sup-select" style="min-width:180px"><option value="">— Select supervisor —</option></select>
+              <button class="btn btn-primary btn-sm" id="export-sup-btn">⬇ Export</button>
+            </div>
+          </div>
+          <div class="export-group">
+            <label>Export Everything</label>
+            <button class="btn btn-sm" id="export-csv-btn">⬇ Export Full CSV</button>
+          </div>
+        </div>
       </div>
 
       <!-- SETTINGS -->
@@ -962,6 +985,8 @@ async function mountAdmin(){
   });
   el('goto-sv-btn').onclick=async()=>{ if(svUnsub){svUnsub();svUnsub=null;} await mountSupervisor(); };
   el('export-csv-btn').onclick=exportCSV;
+  el('export-campus-btn').onclick=exportByCampus;
+  el('export-sup-btn').onclick=exportBySupervisor;
 
   // Reset sidebar to first tab on each mount
   document.querySelectorAll('.sidebar-item').forEach(i=>i.classList.remove('active'));
@@ -1124,6 +1149,7 @@ async function handleCSV(file){
 
 /* ── Allocations ── */
 async function renderAllocations(){
+  populateExportDropdowns();
   const snap=await getDocs(query(collection(db,'students'),orderBy('slNo')));
   const students=snap.docs.map(d=>({id:d.id,...d.data()}));
   setTxt('a-total',students.length); setTxt('a-alloc',students.filter(s=>s.principalSupervisorId).length); setTxt('a-pending',students.filter(s=>!s.principalSupervisorId).length);
@@ -1174,13 +1200,57 @@ function initSettingsTab(){
 }
 
 /* ── Export CSV ── */
+function csvCell(v){ return `"${String(v??'').replace(/"/g,'""')}"`; }
+function downloadCSV(rows,filename){
+  const a=document.createElement('a');
+  a.href=URL.createObjectURL(new Blob(['\ufeff'+rows.map(r=>r.join(',')).join('\r\n')],{type:'text/csv;charset=utf-8;'}));
+  a.download=filename; a.click();
+}
+
 async function exportCSV(){
   const snap=await getDocs(query(collection(db,'students'),orderBy('slNo')));
   const rows=[['Sl.No','Student Name','Student ID','Campus','Proposal Title','Proposal Summary','Principal Supervisor','Co-Supervisor','Student Preference','Allocated At','Proposal Link','Comment']];
-  snap.docs.forEach(d=>{ const s=d.data(); const cn=CAMPUSES.find(c=>c.id===s.campus)?.name||s.campus||''; rows.push([s.slNo||'',s.name||'',s.studentId||'',cn,`"${(s.proposalTitle||'').replace(/"/g,'""')}"`,`"${(s.proposalSummary||'').replace(/"/g,'""')}"`,s.principalSupervisorName||'',s.coSupervisorName||'',s.studentPreference||'',fmtDate(s.allocatedAt),s.proposalLink||'',`"${(s.comment||'').replace(/"/g,'""')}"`]); });
-  const a=document.createElement('a'); a.href=URL.createObjectURL(new Blob([rows.map(r=>r.join(',')).join('\n')],{type:'text/csv'})); a.download='allocations.csv'; a.click();
+  snap.docs.forEach(d=>{ const s=d.data(); const cn=CAMPUSES.find(c=>c.id===s.campus)?.name||s.campus||''; rows.push([s.slNo||'',csvCell(s.name),csvCell(s.studentId),csvCell(cn),csvCell(s.proposalTitle),csvCell(s.proposalSummary),csvCell(s.principalSupervisorName),csvCell(s.coSupervisorName),csvCell(s.studentPreference),csvCell(fmtDate(s.allocatedAt)),csvCell(s.proposalLink),csvCell(s.comment)]); });
+  downloadCSV(rows,'allocations.csv');
   toast('CSV exported','success');
 }
+
+// Slim export: Student Name, ID, Title, Principal Supervisor, Co-Supervisor
+function buildSlimRows(students){
+  const rows=[['Student Name','Student ID','Proposal Title','Principal Supervisor','Co-Supervisor']];
+  students.forEach(s=>{ rows.push([csvCell(s.name),csvCell(s.studentId),csvCell(s.proposalTitle),csvCell(s.principalSupervisorName),csvCell(s.coSupervisorName)]); });
+  return rows;
+}
+function safeName(str){ return String(str||'export').replace(/[^a-z0-9]+/gi,'_').replace(/^_+|_+$/g,'').toLowerCase()||'export'; }
+
+async function exportByCampus(){
+  const campusId=el('export-campus-select').value;
+  if(!campusId){ toast('Select a campus first','error'); return; }
+  const campus=CAMPUSES.find(c=>c.id===campusId);
+  const snap=await getDocs(query(collection(db,'students'),orderBy('slNo')));
+  const students=snap.docs.map(d=>d.data()).filter(s=>s.campus===campusId);
+  if(!students.length){ toast('No students for this campus','error'); return; }
+  downloadCSV(buildSlimRows(students),`allocations_campus_${safeName(campus?.name)}.csv`);
+  toast(`Exported ${students.length} student(s) for ${campus?.name||'campus'}`,'success');
+}
+
+async function exportBySupervisor(){
+  const supId=el('export-sup-select').value;
+  if(!supId){ toast('Select a supervisor first','error'); return; }
+  const sup=SUPS.find(x=>x.id===supId);
+  const snap=await getDocs(query(collection(db,'students'),orderBy('slNo')));
+  const students=snap.docs.map(d=>d.data()).filter(s=>s.principalSupervisorId===supId);
+  if(!students.length){ toast('No students for this principal supervisor','error'); return; }
+  downloadCSV(buildSlimRows(students),`allocations_supervisor_${safeName(sup?.name)}.csv`);
+  toast(`Exported ${students.length} student(s) for ${sup?.name||'supervisor'}`,'success');
+}
+
+function populateExportDropdowns(){
+  const cSel=el('export-campus-select'), sSel=el('export-sup-select');
+  if(cSel) cSel.innerHTML='<option value="">— Select campus —</option>'+CAMPUSES.map(c=>`<option value="${c.id}">${esc(c.name)}</option>`).join('');
+  if(sSel) sSel.innerHTML='<option value="">— Select supervisor —</option>'+SUPS.map(s=>`<option value="${s.id}">${esc(s.name)}</option>`).join('');
+}
+window.populateExportDropdowns=populateExportDropdowns;
 
 </script>
 </body>
