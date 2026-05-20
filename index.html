@@ -537,6 +537,15 @@ tbody tr:hover td{background:var(--bg-hover) !important;cursor:default}
           <button class="btn btn-primary" id="settings-save-btn">Save Settings</button>
         </div>
 
+        <!-- Backfill semester for existing students -->
+        <div class="card mt-16" style="max-width:520px">
+          <div class="card-header"><h3>🔧 Backfill: Assign Semester to Existing Students</h3></div>
+          <p class="text-sm text-muted mb-8">If you had students before semesters existed, they have no semester and won't appear in the filtered views. Pick a target semester here and assign them all at once.</p>
+          <div id="backfill-count" class="alert alert-info mb-16">Checking…</div>
+          <div class="form-group"><label>Target Semester</label><select id="backfill-semester"></select></div>
+          <button class="btn btn-primary" id="backfill-btn">Assign Unsemestered Students</button>
+        </div>
+
         <!-- Promote existing user to admin -->
         <div class="card mt-16" style="max-width:480px">
           <div class="card-header"><h3>👤 Promote User to Admin</h3></div>
@@ -566,15 +575,15 @@ import { getFirestore, collection, doc,
          writeBatch }                                  from "https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore.js";
 
 /* ── Firebase init ──────────────────────────────────────── */
-const firebaseConfig = {
-  apiKey: "AIzaSyC8-dL8BsqWwivHpJ7-buTOBPHwwwAUzDY",
-  authDomain: "supervisor-3efa3.firebaseapp.com",
-  projectId: "supervisor-3efa3",
-  storageBucket: "supervisor-3efa3.firebasestorage.app",
+const app  = initializeApp({
+  apiKey:            "AIzaSyC8-dL8BsqWwivHpJ7-buTOBPHwwwAUzDY",
+  authDomain:        "supervisor-3efa3.firebaseapp.com",
+  projectId:         "supervisor-3efa3",
+  storageBucket:     "supervisor-3efa3.firebasestorage.app",
   messagingSenderId: "208919593347",
-  appId: "1:208919593347:web:a642ff7d2c577e00cff6b6",
-  measurementId: "G-K63202VRMR"
-};
+  appId:             "1:208919593347:web:a642ff7d2c577e00cff6b6",
+  measurementId:     "G-K63202VRMR"
+});
 const auth = getAuth(app);
 const db   = getFirestore(app);
 
@@ -1489,6 +1498,61 @@ function initSettingsTab(){
     const uid=el('promote-uid').value.trim(), name=el('promote-name').value.trim(), email=el('promote-email').value.trim();
     if(!uid||!name){ toast('UID and name required','error'); return; }
     try{ await setDoc(doc(db,'users',uid),{name,email,role:'admin',campus:null},{merge:true}); toast('User promoted to admin!','success'); el('promote-uid').value=''; el('promote-name').value=''; el('promote-email').value=''; }catch(e){ toast('Error: '+e.message,'error'); } };
+
+  // ── Backfill semester for existing students ──
+  refreshBackfillUI();
+  el('backfill-btn').onclick=async()=>{
+    const targetId = el('backfill-semester').value;
+    if(!targetId){ toast('Pick a target semester first','error'); return; }
+    const targetName = SEMESTERS.find(s=>s.id===targetId)?.name || '';
+    const orphans = STUDENTS.filter(s=>!s.semester || !SEMESTERS.find(x=>x.id===s.semester));
+    if(!orphans.length){ toast('No unsemestered students found — you\'re all set.','info'); return; }
+    if(!confirm(`Assign ${orphans.length} student(s) to "${targetName}"?\n\nThis cannot be undone in bulk — you'd need to edit each student individually to change it.`)) return;
+    try{
+      // Firestore writeBatch supports up to 500 ops — chunk just in case.
+      const CHUNK = 400;
+      for(let i=0;i<orphans.length;i+=CHUNK){
+        const batch = writeBatch(db);
+        orphans.slice(i,i+CHUNK).forEach(s=>{
+          batch.update(doc(db,'students',s.id),{semester:targetId, semesterName:targetName});
+        });
+        await batch.commit();
+      }
+      // Reload local cache
+      const snap=await getDocs(query(collection(db,'students'),orderBy('slNo')));
+      STUDENTS=snap.docs.map(d=>({id:d.id,...d.data()}));
+      refreshBackfillUI();
+      toast(`Assigned ${orphans.length} student(s) to ${targetName}`,'success');
+    }catch(e){ toast('Backfill error: '+e.message,'error'); }
+  };
+}
+
+function refreshBackfillUI(){
+  const countEl = el('backfill-count');
+  const semSel  = el('backfill-semester');
+  if(!countEl || !semSel) return;
+  const orphans = STUDENTS.filter(s=>!s.semester || !SEMESTERS.find(x=>x.id===s.semester));
+  if(!SEMESTERS.length){
+    countEl.className = 'alert alert-warning mb-16';
+    countEl.innerHTML = `⚠ Create a semester first (Semesters tab), then return here.`;
+    semSel.innerHTML = `<option value="">— No semesters yet —</option>`;
+    semSel.disabled = true;
+    el('backfill-btn').disabled = true;
+    return;
+  }
+  semSel.disabled = false;
+  el('backfill-btn').disabled = orphans.length===0;
+  if(orphans.length){
+    countEl.className = 'alert alert-warning mb-16';
+    countEl.innerHTML = `Found <strong>${orphans.length}</strong> student(s) without a semester.`;
+  } else {
+    countEl.className = 'alert alert-success mb-16';
+    countEl.innerHTML = `✓ All students are already assigned to a semester.`;
+  }
+  semSel.innerHTML = SEMESTERS.map(s=>{
+    const lbl = esc(s.name) + (s.year?` · ${esc(s.year)}`:'') + (s.isActive?' ★':'');
+    return `<option value="${s.id}" ${s.id===adminSemester?'selected':''}>${lbl}</option>`;
+  }).join('');
 }
 
 /* ── Export CSV ── */
