@@ -566,15 +566,15 @@ import { getFirestore, collection, doc,
          writeBatch }                                  from "https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore.js";
 
 /* ── Firebase init ──────────────────────────────────────── */
-const app  = initializeApp({
-  apiKey:            "AIzaSyD7LjrFvp1jvq8LwDNhyra9MbJ3k59j_5k",
-  authDomain:        "mresbus.firebaseapp.com",
-  projectId:         "mresbus",
-  storageBucket:     "mresbus.firebasestorage.app",
-  messagingSenderId: "346993694461",
-  appId:             "1:346993694461:web:bb78c9623b1ac43ad35094",
-  measurementId:     "G-RM5QG9HM1W"
-});
+const firebaseConfig = {
+  apiKey: "AIzaSyC8-dL8BsqWwivHpJ7-buTOBPHwwwAUzDY",
+  authDomain: "supervisor-3efa3.firebaseapp.com",
+  projectId: "supervisor-3efa3",
+  storageBucket: "supervisor-3efa3.firebasestorage.app",
+  messagingSenderId: "208919593347",
+  appId: "1:208919593347:web:a642ff7d2c577e00cff6b6",
+  measurementId: "G-K63202VRMR"
+};
 const auth = getAuth(app);
 const db   = getFirestore(app);
 
