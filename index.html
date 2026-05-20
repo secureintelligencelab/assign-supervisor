@@ -8,11 +8,25 @@
 <style>
 *,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
 :root{
-  --bg:#0f1117;--bg2:#181b24;--bg3:#1e2230;
-  --border:#2a2f42;--border2:#363d55;
-  --accent:#4f7cff;--accent2:#7c4fff;
-  --green:#22c55e;--amber:#f59e0b;--red:#ef4444;
-  --text:#e8eaf0;--text2:#9399b2;--text3:#5a6080;
+  /* Light theme — chosen so admin & supervisors can easily scan menu items and student rows */
+  --bg:#eef3fb;          /* main page bg: soft cool blue */
+  --bg2:#ffffff;         /* cards / navbar */
+  --bg3:#f1f5fb;         /* inputs / table headers */
+  --bg-stripe:#f7faff;   /* alternating table row */
+  --bg-hover:#e3edff;    /* row + sidebar hover */
+  --sidebar-bg:#1d3557;  /* dark sidebar so menu items pop */
+  --sidebar-text:#cfd8e6;
+  --sidebar-text-active:#ffffff;
+  --sidebar-hover:#264a78;
+  --sidebar-active:#2e5fa8;
+  --border:#d6dee9;
+  --border2:#b8c4d6;
+  --accent:#2563eb;      /* primary brand blue */
+  --accent2:#7c3aed;     /* secondary purple */
+  --green:#16a34a;--amber:#d97706;--red:#dc2626;
+  --text:#0f172a;        /* near-black for strong readability */
+  --text2:#475569;       /* secondary */
+  --text3:#94a3b8;       /* muted */
   --r:10px;--rlg:16px;--font:'Inter',system-ui,sans-serif
 }
 body{font-family:var(--font);background:var(--bg);color:var(--text);min-height:100vh;font-size:14px;line-height:1.6}
@@ -25,71 +39,76 @@ h3{font-size:1rem;font-weight:600}
 #page-admin.active{display:block!important}
 
 /* Navbar */
-.navbar{background:var(--bg2);border-bottom:1px solid var(--border);padding:0 24px;height:56px;display:flex;align-items:center;justify-content:space-between;position:sticky;top:0;z-index:100}
+.navbar{background:var(--bg2);border-bottom:1px solid var(--border);padding:0 24px;height:56px;display:flex;align-items:center;justify-content:space-between;position:sticky;top:0;z-index:100;box-shadow:0 1px 3px rgba(15,23,42,.06)}
 .navbar-brand{display:flex;align-items:center;gap:10px;font-weight:700;font-size:1rem}
 .logo-dot{width:32px;height:32px;background:linear-gradient(135deg,var(--accent),var(--accent2));border-radius:9px;display:flex;align-items:center;justify-content:center;font-size:16px}
 .navbar-right{display:flex;align-items:center;gap:10px}
-.nav-badge{background:var(--bg3);border:1px solid var(--border);border-radius:20px;padding:3px 11px;font-size:11px;color:var(--text2)}
+.nav-badge{background:#eff6ff;border:1px solid #bfdbfe;border-radius:20px;padding:3px 11px;font-size:11px;color:#1d4ed8;font-weight:500}
+.ctx-picker{background:#fff7ed;border:1px solid #fdba74;border-radius:8px;padding:5px 28px 5px 12px;font-size:12px;font-weight:600;color:#9a3412;font-family:var(--font);cursor:pointer;outline:none;min-width:160px;-webkit-appearance:none;appearance:none;background-image:url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' width='12' height='12' viewBox='0 0 12 12'><path fill='%239a3412' d='M2 4l4 4 4-4'/></svg>");background-repeat:no-repeat;background-position:right 8px center}
+.ctx-picker:hover{background-color:#ffedd5}
+.ctx-picker:focus{border-color:#ea580c;box-shadow:0 0 0 3px rgba(234,88,12,.15)}
+.ctx-picker option{background:#fff;color:var(--text)}
 .avatar{width:32px;height:32px;background:linear-gradient(135deg,var(--accent),var(--accent2));border-radius:50%;display:flex;align-items:center;justify-content:center;font-weight:700;font-size:12px;color:#fff}
 
 /* Buttons */
-.btn{display:inline-flex;align-items:center;gap:6px;padding:7px 14px;border-radius:var(--r);border:1px solid var(--border2);background:var(--bg3);color:var(--text);font-size:13px;font-weight:500;cursor:pointer;transition:all .15s;white-space:nowrap;font-family:var(--font)}
-.btn:hover{background:var(--border)}.btn:active{transform:scale(.97)}
+.btn{display:inline-flex;align-items:center;gap:6px;padding:7px 14px;border-radius:var(--r);border:1px solid var(--border2);background:var(--bg2);color:var(--text);font-size:13px;font-weight:500;cursor:pointer;transition:all .15s;white-space:nowrap;font-family:var(--font);box-shadow:0 1px 2px rgba(15,23,42,.04)}
+.btn:hover{background:var(--bg-hover);border-color:var(--accent)}.btn:active{transform:scale(.97)}
 .btn-primary{background:var(--accent);border-color:var(--accent);color:#fff}
-.btn-primary:hover{background:#3d6ae6}
+.btn-primary:hover{background:#1e4fd8;border-color:#1e4fd8}
 .btn-danger{background:var(--red);border-color:var(--red);color:#fff}
-.btn-danger:hover{background:#d93232}
+.btn-danger:hover{background:#b91c1c;border-color:#b91c1c}
 .btn-sm{padding:4px 10px;font-size:12px}
 .btn:disabled{opacity:.45;cursor:not-allowed;pointer-events:none}
 
 /* Cards */
-.card{background:var(--bg2);border:1px solid var(--border);border-radius:var(--rlg);padding:20px}
+.card{background:var(--bg2);border:1px solid var(--border);border-radius:var(--rlg);padding:20px;box-shadow:0 1px 3px rgba(15,23,42,.05)}
 .card-header{display:flex;align-items:center;justify-content:space-between;margin-bottom:16px;padding-bottom:12px;border-bottom:1px solid var(--border)}
 
 /* Forms */
 .form-group{margin-bottom:14px}
 label{display:block;font-size:11px;color:var(--text2);margin-bottom:5px;font-weight:600;text-transform:uppercase;letter-spacing:.05em}
-input[type=text],input[type=email],input[type=password],input[type=url],input[type=number],select,textarea{width:100%;background:var(--bg3);border:1px solid var(--border);border-radius:var(--r);color:var(--text);padding:8px 12px;font-size:13px;font-family:var(--font);transition:border-color .15s;outline:none}
-input:focus,select:focus,textarea:focus{border-color:var(--accent)}
-select option{background:var(--bg2)}
+input[type=text],input[type=email],input[type=password],input[type=url],input[type=number],select,textarea{width:100%;background:#ffffff;border:1px solid var(--border2);border-radius:var(--r);color:var(--text);padding:8px 12px;font-size:13px;font-family:var(--font);transition:border-color .15s,box-shadow .15s;outline:none}
+input:focus,select:focus,textarea:focus{border-color:var(--accent);box-shadow:0 0 0 3px rgba(37,99,235,.15)}
+select option{background:var(--bg2);color:var(--text)}
 textarea{resize:vertical;min-height:70px}
 
-/* Badges */
-.badge{display:inline-flex;align-items:center;gap:4px;padding:2px 8px;border-radius:20px;font-size:11px;font-weight:600;white-space:nowrap}
-.badge-green{background:rgba(34,197,94,.15);color:var(--green)}
-.badge-amber{background:rgba(245,158,11,.15);color:var(--amber)}
-.badge-red{background:rgba(239,68,68,.15);color:var(--red)}
-.badge-blue{background:rgba(79,124,255,.15);color:var(--accent)}
-.badge-purple{background:rgba(124,79,255,.15);color:var(--accent2)}
-.badge-gray{background:rgba(147,153,178,.15);color:var(--text2)}
+/* Badges — high-contrast pill colours so status is easy to scan */
+.badge{display:inline-flex;align-items:center;gap:4px;padding:3px 10px;border-radius:20px;font-size:11px;font-weight:600;white-space:nowrap;border:1px solid transparent}
+.badge-green{background:#dcfce7;color:#15803d;border-color:#86efac}
+.badge-amber{background:#fef3c7;color:#92400e;border-color:#fcd34d}
+.badge-red{background:#fee2e2;color:#b91c1c;border-color:#fca5a5}
+.badge-blue{background:#dbeafe;color:#1d4ed8;border-color:#93c5fd}
+.badge-purple{background:#ede9fe;color:#6d28d9;border-color:#c4b5fd}
+.badge-gray{background:#e2e8f0;color:#475569;border-color:#cbd5e1}
 
-/* Table */
-.tw{overflow-x:auto}
+/* Table — zebra striping + strong hover so admin/supervisors can easily track students */
+.tw{overflow-x:auto;background:var(--bg2);border:1px solid var(--border);border-radius:var(--r);box-shadow:0 1px 3px rgba(15,23,42,.05)}
 table{width:100%;border-collapse:collapse;font-size:13px}
-th{text-align:left;padding:10px 12px;font-size:11px;font-weight:600;text-transform:uppercase;letter-spacing:.05em;color:var(--text3);background:var(--bg3);border-bottom:1px solid var(--border);white-space:nowrap}
-td{padding:9px 12px;border-bottom:1px solid var(--border);vertical-align:middle}
+th{text-align:left;padding:11px 12px;font-size:11px;font-weight:700;text-transform:uppercase;letter-spacing:.05em;color:var(--text);background:#dbe6f5;border-bottom:2px solid var(--accent);white-space:nowrap}
+td{padding:10px 12px;border-bottom:1px solid var(--border);vertical-align:middle;color:var(--text)}
+tbody tr:nth-child(even) td{background:var(--bg-stripe)}
 tr:last-child td{border-bottom:none}
-tr:hover td{background:rgba(255,255,255,.02)}
+tbody tr:hover td{background:var(--bg-hover) !important;cursor:default}
 
 /* Alerts */
-.alert{padding:10px 14px;border-radius:var(--r);font-size:13px;margin-bottom:12px}
-.alert-warning{background:rgba(245,158,11,.1);border:1px solid rgba(245,158,11,.3);color:var(--amber)}
-.alert-success{background:rgba(34,197,94,.1);border:1px solid rgba(34,197,94,.3);color:var(--green)}
-.alert-danger{background:rgba(239,68,68,.1);border:1px solid rgba(239,68,68,.3);color:var(--red)}
-.alert-info{background:rgba(79,124,255,.1);border:1px solid rgba(79,124,255,.3);color:var(--accent)}
+.alert{padding:10px 14px;border-radius:var(--r);font-size:13px;margin-bottom:12px;font-weight:500}
+.alert-warning{background:#fef3c7;border:1px solid #fcd34d;color:#92400e}
+.alert-success{background:#dcfce7;border:1px solid #86efac;color:#15803d}
+.alert-danger{background:#fee2e2;border:1px solid #fca5a5;color:#b91c1c}
+.alert-info{background:#dbeafe;border:1px solid #93c5fd;color:#1d4ed8}
 
 /* Login */
 #page-login{min-height:100vh;
-  background:radial-gradient(ellipse at 20% 50%,rgba(79,124,255,.08) 0%,transparent 60%),
-             radial-gradient(ellipse at 80% 20%,rgba(124,79,255,.06) 0%,transparent 60%),var(--bg);
+  background:radial-gradient(ellipse at 20% 50%,rgba(37,99,235,.10) 0%,transparent 60%),
+             radial-gradient(ellipse at 80% 20%,rgba(124,58,237,.08) 0%,transparent 60%),var(--bg);
   align-items:center;justify-content:center}
-.login-box{background:var(--bg2);border:1px solid var(--border);border-radius:var(--rlg);padding:36px 32px;width:380px;max-width:95vw;box-shadow:0 8px 40px rgba(0,0,0,.5)}
+.login-box{background:var(--bg2);border:1px solid var(--border);border-radius:var(--rlg);padding:36px 32px;width:380px;max-width:95vw;box-shadow:0 8px 40px rgba(15,23,42,.12)}
 .login-icon{width:56px;height:56px;background:linear-gradient(135deg,var(--accent),var(--accent2));border-radius:16px;display:flex;align-items:center;justify-content:center;font-size:26px;margin:0 auto 14px}
 
 /* Stats */
 .stats-strip{display:grid;grid-template-columns:repeat(auto-fit,minmax(140px,1fr));gap:12px;margin-bottom:20px}
-.stat-card{background:var(--bg2);border:1px solid var(--border);border-radius:var(--r);padding:14px 16px}
-.stat-val{font-size:1.7rem;font-weight:700;line-height:1;margin-bottom:4px}
+.stat-card{background:var(--bg2);border:1px solid var(--border);border-radius:var(--r);padding:14px 16px;box-shadow:0 1px 3px rgba(15,23,42,.05)}
+.stat-val{font-size:1.7rem;font-weight:700;line-height:1;margin-bottom:4px;color:var(--text)}
 .stat-lbl{font-size:11px;color:var(--text2);text-transform:uppercase;letter-spacing:.05em}
 .progress-bar{height:4px;background:var(--border);border-radius:2px;overflow:hidden;margin-top:8px}
 .progress-fill{height:100%;background:linear-gradient(90deg,var(--accent),var(--accent2));border-radius:2px;transition:width .4s}
@@ -99,23 +118,23 @@ tr:hover td{background:rgba(255,255,255,.02)}
 .spacer{flex:1}
 .search-wrap{position:relative}
 .search-icon{position:absolute;left:10px;top:50%;transform:translateY(-50%);color:var(--text3);pointer-events:none}
-.search-input{background:var(--bg3);border:1px solid var(--border);border-radius:var(--r);padding:7px 12px 7px 32px;color:var(--text);font-size:13px;outline:none;width:240px;font-family:var(--font)}
-.search-input:focus{border-color:var(--accent)}
+.search-input{background:#ffffff;border:1px solid var(--border2);border-radius:var(--r);padding:7px 12px 7px 32px;color:var(--text);font-size:13px;outline:none;width:240px;font-family:var(--font)}
+.search-input:focus{border-color:var(--accent);box-shadow:0 0 0 3px rgba(37,99,235,.15)}
 
 /* Supervisor selects in table */
-.sup-select{background:var(--bg3);border:1px solid var(--border);border-radius:7px;padding:5px 8px;color:var(--text);font-size:12px;min-width:160px;font-family:var(--font);cursor:pointer}
+.sup-select{background:#ffffff;border:1px solid var(--border2);border-radius:7px;padding:5px 8px;color:var(--text);font-size:12px;min-width:160px;font-family:var(--font);cursor:pointer}
 .sup-select:disabled{opacity:.5;cursor:not-allowed}
 
 /* Export bar */
-.export-bar{display:flex;gap:14px;flex-wrap:wrap;align-items:flex-end;background:var(--bg2);border:1px solid var(--border);border-radius:var(--r);padding:14px 16px}
+.export-bar{display:flex;gap:14px;flex-wrap:wrap;align-items:flex-end;background:var(--bg2);border:1px solid var(--border);border-radius:var(--r);padding:14px 16px;box-shadow:0 1px 3px rgba(15,23,42,.05)}
 .export-group{display:flex;flex-direction:column;gap:6px}
 
 /* Preference chip */
-.pref-warn{display:inline-flex;align-items:center;gap:4px;background:rgba(245,158,11,.12);border:1px solid rgba(245,158,11,.25);border-radius:6px;padding:2px 7px;font-size:11px;color:var(--amber)}
+.pref-warn{display:inline-flex;align-items:center;gap:4px;background:#fef3c7;border:1px solid #fcd34d;border-radius:6px;padding:2px 7px;font-size:11px;color:#92400e;font-weight:500}
 
 /* Toast */
 #toast-container{position:fixed;bottom:24px;right:24px;z-index:9999;display:flex;flex-direction:column;gap:8px}
-.toast{background:var(--bg3);border:1px solid var(--border2);border-radius:var(--r);padding:12px 16px;font-size:13px;box-shadow:0 4px 24px rgba(0,0,0,.45);min-width:240px;animation:slideIn .2s ease}
+.toast{background:var(--bg2);border:1px solid var(--border2);border-radius:var(--r);padding:12px 16px;font-size:13px;color:var(--text);box-shadow:0 8px 24px rgba(15,23,42,.15);min-width:240px;animation:slideIn .2s ease}
 .toast.success{border-left:3px solid var(--green)}.toast.error{border-left:3px solid var(--red)}
 .toast.info{border-left:3px solid var(--accent)}.toast.warning{border-left:3px solid var(--amber)}
 @keyframes slideIn{from{transform:translateX(40px);opacity:0}to{transform:translateX(0);opacity:1}}
@@ -128,31 +147,32 @@ tr:hover td{background:rgba(255,255,255,.02)}
 #loading-overlay{position:fixed;inset:0;background:var(--bg);display:flex;align-items:center;justify-content:center;z-index:9998;flex-direction:column;gap:12px}
 #loading-overlay.hidden{display:none}
 
-/* Admin layout */
+/* Admin layout — dark sidebar contrasts the light content area so menu items pop */
 .layout-sidebar{display:flex;min-height:calc(100vh - 56px)}
-.sidebar{width:220px;background:var(--bg2);border-right:1px solid var(--border);padding:12px 0;flex-shrink:0}
-.sidebar-item{display:flex;align-items:center;gap:10px;padding:9px 20px;color:var(--text2);font-size:13px;cursor:pointer;transition:all .15s;border-left:3px solid transparent}
-.sidebar-item:hover{color:var(--text);background:rgba(255,255,255,.03)}
-.sidebar-item.active{color:var(--text);border-left-color:var(--accent);background:rgba(79,124,255,.06)}
-.sidebar-section{font-size:10px;text-transform:uppercase;letter-spacing:.08em;color:var(--text3);padding:12px 20px 4px}
-.main-content{flex:1;padding:24px;overflow:auto}
+.sidebar{width:230px;background:var(--sidebar-bg);border-right:1px solid var(--border);padding:14px 0;flex-shrink:0;box-shadow:2px 0 4px rgba(15,23,42,.06)}
+.sidebar-item{display:flex;align-items:center;gap:10px;padding:11px 20px;color:var(--sidebar-text);font-size:13px;font-weight:500;cursor:pointer;transition:all .15s;border-left:4px solid transparent}
+.sidebar-item:hover{color:var(--sidebar-text-active);background:var(--sidebar-hover)}
+.sidebar-item.active{color:var(--sidebar-text-active);border-left-color:#fbbf24;background:var(--sidebar-active);font-weight:600}
+.sidebar-section{font-size:10px;text-transform:uppercase;letter-spacing:.1em;color:#94a3b8;padding:14px 20px 6px;font-weight:700}
+.main-content{flex:1;padding:24px;overflow:auto;background:var(--bg)}
 .tab-panel{display:none}.tab-panel.active{display:block}
 
 /* Campus pills */
 .campus-pills{display:flex;gap:6px;flex-wrap:wrap;margin-bottom:16px}
-.campus-pill{padding:4px 12px;border-radius:20px;border:1px solid var(--border);background:var(--bg3);font-size:12px;color:var(--text2);cursor:pointer;transition:all .15s;font-family:var(--font)}
+.campus-pill{padding:5px 14px;border-radius:20px;border:1px solid var(--border2);background:var(--bg2);font-size:12px;color:var(--text);cursor:pointer;transition:all .15s;font-family:var(--font);font-weight:500}
+.campus-pill:hover{background:var(--bg-hover);border-color:var(--accent)}
 .campus-pill.active{background:var(--accent);border-color:var(--accent);color:#fff}
 
 /* Drop zone */
-.drop-zone{border:2px dashed var(--border2);border-radius:var(--r);padding:28px;text-align:center;cursor:pointer;transition:all .15s;color:var(--text2)}
-.drop-zone:hover,.drop-zone.dragging{border-color:var(--accent);background:rgba(79,124,255,.04);color:var(--text)}
+.drop-zone{border:2px dashed var(--border2);border-radius:var(--r);padding:28px;text-align:center;cursor:pointer;transition:all .15s;color:var(--text2);background:var(--bg2)}
+.drop-zone:hover,.drop-zone.dragging{border-color:var(--accent);background:#eff6ff;color:var(--text)}
 
 /* Proposal cell – full title, no truncation */
 .pc{max-width:300px;white-space:normal;word-break:break-word;line-height:1.4}
 
 /* Campus picker card */
-.campus-pick-card{background:var(--bg2);border:1px solid var(--border);border-radius:var(--rlg);padding:20px 16px;cursor:pointer;transition:all .18s;text-align:center}
-.campus-pick-card:hover{border-color:var(--accent);background:rgba(79,124,255,.06);transform:translateY(-2px)}
+.campus-pick-card{background:var(--bg2);border:1px solid var(--border);border-radius:var(--rlg);padding:20px 16px;cursor:pointer;transition:all .18s;text-align:center;box-shadow:0 1px 3px rgba(15,23,42,.05)}
+.campus-pick-card:hover{border-color:var(--accent);background:#eff6ff;transform:translateY(-2px);box-shadow:0 4px 12px rgba(37,99,235,.15)}
 .campus-pick-card .cp-icon{font-size:28px;margin-bottom:8px}
 .campus-pick-card .cp-name{font-weight:600;font-size:14px}
 .campus-pick-card .cp-sub{font-size:11px;color:var(--text2);margin-top:3px}
@@ -161,10 +181,10 @@ tr:hover td{background:rgba(255,255,255,.02)}
 .summary-snippet{font-size:12px;color:var(--text2);line-height:1.5;margin-top:4px}
 .read-more-btn{background:none;border:none;color:var(--accent);font-size:11px;cursor:pointer;padding:0;font-family:var(--font)}
 .read-more-btn:hover{text-decoration:underline}
-.summary-btn{background:none;border:1px solid var(--border2);border-radius:5px;padding:2px 7px;font-size:11px;color:var(--accent);cursor:pointer;white-space:nowrap;font-family:var(--font)}
-.summary-btn:hover{background:rgba(79,124,255,.1)}
-.modal-overlay{position:fixed;inset:0;background:rgba(0,0,0,.7);z-index:9000;display:flex;align-items:center;justify-content:center;padding:16px}
-.modal-box{background:var(--bg2);border:1px solid var(--border2);border-radius:var(--rlg);padding:28px 28px 22px;max-width:560px;width:100%;box-shadow:0 8px 48px rgba(0,0,0,.6);position:relative}
+.summary-btn{background:#eff6ff;border:1px solid #bfdbfe;border-radius:5px;padding:2px 8px;font-size:11px;color:var(--accent);cursor:pointer;white-space:nowrap;font-family:var(--font);font-weight:500}
+.summary-btn:hover{background:#dbeafe}
+.modal-overlay{position:fixed;inset:0;background:rgba(15,23,42,.55);z-index:9000;display:flex;align-items:center;justify-content:center;padding:16px}
+.modal-box{background:var(--bg2);border:1px solid var(--border2);border-radius:var(--rlg);padding:28px 28px 22px;max-width:560px;width:100%;box-shadow:0 8px 48px rgba(15,23,42,.25);position:relative}
 .modal-title{font-size:1rem;font-weight:600;margin-bottom:12px;line-height:1.4}
 .modal-summary{font-size:13px;line-height:1.7;color:var(--text);white-space:pre-wrap;max-height:60vh;overflow-y:auto}
 .modal-close{position:absolute;top:12px;right:14px;background:none;border:none;color:var(--text2);font-size:18px;cursor:pointer;line-height:1}
@@ -230,13 +250,14 @@ tr:hover td{background:rgba(255,255,255,.02)}
   <nav class="navbar">
     <div class="navbar-brand"><div class="logo-dot">🎓</div>Supervisor Allocation</div>
     <div class="navbar-right">
+      <select id="sv-semester-picker" class="ctx-picker" title="Semester" style="display:none"></select>
       <span id="sup-campus-badge" class="nav-badge">—</span>
       <span id="alloc-mode-badge" class="badge badge-amber">—</span>
       <div class="flex items-center gap-8">
         <div id="sup-avatar" class="avatar">?</div>
         <span id="sup-name-display" style="font-size:13px;color:var(--text2)">—</span>
       </div>
-      <button class="btn btn-sm hidden" id="back-to-admin-btn" style="background:rgba(79,124,255,.15);border-color:var(--accent);color:var(--accent)">🔙 Admin Panel</button>
+      <button class="btn btn-sm hidden" id="back-to-admin-btn" style="background:#eff6ff;border-color:var(--accent);color:var(--accent)">🔙 Admin Panel</button>
       <button class="btn btn-sm" id="logout-btn-sup">Sign Out</button>
     </div>
   </nav>
@@ -307,6 +328,7 @@ tr:hover td{background:rgba(255,255,255,.02)}
   <nav class="navbar">
     <div class="navbar-brand"><div class="logo-dot">🎓</div>Admin Panel</div>
     <div class="navbar-right">
+      <select id="admin-semester-picker" class="ctx-picker" title="Active Semester"></select>
       <div class="flex items-center gap-8">
         <div id="admin-avatar" class="avatar">A</div>
         <span id="admin-name-display" style="font-size:13px;color:var(--text2)">Admin</span>
@@ -317,15 +339,39 @@ tr:hover td{background:rgba(255,255,255,.02)}
   </nav>
   <div class="layout-sidebar">
     <aside class="sidebar">
-      <div class="sidebar-section">Management</div>
+      <div class="sidebar-section">Setup</div>
+      <div class="sidebar-item" data-tab="tab-semesters">📅 Semesters</div>
       <div class="sidebar-item active" data-tab="tab-campuses">🏫 Campuses</div>
       <div class="sidebar-item" data-tab="tab-supervisors">👨‍🏫 Supervisors</div>
+      <div class="sidebar-section" style="margin-top:8px">Per Semester</div>
       <div class="sidebar-item" data-tab="tab-students">🎓 Students</div>
-      <div class="sidebar-section" style="margin-top:8px">System</div>
       <div class="sidebar-item" data-tab="tab-allocations">📋 Allocations</div>
+      <div class="sidebar-section" style="margin-top:8px">System</div>
       <div class="sidebar-item" data-tab="tab-settings">⚙️ Settings</div>
     </aside>
     <main class="main-content">
+
+      <!-- SEMESTERS -->
+      <div id="tab-semesters" class="tab-panel">
+        <h2 class="mb-16">📅 Semester Management</h2>
+        <div class="alert alert-info mb-16">
+          Semesters scope <strong>students &amp; allocations</strong>. The same campuses and supervisors are reused across every semester. Mark one semester as <strong>Active</strong> — it becomes the default working context for everyone.
+        </div>
+        <div class="card mb-16">
+          <div class="card-header"><h3 id="sem-form-title">Add Semester</h3></div>
+          <div class="g3">
+            <div class="form-group"><label>Semester Name</label><input type="text" id="sem-name" placeholder="e.g. Semester 1 2025"/></div>
+            <div class="form-group"><label>Academic Year</label><input type="text" id="sem-year" placeholder="e.g. 2025"/></div>
+            <div class="form-group"><label>Term / Intake</label><input type="text" id="sem-term" placeholder="e.g. Spring / Term 1"/></div>
+          </div>
+          <input type="hidden" id="sem-edit-id"/>
+          <div class="flex gap-8">
+            <button class="btn btn-primary" id="sem-save-btn">Add Semester</button>
+            <button class="btn hidden" id="sem-cancel-btn">Cancel</button>
+          </div>
+        </div>
+        <div class="card"><div class="card-header"><h3>All Semesters</h3></div><div id="semesters-list"><div class="text-muted text-sm">Loading…</div></div></div>
+      </div>
 
       <!-- CAMPUSES -->
       <div id="tab-campuses" class="tab-panel active">
@@ -383,11 +429,12 @@ tr:hover td{background:rgba(255,255,255,.02)}
             <h3 id="student-form-title">Add Student</h3>
             <button class="btn btn-sm hidden" id="student-cancel-btn">Cancel Edit</button>
           </div>
-          <div style="display:grid;grid-template-columns:70px 1fr 1fr 1fr;gap:12px">
+          <div style="display:grid;grid-template-columns:70px 1fr 1fr 1fr 1fr;gap:12px">
             <div class="form-group"><label>Sl. No</label><input type="number" id="s-slno" placeholder="#"/></div>
             <div class="form-group"><label>Student Name</label><input type="text" id="s-name" placeholder="Full name"/></div>
             <div class="form-group"><label>Student ID</label><input type="text" id="s-id" placeholder="cihe260061"/></div>
             <div class="form-group"><label>Campus</label><select id="s-campus"><option value="">— Select Campus —</option></select></div>
+            <div class="form-group"><label>Semester</label><select id="s-semester"><option value="">— Active Semester —</option></select></div>
           </div>
           <div class="form-group"><label>Proposal Title</label><textarea id="s-title" rows="2" placeholder="Full proposal title…"></textarea></div>
           <div class="form-group"><label>Proposal Summary <span style="text-transform:none;font-weight:400;color:var(--text3)">(short abstract for supervisors)</span></label><textarea id="s-summary" rows="3" placeholder="Brief summary of the research proposal for supervisors to read before selecting this student…"></textarea></div>
@@ -403,7 +450,7 @@ tr:hover td{background:rgba(255,255,255,.02)}
         </div>
         <div class="card mb-16">
           <div class="card-header"><h3>📂 Bulk Import via CSV</h3></div>
-          <p class="text-sm text-muted mb-8">Columns: <code style="background:var(--bg3);padding:1px 6px;border-radius:4px;font-size:11px">SL. No, Student Name, ID, Proposal Title, Summary, Link, Student's Preferences, Campus</code></p>
+          <p class="text-sm text-muted mb-8">Columns: <code style="background:var(--bg3);padding:1px 6px;border-radius:4px;font-size:11px">SL. No, Student Name, ID, Proposal Title, Summary, Link, Student's Preferences, Campus, Semester</code> <span class="text-xs">(Semester is optional — defaults to the active semester)</span></p>
           <div id="csv-drop-zone" class="drop-zone"><div style="font-size:32px;margin-bottom:8px">📄</div><div class="fw-600">Drop CSV file here or click to browse</div></div>
           <input type="file" id="csv-input" accept=".csv" style="display:none"/>
           <div id="csv-preview" class="hidden mt-16"></div>
@@ -417,6 +464,12 @@ tr:hover td{background:rgba(255,255,255,.02)}
       <!-- ALLOCATIONS -->
       <div id="tab-allocations" class="tab-panel">
         <h2 class="mb-16">📋 Allocation Overview</h2>
+        <div id="alloc-context-strip" class="alert alert-info mb-16">
+          <span id="alloc-context-text">Viewing all semesters across all campuses</span>
+        </div>
+        <div class="toolbar mb-16">
+          <div id="alloc-campus-pills" class="campus-pills" style="margin:0"></div>
+        </div>
         <div class="stats-strip mb-16">
           <div class="stat-card"><div class="stat-val" id="a-total">—</div><div class="stat-lbl">Total</div></div>
           <div class="stat-card"><div class="stat-val" style="color:var(--green)" id="a-alloc">—</div><div class="stat-lbl">Allocated</div></div>
@@ -484,6 +537,15 @@ tr:hover td{background:rgba(255,255,255,.02)}
           <button class="btn btn-primary" id="settings-save-btn">Save Settings</button>
         </div>
 
+        <!-- Backfill semester for existing students -->
+        <div class="card mt-16" style="max-width:520px">
+          <div class="card-header"><h3>🔧 Backfill: Assign Semester to Existing Students</h3></div>
+          <p class="text-sm text-muted mb-8">If you had students before semesters existed, they have no semester and won't appear in the filtered views. Pick a target semester here and assign them all at once.</p>
+          <div id="backfill-count" class="alert alert-info mb-16">Checking…</div>
+          <div class="form-group"><label>Target Semester</label><select id="backfill-semester"></select></div>
+          <button class="btn btn-primary" id="backfill-btn">Assign Unsemestered Students</button>
+        </div>
+
         <!-- Promote existing user to admin -->
         <div class="card mt-16" style="max-width:480px">
           <div class="card-header"><h3>👤 Promote User to Admin</h3></div>
@@ -519,7 +581,8 @@ const app  = initializeApp({
   projectId:         "supervisor-3efa3",
   storageBucket:     "supervisor-3efa3.firebasestorage.app",
   messagingSenderId: "208919593347",
-  appId:             "1:208919593347:web:a642ff7d2c577e00cff6b6"
+  appId:             "1:208919593347:web:a642ff7d2c577e00cff6b6",
+  measurementId:     "G-K63202VRMR"
 });
 const auth = getAuth(app);
 const db   = getFirestore(app);
@@ -528,11 +591,15 @@ const db   = getFirestore(app);
 let ME        = null;   // Firebase Auth user
 let PROFILE   = null;   // Firestore users doc
 let CAMPUSES  = [];
+let SEMESTERS = [];     // [{id,name,year,term,isActive}]
 let SUPS      = [];
 let STUDENTS  = [];
-let SETTINGS  = { allocationMode: 'fcfs', maxPrincipal: 6, maxCo: 6 };
+let SETTINGS  = { allocationMode: 'fcfs', maxPrincipal: 6, maxCo: 6, activeSemesterId: null };
 let svUnsub   = null;
 let svCampus  = 'all';
+let svSemester  = null;     // selected semester id for supervisor view
+let adminSemester = null;   // selected semester id for admin view
+let adminAllocCampus = 'all'; // campus filter inside the Allocations tab
 
 /* ── Helpers ────────────────────────────────────────────── */
 const esc  = s => String(s||'').replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;');
@@ -638,16 +705,34 @@ el('logout-btn-admin').addEventListener('click',doLogout);
 
 /* ── Load shared data ───────────────────────────────────── */
 async function loadShared(){
-  const [cSnap,sSnap,setSnap] = await Promise.all([
+  const [cSnap,semSnap,sSnap,setSnap] = await Promise.all([
     getDocs(collection(db,'campuses')),
+    getDocs(collection(db,'semesters')),
     getDocs(query(collection(db,'users'),where('role','==','supervisor'))),
     getDoc(doc(db,'settings','global'))
   ]);
-  CAMPUSES = cSnap.docs.map(d=>({id:d.id,...d.data()}));
-  SUPS     = sSnap.docs.map(d=>({id:d.id,...d.data()}));
-  SETTINGS = setSnap.exists()?setSnap.data():{allocationMode:'fcfs',maxPrincipal:6,maxCo:6};
+  CAMPUSES  = cSnap.docs.map(d=>({id:d.id,...d.data()}));
+  SEMESTERS = semSnap.docs.map(d=>({id:d.id,...d.data()}))
+    .sort((a,b)=>(b.year||'').toString().localeCompare((a.year||'').toString())||(a.name||'').localeCompare(b.name||''));
+  SUPS      = sSnap.docs.map(d=>({id:d.id,...d.data()}));
+  SETTINGS  = setSnap.exists()?setSnap.data():{allocationMode:'fcfs',maxPrincipal:6,maxCo:6};
   if(!SETTINGS.maxPrincipal) SETTINGS.maxPrincipal=6;
   if(!SETTINGS.maxCo) SETTINGS.maxCo=6;
+
+  // Resolve which semester to default to for this user
+  const activeFromSettings = SETTINGS.activeSemesterId && SEMESTERS.find(s=>s.id===SETTINGS.activeSemesterId) ? SETTINGS.activeSemesterId : null;
+  const activeFromFlag = SEMESTERS.find(s=>s.isActive)?.id || null;
+  const firstSemester = SEMESTERS[0]?.id || null;
+  const defaultSem = activeFromSettings || activeFromFlag || firstSemester;
+  if(!adminSemester) adminSemester = defaultSem;
+  if(!svSemester)    svSemester    = defaultSem;
+}
+
+function semesterLabel(id){
+  if(!id) return 'No semester';
+  const s = SEMESTERS.find(x=>x.id===id);
+  if(!s) return 'Unknown semester';
+  return s.name + (s.year ? ' · '+s.year : '');
 }
 
 /* ══════════════════════════════════════════════════════════
@@ -664,6 +749,19 @@ async function mountSupervisor(){
   const mEl=el('alloc-mode-badge');
   if(SETTINGS.allocationMode==='fcfs'){ mEl.className='badge badge-amber'; mEl.textContent='🔒 First-Come-First-Serve'; }
   else{ mEl.className='badge badge-blue'; mEl.textContent='👥 Multi-Supervisor'; }
+
+  // Semester picker (supervisor)
+  const semPicker = el('sv-semester-picker');
+  if(SEMESTERS.length){
+    semPicker.style.display = '';
+    semPicker.innerHTML = SEMESTERS.map(s=>{
+      const lbl = esc(s.name) + (s.year?` · ${esc(s.year)}`:'') + (s.isActive?' (Active)':'');
+      return `<option value="${s.id}" ${s.id===svSemester?'selected':''}>📅 ${lbl}</option>`;
+    }).join('');
+    semPicker.onchange = ()=>{ svSemester = semPicker.value; startLive(); };
+  } else {
+    semPicker.style.display = 'none';
+  }
 
   // Use onclick (idempotent on re-mount)
   el('logout-btn-sup').onclick=doLogout;
@@ -691,7 +789,8 @@ async function mountSupervisor(){
     oldSearch.parentNode.replaceChild(newSearch,oldSearch);
     newSearch.addEventListener('input',deb(e=>{
       const term=e.target.value.toLowerCase();
-      const base=svCampus==='all'?STUDENTS:STUDENTS.filter(s=>s.campus===svCampus);
+      let base = svSemester ? STUDENTS.filter(s=>s.semester===svSemester) : STUDENTS;
+      if(svCampus!=='all') base = base.filter(s=>s.campus===svCampus);
       renderSVTable(base.filter(s=>
         (s.name||'').toLowerCase().includes(term)||(s.studentId||'').toLowerCase().includes(term)||(s.proposalTitle||'').toLowerCase().includes(term)
       ));
@@ -768,12 +867,15 @@ function buildSVCampusPills(activeCampusId){
 function startLive(){
   if(svUnsub){svUnsub();svUnsub=null;}
   // Always query by slNo only — no compound index needed.
-  // Campus filtering done client-side to avoid Firestore composite index requirement.
+  // Campus + semester filtering done client-side to avoid Firestore composite index requirement.
   const q = query(collection(db,'students'),orderBy('slNo'));
   svUnsub = onSnapshot(q, snap=>{
     const all = snap.docs.map(d=>({id:d.id,...d.data()}));
     STUDENTS = all; // keep full set for capacity counting
-    const filtered = svCampus==='all' ? all : all.filter(s=>s.campus===svCampus);
+    let filtered = svSemester ? all.filter(s=>s.semester===svSemester) : all;
+    if(svCampus!=='all') filtered = filtered.filter(s=>s.campus===svCampus);
+    // Also clear the search box so stats match what's shown
+    const searchInput = el('sv-search'); if(searchInput) searchInput.value='';
     renderSVStats(filtered); renderSVTable(filtered);
   }, err=>{ console.error(err); toast('Error: '+err.message,'error'); });
 }
@@ -790,9 +892,11 @@ function renderSVTable(students){
   if(!students.length){ tbody.innerHTML=`<tr><td colspan="9" style="text-align:center;padding:48px;color:var(--text2)">No students found</td></tr>`; return; }
   const isAdmin=PROFILE?.role==='admin', myUid=PROFILE?.uid;
 
-  // Count current allocations per supervisor across ALL students (not just filtered)
+  // Count current allocations per supervisor within the SAME semester only
+  // so capacity resets each semester.
   const principalCount={}, coCount={};
-  STUDENTS.forEach(s=>{
+  const counterPool = svSemester ? STUDENTS.filter(s=>s.semester===svSemester) : STUDENTS;
+  counterPool.forEach(s=>{
     if(s.principalSupervisorId) principalCount[s.principalSupervisorId]=(principalCount[s.principalSupervisorId]||0)+1;
     if(s.coSupervisorId) coCount[s.coSupervisorId]=(coCount[s.coSupervisorId]||0)+1;
   });
@@ -974,6 +1078,9 @@ async function mountAdmin(){
   setTxt('admin-name-display',PROFILE.name||PROFILE.email);
   el('admin-avatar').textContent=ini(PROFILE.name||PROFILE.email);
 
+  // Admin semester picker — top-of-app context
+  refreshAdminSemesterPicker();
+
   // Use onclick (idempotent) not addEventListener (stacks on re-mount)
   document.querySelectorAll('.sidebar-item').forEach(item=>{
     item.onclick=()=>{
@@ -981,6 +1088,8 @@ async function mountAdmin(){
       document.querySelectorAll('.tab-panel').forEach(t=>t.classList.remove('active'));
       item.classList.add('active'); el(item.dataset.tab)?.classList.add('active');
       if(item.dataset.tab==='tab-allocations') renderAllocations();
+      if(item.dataset.tab==='tab-students') renderStudentsList(scopedStudentsForAdmin());
+      if(item.dataset.tab==='tab-semesters') renderSemestersList();
     };
   });
   el('goto-sv-btn').onclick=async()=>{ if(svUnsub){svUnsub();svUnsub=null;} await mountSupervisor(); };
@@ -994,7 +1103,139 @@ async function mountAdmin(){
   document.querySelector('.sidebar-item[data-tab="tab-campuses"]')?.classList.add('active');
   el('tab-campuses')?.classList.add('active');
 
-  initCampusesTab(); initSupervisorsTab(); initStudentsTab(); initSettingsTab();
+  initSemestersTab(); initCampusesTab(); initSupervisorsTab(); initStudentsTab(); initSettingsTab();
+}
+
+/* Helpers used across admin tabs */
+function scopedStudentsForAdmin(){
+  return adminSemester ? STUDENTS.filter(s=>s.semester===adminSemester) : STUDENTS;
+}
+function refreshAdminSemesterPicker(){
+  const picker = el('admin-semester-picker');
+  if(!picker) return;
+  if(!SEMESTERS.length){
+    picker.innerHTML = `<option value="">— No semesters yet —</option>`;
+    picker.disabled = true;
+    return;
+  }
+  picker.disabled = false;
+  picker.innerHTML = SEMESTERS.map(s=>{
+    const lbl = esc(s.name) + (s.year?` · ${esc(s.year)}`:'') + (s.isActive?' (Active)':'');
+    return `<option value="${s.id}" ${s.id===adminSemester?'selected':''}>📅 ${lbl}</option>`;
+  }).join('');
+  picker.onchange = async ()=>{
+    adminSemester = picker.value;
+    // Reload students (could be a new semester with different data)
+    try{
+      const sSnap=await getDocs(query(collection(db,'students'),orderBy('slNo')));
+      STUDENTS=sSnap.docs.map(d=>({id:d.id,...d.data()}));
+    }catch(e){ console.warn('reload students fail',e); }
+    renderStudentsList(scopedStudentsForAdmin());
+    if(el('tab-allocations').classList.contains('active')) renderAllocations();
+    toast('Switched to '+semesterLabel(adminSemester),'info',2000);
+  };
+}
+
+/* ── Semesters ── */
+function initSemestersTab(){
+  renderSemestersList();
+  el('sem-save-btn').onclick=async()=>{
+    const name=el('sem-name').value.trim(),
+          year=el('sem-year').value.trim(),
+          term=el('sem-term').value.trim(),
+          editId=el('sem-edit-id').value;
+    if(!name){ toast('Semester name required','error'); return; }
+    try{
+      if(editId){
+        await updateDoc(doc(db,'semesters',editId),{name,year,term});
+      } else {
+        const isActive = SEMESTERS.length===0;  // first one becomes active by default
+        await addDoc(collection(db,'semesters'),{name,year,term,isActive,createdAt:serverTimestamp()});
+      }
+      el('sem-name').value=''; el('sem-year').value=''; el('sem-term').value=''; el('sem-edit-id').value='';
+      el('sem-form-title').textContent='Add Semester'; el('sem-save-btn').textContent='Add Semester'; hide('sem-cancel-btn');
+      await reloadSemesters(); toast('Semester saved','success');
+    }catch(e){ toast('Error: '+e.message,'error'); }
+  };
+  el('sem-cancel-btn').onclick=()=>{
+    el('sem-name').value=''; el('sem-year').value=''; el('sem-term').value=''; el('sem-edit-id').value='';
+    el('sem-form-title').textContent='Add Semester'; el('sem-save-btn').textContent='Add Semester'; hide('sem-cancel-btn');
+  };
+}
+
+async function reloadSemesters(){
+  const snap=await getDocs(collection(db,'semesters'));
+  SEMESTERS=snap.docs.map(d=>({id:d.id,...d.data()}))
+    .sort((a,b)=>(b.year||'').toString().localeCompare((a.year||'').toString())||(a.name||'').localeCompare(b.name||''));
+  // If our cached selected semester is gone, fall back
+  if(adminSemester && !SEMESTERS.find(s=>s.id===adminSemester)) adminSemester = SEMESTERS.find(s=>s.isActive)?.id || SEMESTERS[0]?.id || null;
+  if(svSemester && !SEMESTERS.find(s=>s.id===svSemester))       svSemester    = SEMESTERS.find(s=>s.isActive)?.id || SEMESTERS[0]?.id || null;
+  renderSemestersList(); refreshAdminSemesterPicker(); refreshSemesterDropdowns();
+}
+
+function renderSemestersList(){
+  const e=el('semesters-list');
+  if(!SEMESTERS.length){ e.innerHTML=`<div class="text-muted text-sm" style="padding:12px">No semesters yet. Add one to start managing students by intake.</div>`; return; }
+  e.innerHTML=`<div class="tw"><table><thead><tr><th>Semester</th><th>Year</th><th>Term</th><th>Status</th><th>Students</th><th>Actions</th></tr></thead><tbody>${SEMESTERS.map(s=>{
+    const count = STUDENTS.filter(st=>st.semester===s.id).length;
+    return `<tr>
+      <td class="fw-600">${esc(s.name)}</td>
+      <td>${esc(s.year||'—')}</td>
+      <td>${esc(s.term||'—')}</td>
+      <td>${s.isActive?'<span class="badge badge-green">✓ Active</span>':'<span class="badge badge-gray">Archived</span>'}</td>
+      <td><span class="badge badge-blue">${count}</span></td>
+      <td><div class="flex gap-8">
+        ${!s.isActive?`<button class="btn btn-sm" onclick="markActiveSemester('${s.id}')">Set Active</button>`:''}
+        <button class="btn btn-sm" onclick="editSemester('${s.id}')">Edit</button>
+        <button class="btn btn-sm btn-danger" onclick="delSemester('${s.id}')">Delete</button>
+      </div></td>
+    </tr>`;
+  }).join('')}</tbody></table></div>`;
+}
+
+window.editSemester=id=>{
+  const s=SEMESTERS.find(x=>x.id===id); if(!s) return;
+  el('sem-name').value=s.name||''; el('sem-year').value=s.year||''; el('sem-term').value=s.term||'';
+  el('sem-edit-id').value=id;
+  el('sem-form-title').textContent='Edit Semester'; el('sem-save-btn').textContent='Update Semester'; show('sem-cancel-btn');
+  el('sem-form-title').scrollIntoView({behavior:'smooth'});
+};
+window.delSemester=async id=>{
+  const s=SEMESTERS.find(x=>x.id===id);
+  const count = STUDENTS.filter(st=>st.semester===id).length;
+  let msg = `Delete semester "${s?.name}"?`;
+  if(count) msg += `\n\n⚠ ${count} student(s) are linked to this semester. They will keep their records but become unassigned to any semester.`;
+  if(!confirm(msg)) return;
+  try{ await deleteDoc(doc(db,'semesters',id)); await reloadSemesters(); toast('Deleted','info'); }
+  catch(e){ toast('Error: '+e.message,'error'); }
+};
+window.markActiveSemester=async id=>{
+  try{
+    // Unmark every other semester as active, then mark this one
+    const batch=writeBatch(db);
+    SEMESTERS.forEach(s=>{
+      batch.update(doc(db,'semesters',s.id),{isActive: s.id===id});
+    });
+    batch.set(doc(db,'settings','global'),{activeSemesterId:id},{merge:true});
+    await batch.commit();
+    SETTINGS.activeSemesterId = id;
+    adminSemester = id;  // also switch the admin's working context
+    await reloadSemesters();
+    toast('Active semester updated','success');
+  }catch(e){ toast('Error: '+e.message,'error'); }
+};
+
+function refreshSemesterDropdowns(){
+  const sel = el('s-semester');
+  if(sel){
+    const active = SEMESTERS.find(s=>s.isActive)?.id || adminSemester;
+    sel.innerHTML = `<option value="">— Active Semester —</option>` + SEMESTERS.map(s=>{
+      const lbl = esc(s.name) + (s.year?` · ${esc(s.year)}`:'') + (s.isActive?' ★':'');
+      return `<option value="${s.id}">${lbl}</option>`;
+    }).join('');
+    // Default the form to the currently-selected admin semester
+    if(adminSemester && SEMESTERS.find(s=>s.id===adminSemester)) sel.value = adminSemester;
+  }
 }
 
 /* ── Campuses ── */
@@ -1044,8 +1285,15 @@ function refreshCampusDropdowns(){
   const opts=`<option value="">— Select Campus —</option>`+CAMPUSES.map(c=>`<option value="${c.id}">${esc(c.name)}</option>`).join('');
   ['sup-campus','s-campus'].forEach(id=>{ const e=el(id); if(e) e.innerHTML=opts; });
   const pEl=el('admin-campus-pills');
-  if(pEl){ pEl.innerHTML=`<button class="campus-pill active" data-campus="all">All</button>`+CAMPUSES.map(c=>`<button class="campus-pill" data-campus="${c.id}">${esc(c.name)}</button>`).join('');
-    pEl.querySelectorAll('.campus-pill').forEach(p=>p.addEventListener('click',()=>{ pEl.querySelectorAll('.campus-pill').forEach(x=>x.classList.remove('active')); p.classList.add('active'); const f=p.dataset.campus; renderStudentsList(f==='all'?STUDENTS:STUDENTS.filter(s=>s.campus===f)); })); }
+  if(pEl){
+    pEl.innerHTML=`<button class="campus-pill active" data-campus="all">All</button>`+CAMPUSES.map(c=>`<button class="campus-pill" data-campus="${c.id}">${esc(c.name)}</button>`).join('');
+    pEl.querySelectorAll('.campus-pill').forEach(p=>p.addEventListener('click',()=>{
+      pEl.querySelectorAll('.campus-pill').forEach(x=>x.classList.remove('active')); p.classList.add('active');
+      const f=p.dataset.campus;
+      const base = scopedStudentsForAdmin();
+      renderStudentsList(f==='all'?base:base.filter(s=>s.campus===f));
+    }));
+  }
 }
 
 /* ── Supervisors ── */
@@ -1085,18 +1333,23 @@ window.delSup=async(id)=>{ if(!confirm('Delete supervisor?')) return; try{ await
 
 /* ── Students ── */
 function initStudentsTab(){
-  refreshCampusDropdowns(); renderPrefDropdown(); renderStudentsList(STUDENTS);
+  refreshCampusDropdowns(); refreshSemesterDropdowns(); renderPrefDropdown(); renderStudentsList(scopedStudentsForAdmin());
   el('student-save-btn').onclick=async()=>{
     const name=el('s-name').value.trim(); if(!name){ toast('Student name required','error'); return; }
-    const campus=el('s-campus').value, campusName=CAMPUSES.find(c=>c.id===campus)?.name||'', editId=el('s-edit-id').value;
-    const data={ slNo:parseInt(el('s-slno').value)||0, name, studentId:el('s-id').value.trim(), campus, campusName, proposalTitle:el('s-title').value.trim(), proposalSummary:el('s-summary').value.trim(), proposalLink:el('s-link').value.trim(), studentPreference:el('s-pref').value };
+    const campus=el('s-campus').value, campusName=CAMPUSES.find(c=>c.id===campus)?.name||'';
+    const semester = el('s-semester').value || adminSemester || (SEMESTERS.find(s=>s.isActive)?.id) || '';
+    if(!semester){ toast('Please create a Semester first (Semesters tab)','error'); return; }
+    const semesterName = SEMESTERS.find(s=>s.id===semester)?.name || '';
+    const editId=el('s-edit-id').value;
+    const data={ slNo:parseInt(el('s-slno').value)||0, name, studentId:el('s-id').value.trim(), campus, campusName, semester, semesterName, proposalTitle:el('s-title').value.trim(), proposalSummary:el('s-summary').value.trim(), proposalLink:el('s-link').value.trim(), studentPreference:el('s-pref').value };
     try{
       if(editId) await updateDoc(doc(db,'students',editId),{...data,updatedAt:serverTimestamp()});
       else await addDoc(collection(db,'students'),{...data,createdAt:serverTimestamp()});
       ['s-slno','s-name','s-id','s-title','s-summary','s-link'].forEach(id=>{const e=el(id);if(e)e.value='';}); el('s-campus').value=''; el('s-pref').value=''; el('s-edit-id').value='';
+      // Keep semester selection sticky to whatever was used — easier bulk-add
       el('student-form-title').textContent='Add Student'; el('student-save-btn').textContent='Add Student'; hide('student-cancel-btn');
       const snap=await getDocs(query(collection(db,'students'),orderBy('slNo'))); STUDENTS=snap.docs.map(d=>({id:d.id,...d.data()}));
-      renderStudentsList(STUDENTS); toast('Student saved','success');
+      renderStudentsList(scopedStudentsForAdmin()); toast('Student saved','success');
     }catch(e){ toast('Error: '+e.message,'error'); }
   };
   el('student-cancel-btn').onclick=()=>{ ['s-slno','s-name','s-id','s-title','s-summary','s-link'].forEach(id=>{const e=el(id);if(e)e.value='';}); el('s-campus').value=''; el('s-pref').value=''; el('s-edit-id').value=''; el('student-form-title').textContent='Add Student'; el('student-save-btn').textContent='Update Student'; hide('student-cancel-btn'); };
@@ -1105,11 +1358,18 @@ function initStudentsTab(){
 function renderPrefDropdown(){ const e=el('s-pref'); if(!e) return; e.innerHTML=`<option value="">— No preference —</option>`+SUPS.map(s=>`<option value="${esc(s.name)}">${esc(s.name)}</option>`).join(''); }
 function renderStudentsList(students){
   const e=el('students-list');
-  if(!students.length){ e.innerHTML=`<div class="text-muted text-sm" style="padding:12px">No students yet.</div>`; return; }
-  e.innerHTML=`<div class="tw"><table><thead><tr><th>#</th><th>Student</th><th>ID</th><th>Campus</th><th>Proposal Title</th><th>Principal</th><th>Co-Sup</th><th>Preference</th><th>Link</th><th>Actions</th></tr></thead><tbody>${students.map(s=>{
+  if(!students.length){
+    const ctx = adminSemester ? ` for <strong>📅 ${esc(semesterLabel(adminSemester))}</strong>` : '';
+    e.innerHTML=`<div class="text-muted text-sm" style="padding:12px">No students yet${ctx}.</div>`;
+    return;
+  }
+  e.innerHTML=`<div class="tw"><table><thead><tr><th>#</th><th>Student</th><th>ID</th><th>Campus</th><th>Semester</th><th>Proposal Title</th><th>Principal</th><th>Co-Sup</th><th>Preference</th><th>Link</th><th>Actions</th></tr></thead><tbody>${students.map(s=>{
     const cn=CAMPUSES.find(c=>c.id===s.campus)?.name||'—';
+    const sn=s.semesterName || SEMESTERS.find(x=>x.id===s.semester)?.name || '—';
     return `<tr><td class="text-xs text-muted">${s.slNo||''}</td><td class="fw-600">${esc(s.name)}</td><td class="text-xs text-muted">${esc(s.studentId)}</td>
-    <td><span class="badge badge-gray">${esc(cn)}</span></td><td class="pc text-sm" title="${esc(s.proposalTitle)}">${esc(s.proposalTitle||'—')}</td>
+    <td><span class="badge badge-gray">${esc(cn)}</span></td>
+    <td><span class="badge badge-purple">📅 ${esc(sn)}</span></td>
+    <td class="pc text-sm" title="${esc(s.proposalTitle)}">${esc(s.proposalTitle||'—')}</td>
     <td>${s.principalSupervisorName?`<span class="badge badge-blue">${esc(s.principalSupervisorName)}</span>`:'<span class="text-xs text-muted">—</span>'}</td>
     <td>${s.coSupervisorName?`<span class="badge badge-purple">${esc(s.coSupervisorName)}</span>`:'<span class="text-xs text-muted">—</span>'}</td>
     <td>${s.studentPreference?`<span class="pref-warn">⭐ ${esc(s.studentPreference)}</span>`:'<span class="text-xs text-muted">—</span>'}</td>
@@ -1117,48 +1377,74 @@ function renderStudentsList(students){
     <td><div class="flex gap-8"><button class="btn btn-sm" onclick="editStudent('${s.id}')">Edit</button><button class="btn btn-sm btn-danger" onclick="delStudent('${s.id}')">Delete</button>${s.principalSupervisorId?`<button class="btn btn-sm" onclick="clearAlloc('${s.id}')">Clear</button>`:''}</div></td></tr>`;
   }).join('')}</tbody></table></div>`;
 }
-window.editStudent=id=>{ const s=STUDENTS.find(x=>x.id===id); if(!s) return; el('s-slno').value=s.slNo||''; el('s-name').value=s.name||''; el('s-id').value=s.studentId||''; el('s-campus').value=s.campus||''; el('s-title').value=s.proposalTitle||''; el('s-summary').value=s.proposalSummary||''; el('s-link').value=s.proposalLink||''; el('s-pref').value=s.studentPreference||''; el('s-edit-id').value=id; el('student-form-title').textContent='Edit Student'; el('student-save-btn').textContent='Update Student'; show('student-cancel-btn'); el('student-form-title').scrollIntoView({behavior:'smooth'}); };
-window.delStudent=async id=>{ const s=STUDENTS.find(x=>x.id===id); if(!confirm(`Delete ${s?.name}?`)) return; try{ await deleteDoc(doc(db,'students',id)); STUDENTS=STUDENTS.filter(x=>x.id!==id); renderStudentsList(STUDENTS); toast('Deleted','info'); }catch(e){ toast('Error: '+e.message,'error'); } };
-window.clearAlloc=async id=>{ const s=STUDENTS.find(x=>x.id===id); if(!confirm(`Clear allocation for ${s?.name}?`)) return; try{ await updateDoc(doc(db,'students',id),{principalSupervisorId:null,principalSupervisorName:null,coSupervisorId:null,coSupervisorName:null,allocatedAt:null,allocatedBy:null}); const snap=await getDocs(query(collection(db,'students'),orderBy('slNo'))); STUDENTS=snap.docs.map(d=>({id:d.id,...d.data()})); renderStudentsList(STUDENTS); toast('Cleared','info'); }catch(e){ toast('Error: '+e.message,'error'); } };
+window.editStudent=id=>{ const s=STUDENTS.find(x=>x.id===id); if(!s) return; el('s-slno').value=s.slNo||''; el('s-name').value=s.name||''; el('s-id').value=s.studentId||''; el('s-campus').value=s.campus||''; el('s-semester').value=s.semester||''; el('s-title').value=s.proposalTitle||''; el('s-summary').value=s.proposalSummary||''; el('s-link').value=s.proposalLink||''; el('s-pref').value=s.studentPreference||''; el('s-edit-id').value=id; el('student-form-title').textContent='Edit Student'; el('student-save-btn').textContent='Update Student'; show('student-cancel-btn'); el('student-form-title').scrollIntoView({behavior:'smooth'}); };
+window.delStudent=async id=>{ const s=STUDENTS.find(x=>x.id===id); if(!confirm(`Delete ${s?.name}?`)) return; try{ await deleteDoc(doc(db,'students',id)); STUDENTS=STUDENTS.filter(x=>x.id!==id); renderStudentsList(scopedStudentsForAdmin()); toast('Deleted','info'); }catch(e){ toast('Error: '+e.message,'error'); } };
+window.clearAlloc=async id=>{ const s=STUDENTS.find(x=>x.id===id); if(!confirm(`Clear allocation for ${s?.name}?`)) return; try{ await updateDoc(doc(db,'students',id),{principalSupervisorId:null,principalSupervisorName:null,coSupervisorId:null,coSupervisorName:null,allocatedAt:null,allocatedBy:null}); const snap=await getDocs(query(collection(db,'students'),orderBy('slNo'))); STUDENTS=snap.docs.map(d=>({id:d.id,...d.data()})); renderStudentsList(scopedStudentsForAdmin()); toast('Cleared','info'); }catch(e){ toast('Error: '+e.message,'error'); } };
 
 async function handleCSV(file){
   if(!file) return;
   const text=await file.text(), rows=parseCSV(text);
   if(!rows.length){ toast('No rows in CSV','error'); return; }
-  const students=rows.map((row,i)=>({
-    slNo:parseInt(row['SL. No']||row['SL No']||row['#']||row['sl'])||(i+1),
-    name:row['Student Name']||row['name']||row['Name']||'',
-    studentId:row['ID']||row['id']||row['Student ID']||'',
-    proposalTitle:row['Proposal Title']||row['title']||row['Proposal']||'',
-    proposalSummary:row['Summary']||row['summary']||row['Proposal Summary']||'',
-    proposalLink:row['Link']||row['link']||row['Proposal Link']||'',
-    studentPreference:row["Student's Preferences"]||row['Preference']||row['preference']||'',
-    campusName:row['Campus']||row['campus']||'',
-    campus:CAMPUSES.find(c=>c.name.toLowerCase()===(row['Campus']||row['campus']||'').toLowerCase())?.id||''
-  })).filter(s=>s.name);
+  const fallbackSemester = adminSemester || (SEMESTERS.find(s=>s.isActive)?.id) || '';
+  if(!fallbackSemester){ toast('Create a Semester first (Semesters tab) before importing','error'); return; }
+  const fallbackSemName = SEMESTERS.find(s=>s.id===fallbackSemester)?.name || '';
+  const students=rows.map((row,i)=>{
+    const semCell = (row['Semester']||row['semester']||'').trim();
+    const matchedSem = semCell ? SEMESTERS.find(s=>s.name.toLowerCase()===semCell.toLowerCase()) : null;
+    return {
+      slNo:parseInt(row['SL. No']||row['SL No']||row['#']||row['sl'])||(i+1),
+      name:row['Student Name']||row['name']||row['Name']||'',
+      studentId:row['ID']||row['id']||row['Student ID']||'',
+      proposalTitle:row['Proposal Title']||row['title']||row['Proposal']||'',
+      proposalSummary:row['Summary']||row['summary']||row['Proposal Summary']||'',
+      proposalLink:row['Link']||row['link']||row['Proposal Link']||'',
+      studentPreference:row["Student's Preferences"]||row['Preference']||row['preference']||'',
+      campusName:row['Campus']||row['campus']||'',
+      campus:CAMPUSES.find(c=>c.name.toLowerCase()===(row['Campus']||row['campus']||'').toLowerCase())?.id||'',
+      semester: matchedSem?.id || fallbackSemester,
+      semesterName: matchedSem?.name || fallbackSemName
+    };
+  }).filter(s=>s.name);
   if(!students.length){ toast('No valid rows','error'); return; }
   const pv=el('csv-preview');
-  pv.innerHTML=`<div class="alert alert-info">Found <strong>${students.length}</strong> students.
+  pv.innerHTML=`<div class="alert alert-info">Found <strong>${students.length}</strong> students. Will import into semester: <strong>📅 ${esc(fallbackSemName)}</strong> (unless a row's <em>Semester</em> column matches another semester by name).
     <button class="btn btn-sm btn-primary" id="confirm-csv" style="margin-left:8px">Import All</button>
     <button class="btn btn-sm" id="cancel-csv" style="margin-left:6px">Cancel</button></div>
-  <div class="tw mt-8"><table><thead><tr><th>#</th><th>Name</th><th>ID</th><th>Campus</th><th>Proposal</th></tr></thead><tbody>${students.slice(0,8).map(s=>`<tr><td>${s.slNo}</td><td>${esc(s.name)}</td><td>${esc(s.studentId)}</td><td>${esc(s.campusName||'—')}</td><td class="pc">${esc(s.proposalTitle)}</td></tr>`).join('')}${students.length>8?`<tr><td colspan="5" class="text-muted text-xs" style="text-align:center">…and ${students.length-8} more</td></tr>`:''}</tbody></table></div>`;
+  <div class="tw mt-8"><table><thead><tr><th>#</th><th>Name</th><th>ID</th><th>Campus</th><th>Semester</th><th>Proposal</th></tr></thead><tbody>${students.slice(0,8).map(s=>`<tr><td>${s.slNo}</td><td>${esc(s.name)}</td><td>${esc(s.studentId)}</td><td>${esc(s.campusName||'—')}</td><td>${esc(s.semesterName||'—')}</td><td class="pc">${esc(s.proposalTitle)}</td></tr>`).join('')}${students.length>8?`<tr><td colspan="6" class="text-muted text-xs" style="text-align:center">…and ${students.length-8} more</td></tr>`:''}</tbody></table></div>`;
   show('csv-preview');
-  el('confirm-csv').onclick=async()=>{ try{ const batch=writeBatch(db); students.forEach(s=>{const r=doc(collection(db,'students'));batch.set(r,{...s,createdAt:serverTimestamp()});}); await batch.commit(); const snap=await getDocs(query(collection(db,'students'),orderBy('slNo'))); STUDENTS=snap.docs.map(d=>({id:d.id,...d.data()})); renderStudentsList(STUDENTS); hide('csv-preview'); toast(`Imported ${students.length} students`,'success'); }catch(e){ toast('Import error: '+e.message,'error'); } };
+  el('confirm-csv').onclick=async()=>{ try{ const batch=writeBatch(db); students.forEach(s=>{const r=doc(collection(db,'students'));batch.set(r,{...s,createdAt:serverTimestamp()});}); await batch.commit(); const snap=await getDocs(query(collection(db,'students'),orderBy('slNo'))); STUDENTS=snap.docs.map(d=>({id:d.id,...d.data()})); renderStudentsList(scopedStudentsForAdmin()); hide('csv-preview'); toast(`Imported ${students.length} students`,'success'); }catch(e){ toast('Import error: '+e.message,'error'); } };
   el('cancel-csv').onclick=()=>hide('csv-preview');
 }
 
 /* ── Allocations ── */
 async function renderAllocations(){
   populateExportDropdowns();
+  // Always re-render the campus pills inside allocations tab
+  buildAllocCampusPills();
+  // Update context strip
+  const semTxt = adminSemester ? '📅 '+semesterLabel(adminSemester) : 'All semesters';
+  const campusTxt = adminAllocCampus==='all' ? 'All campuses' : '🏫 '+(CAMPUSES.find(c=>c.id===adminAllocCampus)?.name||'Unknown');
+  setTxt('alloc-context-text', `Showing allocations for: ${semTxt}  ·  ${campusTxt}`);
+
   const snap=await getDocs(query(collection(db,'students'),orderBy('slNo')));
-  const students=snap.docs.map(d=>({id:d.id,...d.data()}));
+  let students=snap.docs.map(d=>({id:d.id,...d.data()}));
+  if(adminSemester) students = students.filter(s=>s.semester===adminSemester);
+  if(adminAllocCampus!=='all') students = students.filter(s=>s.campus===adminAllocCampus);
+
   setTxt('a-total',students.length); setTxt('a-alloc',students.filter(s=>s.principalSupervisorId).length); setTxt('a-pending',students.filter(s=>!s.principalSupervisorId).length);
+
+  if(!students.length){
+    el('alloc-tbody').innerHTML=`<tr><td colspan="9" style="text-align:center;padding:32px;color:var(--text2)">No students match this semester + campus filter.</td></tr>`;
+    return;
+  }
+
   const supOpts=SUPS.map(s=>`<option value="${s.id}" data-name="${esc(s.name)}">${esc(s.name)}</option>`).join('');
   el('alloc-tbody').innerHTML=students.map(s=>{
     const cn=CAMPUSES.find(c=>c.id===s.campus)?.name||'—';
+    const sn=s.semesterName || SEMESTERS.find(x=>x.id===s.semester)?.name || '—';
     return `<tr><td class="text-xs text-muted">${s.slNo||''}</td>
     <td><div class="fw-600">${esc(s.name)}</div><div class="text-xs text-muted">${esc(s.studentId)}</div></td>
-    <td><span class="badge badge-gray">${esc(cn)}</span></td>
+    <td><span class="badge badge-gray">${esc(cn)}</span><br><span class="badge badge-purple" style="margin-top:3px">📅 ${esc(sn)}</span></td>
     <td><div class="pc text-sm">${esc(s.proposalTitle||'—')}</div>${s.proposalSummary?`<span class="text-xs text-muted">📄 Has summary</span>`:''}</td>
     <td><select class="sup-select" onchange="aPrincipal('${s.id}',this)"><option value="">— Unassigned —</option>${supOpts}</select></td>
     <td><select class="sup-select" onchange="aCo('${s.id}',this)"><option value="">— None —</option>${supOpts}</select></td>
@@ -1174,6 +1460,21 @@ async function renderAllocations(){
   });
 }
 window.renderAllocations=renderAllocations;
+
+function buildAllocCampusPills(){
+  const pEl = el('alloc-campus-pills');
+  if(!pEl) return;
+  pEl.innerHTML = `<button class="campus-pill ${adminAllocCampus==='all'?'active':''}" data-campus="all">All Campuses</button>` +
+    CAMPUSES.map(c=>`<button class="campus-pill ${adminAllocCampus===c.id?'active':''}" data-campus="${c.id}">${esc(c.name)}</button>`).join('');
+  pEl.querySelectorAll('.campus-pill').forEach(p=>{
+    p.onclick = ()=>{
+      pEl.querySelectorAll('.campus-pill').forEach(x=>x.classList.remove('active'));
+      p.classList.add('active');
+      adminAllocCampus = p.dataset.campus;
+      renderAllocations();
+    };
+  });
+}
 window.aPrincipal=async(sid,sel)=>{ const supId=sel.value, supName=sel.selectedOptions[0]?.dataset?.name||''; if(!supId) return; try{ await updateDoc(doc(db,'students',sid),{principalSupervisorId:supId,principalSupervisorName:supName,allocatedAt:serverTimestamp(),allocatedBy:ME.uid}); toast('Principal updated','success'); }catch(e){ toast('Error: '+e.message,'error'); } };
 window.aCo=async(sid,sel)=>{ const coId=sel.value, coName=sel.selectedOptions[0]?.dataset?.name||''; try{ await updateDoc(doc(db,'students',sid),{coSupervisorId:coId||null,coSupervisorName:coName||null}); toast('Co-supervisor updated','success'); }catch(e){ toast('Error: '+e.message,'error'); } };
 
@@ -1197,6 +1498,61 @@ function initSettingsTab(){
     const uid=el('promote-uid').value.trim(), name=el('promote-name').value.trim(), email=el('promote-email').value.trim();
     if(!uid||!name){ toast('UID and name required','error'); return; }
     try{ await setDoc(doc(db,'users',uid),{name,email,role:'admin',campus:null},{merge:true}); toast('User promoted to admin!','success'); el('promote-uid').value=''; el('promote-name').value=''; el('promote-email').value=''; }catch(e){ toast('Error: '+e.message,'error'); } };
+
+  // ── Backfill semester for existing students ──
+  refreshBackfillUI();
+  el('backfill-btn').onclick=async()=>{
+    const targetId = el('backfill-semester').value;
+    if(!targetId){ toast('Pick a target semester first','error'); return; }
+    const targetName = SEMESTERS.find(s=>s.id===targetId)?.name || '';
+    const orphans = STUDENTS.filter(s=>!s.semester || !SEMESTERS.find(x=>x.id===s.semester));
+    if(!orphans.length){ toast('No unsemestered students found — you\'re all set.','info'); return; }
+    if(!confirm(`Assign ${orphans.length} student(s) to "${targetName}"?\n\nThis cannot be undone in bulk — you'd need to edit each student individually to change it.`)) return;
+    try{
+      // Firestore writeBatch supports up to 500 ops — chunk just in case.
+      const CHUNK = 400;
+      for(let i=0;i<orphans.length;i+=CHUNK){
+        const batch = writeBatch(db);
+        orphans.slice(i,i+CHUNK).forEach(s=>{
+          batch.update(doc(db,'students',s.id),{semester:targetId, semesterName:targetName});
+        });
+        await batch.commit();
+      }
+      // Reload local cache
+      const snap=await getDocs(query(collection(db,'students'),orderBy('slNo')));
+      STUDENTS=snap.docs.map(d=>({id:d.id,...d.data()}));
+      refreshBackfillUI();
+      toast(`Assigned ${orphans.length} student(s) to ${targetName}`,'success');
+    }catch(e){ toast('Backfill error: '+e.message,'error'); }
+  };
+}
+
+function refreshBackfillUI(){
+  const countEl = el('backfill-count');
+  const semSel  = el('backfill-semester');
+  if(!countEl || !semSel) return;
+  const orphans = STUDENTS.filter(s=>!s.semester || !SEMESTERS.find(x=>x.id===s.semester));
+  if(!SEMESTERS.length){
+    countEl.className = 'alert alert-warning mb-16';
+    countEl.innerHTML = `⚠ Create a semester first (Semesters tab), then return here.`;
+    semSel.innerHTML = `<option value="">— No semesters yet —</option>`;
+    semSel.disabled = true;
+    el('backfill-btn').disabled = true;
+    return;
+  }
+  semSel.disabled = false;
+  el('backfill-btn').disabled = orphans.length===0;
+  if(orphans.length){
+    countEl.className = 'alert alert-warning mb-16';
+    countEl.innerHTML = `Found <strong>${orphans.length}</strong> student(s) without a semester.`;
+  } else {
+    countEl.className = 'alert alert-success mb-16';
+    countEl.innerHTML = `✓ All students are already assigned to a semester.`;
+  }
+  semSel.innerHTML = SEMESTERS.map(s=>{
+    const lbl = esc(s.name) + (s.year?` · ${esc(s.year)}`:'') + (s.isActive?' ★':'');
+    return `<option value="${s.id}" ${s.id===adminSemester?'selected':''}>${lbl}</option>`;
+  }).join('');
 }
 
 /* ── Export CSV ── */
@@ -1209,16 +1565,29 @@ function downloadCSV(rows,filename){
 
 async function exportCSV(){
   const snap=await getDocs(query(collection(db,'students'),orderBy('slNo')));
-  const rows=[['Sl.No','Student Name','Student ID','Campus','Proposal Title','Proposal Summary','Principal Supervisor','Co-Supervisor','Student Preference','Allocated At','Proposal Link','Comment']];
-  snap.docs.forEach(d=>{ const s=d.data(); const cn=CAMPUSES.find(c=>c.id===s.campus)?.name||s.campus||''; rows.push([s.slNo||'',csvCell(s.name),csvCell(s.studentId),csvCell(cn),csvCell(s.proposalTitle),csvCell(s.proposalSummary),csvCell(s.principalSupervisorName),csvCell(s.coSupervisorName),csvCell(s.studentPreference),csvCell(fmtDate(s.allocatedAt)),csvCell(s.proposalLink),csvCell(s.comment)]); });
-  downloadCSV(rows,'allocations.csv');
-  toast('CSV exported','success');
+  let docs = snap.docs.map(d=>({id:d.id,...d.data()}));
+  if(adminSemester) docs = docs.filter(s=>s.semester===adminSemester);
+  if(adminAllocCampus!=='all') docs = docs.filter(s=>s.campus===adminAllocCampus);
+  if(!docs.length){ toast('Nothing to export for this filter','error'); return; }
+  const rows=[['Sl.No','Student Name','Student ID','Campus','Semester','Proposal Title','Proposal Summary','Principal Supervisor','Co-Supervisor','Student Preference','Allocated At','Proposal Link','Comment']];
+  docs.forEach(s=>{
+    const cn=CAMPUSES.find(c=>c.id===s.campus)?.name||s.campus||'';
+    const sn=s.semesterName||SEMESTERS.find(x=>x.id===s.semester)?.name||'';
+    rows.push([s.slNo||'',csvCell(s.name),csvCell(s.studentId),csvCell(cn),csvCell(sn),csvCell(s.proposalTitle),csvCell(s.proposalSummary),csvCell(s.principalSupervisorName),csvCell(s.coSupervisorName),csvCell(s.studentPreference),csvCell(fmtDate(s.allocatedAt)),csvCell(s.proposalLink),csvCell(s.comment)]);
+  });
+  const semTag = adminSemester ? '_'+safeName(semesterLabel(adminSemester)) : '';
+  const campTag = adminAllocCampus==='all' ? '' : '_'+safeName(CAMPUSES.find(c=>c.id===adminAllocCampus)?.name);
+  downloadCSV(rows,`allocations${semTag}${campTag}.csv`);
+  toast(`Exported ${docs.length} student(s)`,'success');
 }
 
 // Slim export: Student Name, ID, Title, Principal Supervisor, Co-Supervisor
 function buildSlimRows(students){
-  const rows=[['Student Name','Student ID','Proposal Title','Principal Supervisor','Co-Supervisor']];
-  students.forEach(s=>{ rows.push([csvCell(s.name),csvCell(s.studentId),csvCell(s.proposalTitle),csvCell(s.principalSupervisorName),csvCell(s.coSupervisorName)]); });
+  const rows=[['Student Name','Student ID','Semester','Proposal Title','Principal Supervisor','Co-Supervisor']];
+  students.forEach(s=>{
+    const sn=s.semesterName||SEMESTERS.find(x=>x.id===s.semester)?.name||'';
+    rows.push([csvCell(s.name),csvCell(s.studentId),csvCell(sn),csvCell(s.proposalTitle),csvCell(s.principalSupervisorName),csvCell(s.coSupervisorName)]);
+  });
   return rows;
 }
 function safeName(str){ return String(str||'export').replace(/[^a-z0-9]+/gi,'_').replace(/^_+|_+$/g,'').toLowerCase()||'export'; }
@@ -1228,9 +1597,11 @@ async function exportByCampus(){
   if(!campusId){ toast('Select a campus first','error'); return; }
   const campus=CAMPUSES.find(c=>c.id===campusId);
   const snap=await getDocs(query(collection(db,'students'),orderBy('slNo')));
-  const students=snap.docs.map(d=>d.data()).filter(s=>s.campus===campusId);
-  if(!students.length){ toast('No students for this campus','error'); return; }
-  downloadCSV(buildSlimRows(students),`allocations_campus_${safeName(campus?.name)}.csv`);
+  let students=snap.docs.map(d=>d.data()).filter(s=>s.campus===campusId);
+  if(adminSemester) students = students.filter(s=>s.semester===adminSemester);
+  if(!students.length){ toast('No students for this campus in the selected semester','error'); return; }
+  const semTag = adminSemester ? '_'+safeName(semesterLabel(adminSemester)) : '';
+  downloadCSV(buildSlimRows(students),`allocations_campus_${safeName(campus?.name)}${semTag}.csv`);
   toast(`Exported ${students.length} student(s) for ${campus?.name||'campus'}`,'success');
 }
 
@@ -1239,9 +1610,11 @@ async function exportBySupervisor(){
   if(!supId){ toast('Select a supervisor first','error'); return; }
   const sup=SUPS.find(x=>x.id===supId);
   const snap=await getDocs(query(collection(db,'students'),orderBy('slNo')));
-  const students=snap.docs.map(d=>d.data()).filter(s=>s.principalSupervisorId===supId);
-  if(!students.length){ toast('No students for this principal supervisor','error'); return; }
-  downloadCSV(buildSlimRows(students),`allocations_supervisor_${safeName(sup?.name)}.csv`);
+  let students=snap.docs.map(d=>d.data()).filter(s=>s.principalSupervisorId===supId);
+  if(adminSemester) students = students.filter(s=>s.semester===adminSemester);
+  if(!students.length){ toast('No students for this principal supervisor in the selected semester','error'); return; }
+  const semTag = adminSemester ? '_'+safeName(semesterLabel(adminSemester)) : '';
+  downloadCSV(buildSlimRows(students),`allocations_supervisor_${safeName(sup?.name)}${semTag}.csv`);
   toast(`Exported ${students.length} student(s) for ${sup?.name||'supervisor'}`,'success');
 }
 
