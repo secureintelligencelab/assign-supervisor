@@ -968,24 +968,41 @@ function renderSVTable(students){
       principalCell=`<select class="sup-select" data-action="assign-principal" data-sid="${s.id}" ${principalDisabled}><option value="">— Select supervisor —</option>${noSups}${opts}</select>`;
     }
 
-    // Co-supervisor column: no campus restriction. Show all co/both-type supervisors.
-    // Disabled supervisors are never selectable.
-    // IMPORTANT: a co-supervisor-only account can only select THEIR OWN name —
-    // every other co-supervisor option is shown but disabled so they cannot assign
-    // students to other co-supervisors.
-    const eligibleCo = SUPS.filter(sup=>!sup.disabled && (isAdmin || sup.supervisorType!=='principal'));
-    const coOpts=eligibleCo.map(sup=>{
-      const sel=s.coSupervisorId===sup.id?'selected':'';
-      const cnt=coCount[sup.id]||0;
-      const max=SETTINGS.maxCo;
-      const full=(cnt>=max)&&s.coSupervisorId!==sup.id;
-      // For a co-only user, disable any option that isn't them.
-      const notSelf = isCoOnlyUser && sup.id!==myUid;
-      const disAttr=((full&&!isAdmin)||notSelf)?'disabled':'';
-      return `<option value="${sup.id}" data-name="${esc(sup.name)}" ${sel} ${disAttr}>${esc(sup.name)} (${cnt}/${max})${full?' – Full':''}</option>`;
-    }).join('');
-    const coDisabled=(!isAlloc&&!isAdmin)?'disabled':'';
-    const coCell=`<select class="sup-select" data-action="assign-co" data-sid="${s.id}" ${coDisabled}><option value="">— None —</option>${coOpts}</select>`;
+    // Co-supervisor column.
+    //   • The slot can only be filled once a PRINCIPAL exists (gating below).
+    //   • Once a co-supervisor is assigned, it is LOCKED: only an admin, or the
+    //     co-supervisor who claimed it, may change/remove it. Everyone else sees
+    //     the name but cannot edit.
+    //   • A co-supervisor-only account may only assign THEMSELVES.
+    const coIsSet = !!s.coSupervisorId;
+    // The slot is editable by an admin, or by whoever claimed it
+    // (coAllocatedBy). The principal who is supervising this student may also
+    // adjust it. If empty, any principal/both supervisor — or a co-only user
+    // setting themselves — may fill it.
+    const claimedByMe = s.coAllocatedBy===myUid;
+    const iAmPrincipal = s.principalSupervisorId===myUid;
+    const canEditCo = isAdmin || (coIsSet ? (claimedByMe || iAmPrincipal) : true);
+
+    let coCell;
+    if(coIsSet && !canEditCo){
+      // Locked — show the assigned co-supervisor's name, read-only.
+      coCell=`<div><span class="fw-600 text-sm">${esc(s.coSupervisorName||'—')}</span><br><span class="text-xs text-muted">Co-supervisor</span></div>`;
+    } else {
+      const eligibleCo = SUPS.filter(sup=>!sup.disabled && (isAdmin || sup.supervisorType!=='principal'));
+      const coOpts=eligibleCo.map(sup=>{
+        const sel=s.coSupervisorId===sup.id?'selected':'';
+        const cnt=coCount[sup.id]||0;
+        const max=SETTINGS.maxCo;
+        const full=(cnt>=max)&&s.coSupervisorId!==sup.id;
+        // For a co-only user, disable any option that isn't them.
+        const notSelf = isCoOnlyUser && sup.id!==myUid;
+        const disAttr=((full&&!isAdmin)||notSelf)?'disabled':'';
+        return `<option value="${sup.id}" data-name="${esc(sup.name)}" ${sel} ${disAttr}>${esc(sup.name)} (${cnt}/${max})${full?' – Full':''}</option>`;
+      }).join('');
+      // A co-supervisor slot can only be filled once a principal is assigned (non-admins).
+      const coDisabled=(!isAlloc&&!isAdmin)?'disabled title="Assign a principal supervisor first"':'';
+      coCell=`<select class="sup-select" data-action="assign-co" data-sid="${s.id}" ${coDisabled}><option value="">— None —</option>${coOpts}</select>`;
+    }
 
     const prefCell=s.studentPreference?`<span class="pref-warn" title="Prefers: ${esc(s.studentPreference)}">⭐ ${esc(s.studentPreference)}</span>`:`<span class="text-xs text-muted">None</span>`;
     const canEdit=isAdmin||isMine;
@@ -1077,15 +1094,33 @@ function bindSVEvents(students){
         const cnt=STUDENTS.filter(x=>x.coSupervisorId===coId&&x.id!==sid).length;
         if(cnt>=SETTINGS.maxCo){ toast(`${coName} has reached the limit of ${SETTINGS.maxCo} co-supervised students.`,'error'); e.target.value=s.coSupervisorId||''; return; }
       }
-      try{ await updateDoc(doc(db,'students',sid),{coSupervisorId:coId||null,coSupervisorName:coName||null}); toast(`Co-supervisor updated for ${s?.name}`,'success'); }
-      catch(err){ toast('Error: '+err.message,'error'); }
+      try{
+        const ref=doc(db,'students',sid); const snap=await getDoc(ref);
+        const data=snap.data()||{};
+        // Lock: if a co-supervisor is already set, only an admin, the person who
+        // claimed it (coAllocatedBy), or this student's principal supervisor may
+        // change/remove it.
+        if(PROFILE?.role!=='admin' && data.coSupervisorId
+           && data.coAllocatedBy!==PROFILE?.uid
+           && data.principalSupervisorId!==PROFILE?.uid){
+          toast(`Co-supervisor already set to ${data.coSupervisorName}. Only they, the principal, or an admin can change it.`,'error');
+          e.target.value=data.coSupervisorId||''; return;
+        }
+        await updateDoc(ref,{
+          coSupervisorId:coId||null,
+          coSupervisorName:coName||null,
+          coAllocatedBy: coId?ME.uid:null,
+          coAllocatedAt: coId?serverTimestamp():null
+        });
+        toast(`Co-supervisor updated for ${s?.name}`,'success');
+      }catch(err){ toast('Error: '+err.message,'error'); }
     });
   });
   tbody.querySelectorAll('[data-action="dealloc"]').forEach(btn=>{
     btn.addEventListener('click',async()=>{
       const s=students.find(x=>x.id===btn.dataset.sid);
       if(!confirm(`Remove allocation for ${s?.name}?`)) return;
-      try{ await updateDoc(doc(db,'students',btn.dataset.sid),{principalSupervisorId:null,principalSupervisorName:null,coSupervisorId:null,coSupervisorName:null,allocatedAt:null,allocatedBy:null}); toast('Allocation removed','info'); }
+      try{ await updateDoc(doc(db,'students',btn.dataset.sid),{principalSupervisorId:null,principalSupervisorName:null,coSupervisorId:null,coSupervisorName:null,coAllocatedBy:null,coAllocatedAt:null,allocatedAt:null,allocatedBy:null}); toast('Allocation removed','info'); }
       catch(err){ toast('Error: '+err.message,'error'); }
     });
   });
@@ -1468,7 +1503,7 @@ window.toggleStudentActive=async(id,activate)=>{
     toast(`Student marked ${activate?'active':'inactive'}`,'success');
   }catch(e){ toast('Error: '+e.message,'error'); }
 };
-window.clearAlloc=async id=>{ const s=STUDENTS.find(x=>x.id===id); if(!confirm(`Clear allocation for ${s?.name}?`)) return; try{ await updateDoc(doc(db,'students',id),{principalSupervisorId:null,principalSupervisorName:null,coSupervisorId:null,coSupervisorName:null,allocatedAt:null,allocatedBy:null}); const snap=await getDocs(query(collection(db,'students'),orderBy('slNo'))); STUDENTS=snap.docs.map(d=>({id:d.id,...d.data()})); renderStudentsList(scopedStudentsForAdmin()); toast('Cleared','info'); }catch(e){ toast('Error: '+e.message,'error'); } };
+window.clearAlloc=async id=>{ const s=STUDENTS.find(x=>x.id===id); if(!confirm(`Clear allocation for ${s?.name}?`)) return; try{ await updateDoc(doc(db,'students',id),{principalSupervisorId:null,principalSupervisorName:null,coSupervisorId:null,coSupervisorName:null,coAllocatedBy:null,coAllocatedAt:null,allocatedAt:null,allocatedBy:null}); const snap=await getDocs(query(collection(db,'students'),orderBy('slNo'))); STUDENTS=snap.docs.map(d=>({id:d.id,...d.data()})); renderStudentsList(scopedStudentsForAdmin()); toast('Cleared','info'); }catch(e){ toast('Error: '+e.message,'error'); } };
 
 async function handleCSV(file){
   if(!file) return;
@@ -1568,7 +1603,7 @@ function buildAllocCampusPills(){
   });
 }
 window.aPrincipal=async(sid,sel)=>{ const supId=sel.value, supName=sel.selectedOptions[0]?.dataset?.name||''; if(!supId) return; try{ await updateDoc(doc(db,'students',sid),{principalSupervisorId:supId,principalSupervisorName:supName,allocatedAt:serverTimestamp(),allocatedBy:ME.uid}); toast('Principal updated','success'); }catch(e){ toast('Error: '+e.message,'error'); } };
-window.aCo=async(sid,sel)=>{ const coId=sel.value, coName=sel.selectedOptions[0]?.dataset?.name||''; try{ await updateDoc(doc(db,'students',sid),{coSupervisorId:coId||null,coSupervisorName:coName||null}); toast('Co-supervisor updated','success'); }catch(e){ toast('Error: '+e.message,'error'); } };
+window.aCo=async(sid,sel)=>{ const coId=sel.value, coName=sel.selectedOptions[0]?.dataset?.name||''; try{ await updateDoc(doc(db,'students',sid),{coSupervisorId:coId||null,coSupervisorName:coName||null,coAllocatedBy:coId?ME.uid:null,coAllocatedAt:coId?serverTimestamp():null}); toast('Co-supervisor updated','success'); }catch(e){ toast('Error: '+e.message,'error'); } };
 
 /* ── Settings ── */
 function initSettingsTab(){
