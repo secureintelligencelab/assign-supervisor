@@ -1,0 +1,125 @@
+rules_version = '2';
+service cloud.firestore {
+  match /databases/{database}/documents {
+
+    // ── Helpers ──────────────────────────────────────────────
+    function isAuth() {
+      return request.auth != null;
+    }
+
+    // Safely read the role — returns 'supervisor' if the user doc doesn't exist yet.
+    function userRole() {
+      return isAuth() && exists(/databases/$(database)/documents/users/$(request.auth.uid))
+        ? get(/databases/$(database)/documents/users/$(request.auth.uid)).data.get('role', 'supervisor')
+        : 'supervisor';
+    }
+
+    function isAdmin() {
+      return isAuth() && userRole() == 'admin';
+    }
+
+    // The signed-in user's profile data (or null if missing).
+    function myProfile() {
+      return get(/databases/$(database)/documents/users/$(request.auth.uid)).data;
+    }
+    function myExists() {
+      return isAuth() && exists(/databases/$(database)/documents/users/$(request.auth.uid));
+    }
+    // Is the signed-in user a co-supervisor-only account?
+    function isCoOnly() {
+      return myExists() && myProfile().get('supervisorType', 'both') == 'co';
+    }
+    // Is the signed-in user enabled (not disabled)?
+    function isEnabled() {
+      return myExists() && myProfile().get('disabled', false) == false;
+    }
+
+    // ── Users collection ─────────────────────────────────────
+    // Read: any authenticated user (supervisors need to list each other).
+    // Create own profile: always allowed when authenticated (handles first-login auto-create).
+    // Update own profile or any profile as admin.
+    // Delete: admin only.
+    match /users/{userId} {
+      allow read: if isAuth();
+      allow create: if isAuth() && (request.auth.uid == userId || isAdmin());
+      allow update: if isAuth() && (request.auth.uid == userId || isAdmin());
+      allow delete: if isAdmin();
+    }
+
+    // ── Campuses ─────────────────────────────────────────────
+    match /campuses/{campusId} {
+      allow read: if isAuth();
+      allow write: if isAdmin();
+    }
+
+    // ── Semesters ────────────────────────────────────────────
+    match /semesters/{semesterId} {
+      allow read: if isAuth();
+      allow write: if isAdmin();
+    }
+
+    // ── Students ─────────────────────────────────────────────
+    // Admins can do anything. Other supervisors can update (claim themselves,
+    // add comments, set themselves as co-supervisor).
+    //
+    // Co-supervisor-only accounts are restricted:
+    //   • They may NOT change the principal supervisor fields.
+    //   • If they set a co-supervisor, it must be THEMSELVES.
+    //   • They may not overwrite a co-supervisor already claimed by someone else
+    //     (the slot is locked to the claimer / that student's principal / admin).
+    // Disabled accounts cannot write at all.
+    match /students/{studentId} {
+      allow read: if isAuth();
+      allow create: if isAdmin();
+      allow delete: if isAdmin();
+
+      // Admin: unrestricted update.
+      allow update: if isAdmin();
+
+      // Enabled, non-co supervisors (principal / both):
+      //   • may edit anything EXCEPT overwriting a co-supervisor that was claimed
+      //     by another user — unless they are this student's principal.
+      allow update: if isAuth() && isEnabled() && !isCoOnly()
+        && (
+             // co-supervisor unchanged
+             request.resource.data.get('coSupervisorId', null)
+               == resource.data.get('coSupervisorId', null)
+             // or the slot was empty before
+             || resource.data.get('coSupervisorId', null) == null
+             // or this writer claimed it
+             || resource.data.get('coAllocatedBy', null) == request.auth.uid
+             // or this writer is the student's principal supervisor
+             || resource.data.get('principalSupervisorId', null) == request.auth.uid
+           );
+
+      // Enabled co-supervisor-only accounts:
+      //   • cannot touch principal fields,
+      //   • any co-supervisor they set must be their own uid,
+      //   • cannot overwrite a co-supervisor claimed by someone else.
+      allow update: if isAuth() && isEnabled() && isCoOnly()
+        && request.resource.data.get('principalSupervisorId', null)
+             == resource.data.get('principalSupervisorId', null)
+        && request.resource.data.get('principalSupervisorName', null)
+             == resource.data.get('principalSupervisorName', null)
+        && (
+             request.resource.data.get('coSupervisorId', null) == null
+             || request.resource.data.get('coSupervisorId', null) == request.auth.uid
+           )
+        && (
+             // co-supervisor unchanged
+             request.resource.data.get('coSupervisorId', null)
+               == resource.data.get('coSupervisorId', null)
+             // or the slot was empty before
+             || resource.data.get('coSupervisorId', null) == null
+             // or this writer claimed it (re-claiming their own slot)
+             || resource.data.get('coAllocatedBy', null) == request.auth.uid
+           );
+    }
+
+    // ── Settings ─────────────────────────────────────────────
+    match /settings/{docId} {
+      allow read: if isAuth();
+      allow write: if isAdmin();
+    }
+  }
+}
