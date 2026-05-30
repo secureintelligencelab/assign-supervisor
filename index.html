@@ -970,23 +970,33 @@ function renderSVTable(students){
 
     // Co-supervisor column.
     //   • The slot can only be filled once a PRINCIPAL exists (gating below).
-    //   • Once a co-supervisor is assigned, it is LOCKED: only an admin, or the
-    //     co-supervisor who claimed it, may change/remove it. Everyone else sees
-    //     the name but cannot edit.
-    //   • A co-supervisor-only account may only assign THEMSELVES.
+    //   • A PRINCIPAL/both supervisor may nominate a co-supervisor ONLY for
+    //     students they themselves supervise — not other principals' students.
+    //   • A co-supervisor-only account may claim an empty slot for THEMSELVES.
+    //   • Once a co-supervisor is assigned, the slot is LOCKED: only an admin,
+    //     the person who claimed it, or this student's principal may change it.
+    //     Everyone else sees the name but cannot edit.
     const coIsSet = !!s.coSupervisorId;
-    // The slot is editable by an admin, or by whoever claimed it
-    // (coAllocatedBy). The principal who is supervising this student may also
-    // adjust it. If empty, any principal/both supervisor — or a co-only user
-    // setting themselves — may fill it.
     const claimedByMe = s.coAllocatedBy===myUid;
     const iAmPrincipal = s.principalSupervisorId===myUid;
-    const canEditCo = isAdmin || (coIsSet ? (claimedByMe || iAmPrincipal) : true);
+    let canEditCo;
+    if(isAdmin){
+      canEditCo = true;
+    } else if(coIsSet){
+      // Locked to the claimer or this student's principal.
+      canEditCo = claimedByMe || iAmPrincipal;
+    } else {
+      // Empty slot: this student's principal may nominate; a co-only user may
+      // claim it for themselves. Other principals may NOT touch it.
+      canEditCo = iAmPrincipal || isCoOnlyUser;
+    }
 
     let coCell;
-    if(coIsSet && !canEditCo){
-      // Locked — show the assigned co-supervisor's name, read-only.
-      coCell=`<div><span class="fw-600 text-sm">${esc(s.coSupervisorName||'—')}</span><br><span class="text-xs text-muted">Co-supervisor</span></div>`;
+    if(!canEditCo){
+      // Read-only: show the assigned co-supervisor (or a dash if none yet).
+      coCell = coIsSet
+        ? `<div><span class="fw-600 text-sm">${esc(s.coSupervisorName||'—')}</span><br><span class="text-xs text-muted">Co-supervisor</span></div>`
+        : `<span class="text-xs text-muted">—</span>`;
     } else {
       const eligibleCo = SUPS.filter(sup=>!sup.disabled && (isAdmin || sup.supervisorType!=='principal'));
       const coOpts=eligibleCo.map(sup=>{
@@ -1104,6 +1114,14 @@ function bindSVEvents(students){
            && data.coAllocatedBy!==PROFILE?.uid
            && data.principalSupervisorId!==PROFILE?.uid){
           toast(`Co-supervisor already set to ${data.coSupervisorName}. Only they, the principal, or an admin can change it.`,'error');
+          e.target.value=data.coSupervisorId||''; return;
+        }
+        // A principal/both supervisor may only nominate a co-supervisor for
+        // students they themselves supervise — not other principals' students.
+        // (Co-only accounts are exempt: they claim empty slots for themselves.)
+        if(PROFILE?.role!=='admin' && PROFILE?.supervisorType!=='co'
+           && data.principalSupervisorId!==PROFILE?.uid){
+          toast('You can only assign a co-supervisor to your own students.','error');
           e.target.value=data.coSupervisorId||''; return;
         }
         await updateDoc(ref,{
