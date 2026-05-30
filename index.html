@@ -794,7 +794,7 @@ async function mountSupervisor(){
   const banner = el('sv-info-banner');
   if(banner){
     if(isCoOnly){
-      banner.innerHTML = `ℹ️ As a <strong>co-supervisor</strong> you can only assign <strong>yourself</strong> in the Co-Supervisor column. You cannot assign a principal supervisor or assign students to other co-supervisors.`;
+      banner.innerHTML = `ℹ️ As a <strong>Co-Supervisor</strong>, you may only assign <strong>yourself</strong> in the Co-Supervisor column. Principal Supervisor allocations and assignments for other Co-Supervisors cannot be modified through this system.`;
     } else {
       banner.innerHTML = `ℹ️ Select your name in the <strong>Principal Supervisor</strong> column to claim a student. Principal supervisors can only be assigned to students of their own campus.`;
     }
