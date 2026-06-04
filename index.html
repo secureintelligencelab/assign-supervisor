@@ -505,6 +505,13 @@ tbody tr:hover td{background:var(--bg-hover) !important;cursor:default}
             </div>
           </div>
           <div class="export-group">
+            <label>Export by Co-Supervisor</label>
+            <div class="flex gap-8">
+              <select id="export-cosup-select" style="min-width:180px"><option value="">— Select co-supervisor —</option></select>
+              <button class="btn btn-primary btn-sm" id="export-cosup-btn">⬇ Export</button>
+            </div>
+          </div>
+          <div class="export-group">
             <label>Export Everything</label>
             <button class="btn btn-sm" id="export-csv-btn">⬇ Export Full CSV</button>
           </div>
@@ -789,12 +796,18 @@ async function mountSupervisor(){
   }
 
   const isCoOnly = p.supervisorType==='co';
+  // A "both" supervisor can act as principal (own campus only) AND co-supervisor
+  // (any campus). For browsing they need the same all-campus access a co-only
+  // user has, so we treat them as "campus-free" for navigation.
+  const canBrowseAllCampuses = p.supervisorType==='co' || p.supervisorType==='both';
 
   // Tailor the info banner to the supervisor's role.
   const banner = el('sv-info-banner');
   if(banner){
     if(isCoOnly){
       banner.innerHTML = `ℹ️ As a <strong>Co-Supervisor</strong>, you may only assign <strong>yourself</strong> in the Co-Supervisor column. Principal Supervisor allocations and assignments for other Co-Supervisors cannot be modified through this system.`;
+    } else if(p.supervisorType==='both'){
+      banner.innerHTML = `ℹ️ You may act as a <strong>Principal Supervisor</strong> for students at <strong>your own campus</strong>, and as a <strong>Co-Supervisor</strong> for students at <strong>any campus</strong>. Use the campus tabs to browse students across campuses.`;
     } else {
       banner.innerHTML = `ℹ️ Select your name in the <strong>Principal Supervisor</strong> column to claim a student. Principal supervisors can only be assigned to students of their own campus.`;
     }
@@ -822,7 +835,7 @@ async function mountSupervisor(){
     }));
   }
 
-  if(isCoOnly){
+  if(canBrowseAllCampuses){
     showSVMain();
     buildSVCampusPills(null);
     svCampus='all'; startLive();
@@ -871,9 +884,10 @@ function showSVMain(){
 function buildSVCampusPills(activeCampusId){
   const pillsEl=el('sv-campus-pills');
   if(!pillsEl) return;
-  const isCoOnly = PROFILE?.supervisorType === 'co';
-  // Principal supervisors only see their campus label — no switching
-  if(!isCoOnly && activeCampusId){
+  // Both co-only and "both" supervisors may browse across campuses.
+  const canBrowseAllCampuses = PROFILE?.supervisorType === 'co' || PROFILE?.supervisorType === 'both';
+  // Principal-only supervisors only see their campus label — no switching
+  if(!canBrowseAllCampuses && activeCampusId){
     const camp=CAMPUSES.find(c=>c.id===activeCampusId);
     pillsEl.innerHTML=`<span class="badge badge-blue" style="font-size:12px;padding:4px 12px">🏫 ${esc(camp?.name||activeCampusId)}</span>`;
     return;
@@ -932,6 +946,8 @@ function renderSVTable(students){
 
   // Is the *logged-in* user a co-supervisor-only account?
   const isCoOnlyUser = !isAdmin && PROFILE?.supervisorType==='co';
+  // A "both" user: can principal (own campus) AND co-supervise (any campus).
+  const isBothUser = !isAdmin && PROFILE?.supervisorType==='both';
 
   tbody.innerHTML=students.map(s=>{
     const isAlloc=!!s.principalSupervisorId, isMine=s.principalSupervisorId===myUid;
@@ -986,9 +1002,10 @@ function renderSVTable(students){
       // Locked to the claimer or this student's principal.
       canEditCo = claimedByMe || iAmPrincipal;
     } else {
-      // Empty slot: this student's principal may nominate; a co-only user may
-      // claim it for themselves. Other principals may NOT touch it.
-      canEditCo = iAmPrincipal || isCoOnlyUser;
+      // Empty slot: this student's principal may nominate; a co-only OR "both"
+      // user may claim it for themselves (any campus). Other principals may NOT
+      // touch it.
+      canEditCo = iAmPrincipal || isCoOnlyUser || isBothUser;
     }
 
     let coCell;
@@ -1005,7 +1022,10 @@ function renderSVTable(students){
         const max=SETTINGS.maxCo;
         const full=(cnt>=max)&&s.coSupervisorId!==sup.id;
         // For a co-only user, disable any option that isn't them.
-        const notSelf = isCoOnlyUser && sup.id!==myUid;
+        // A "both" user may nominate anyone for students THEY principal-supervise,
+        // but may only nominate THEMSELVES for students on other principals' lists.
+        const selfOnly = isCoOnlyUser || (isBothUser && !iAmPrincipal);
+        const notSelf = selfOnly && sup.id!==myUid;
         const disAttr=((full&&!isAdmin)||notSelf)?'disabled':'';
         return `<option value="${sup.id}" data-name="${esc(sup.name)}" ${sel} ${disAttr}>${esc(sup.name)} (${cnt}/${max})${full?' – Full':''}</option>`;
       }).join('');
@@ -1116,13 +1136,21 @@ function bindSVEvents(students){
           toast(`Co-supervisor already set to ${data.coSupervisorName}. Only they, the principal, or an admin can change it.`,'error');
           e.target.value=data.coSupervisorId||''; return;
         }
-        // A principal/both supervisor may only nominate a co-supervisor for
-        // students they themselves supervise — not other principals' students.
-        // (Co-only accounts are exempt: they claim empty slots for themselves.)
+        // Nomination rules for non-admins:
+        //   • Co-only accounts: may claim empty slots for themselves (handled above).
+        //   • "Both" accounts: may nominate anyone for THEIR OWN students, and may
+        //     claim a slot for THEMSELVES on any other student.
+        //   • Principal-only accounts: may only nominate co-supervisors for their
+        //     own students.
         if(PROFILE?.role!=='admin' && PROFILE?.supervisorType!=='co'
            && data.principalSupervisorId!==PROFILE?.uid){
-          toast('You can only assign a co-supervisor to your own students.','error');
-          e.target.value=data.coSupervisorId||''; return;
+          const selfClaim = PROFILE?.supervisorType==='both' && (!coId || coId===PROFILE?.uid);
+          if(!selfClaim){
+            toast(PROFILE?.supervisorType==='both'
+              ? 'For students you do not principal-supervise, you can only assign yourself as co-supervisor.'
+              : 'You can only assign a co-supervisor to your own students.','error');
+            e.target.value=data.coSupervisorId||''; return;
+          }
         }
         await updateDoc(ref,{
           coSupervisorId:coId||null,
@@ -1203,6 +1231,7 @@ async function mountAdmin(){
   el('export-csv-btn').onclick=exportCSV;
   el('export-campus-btn').onclick=exportByCampus;
   el('export-sup-btn').onclick=exportBySupervisor;
+  el('export-cosup-btn').onclick=exportByCoSupervisor;
 
   // Reset sidebar to first tab on each mount
   document.querySelectorAll('.sidebar-item').forEach(i=>i.classList.remove('active'));
@@ -1763,10 +1792,29 @@ async function exportBySupervisor(){
   toast(`Exported ${students.length} student(s) for ${sup?.name||'supervisor'}`,'success');
 }
 
+async function exportByCoSupervisor(){
+  const supId=el('export-cosup-select').value;
+  if(!supId){ toast('Select a co-supervisor first','error'); return; }
+  const sup=SUPS.find(x=>x.id===supId);
+  const snap=await getDocs(query(collection(db,'students'),orderBy('slNo')));
+  let students=snap.docs.map(d=>d.data()).filter(s=>s.coSupervisorId===supId);
+  if(adminSemester) students = students.filter(s=>s.semester===adminSemester);
+  if(!students.length){ toast('No students for this co-supervisor in the selected semester','error'); return; }
+  const semTag = adminSemester ? '_'+safeName(semesterLabel(adminSemester)) : '';
+  // buildSlimRows already includes both Principal Supervisor and Co-Supervisor columns.
+  downloadCSV(buildSlimRows(students),`allocations_cosupervisor_${safeName(sup?.name)}${semTag}.csv`);
+  toast(`Exported ${students.length} student(s) for co-supervisor ${sup?.name||''}`,'success');
+}
+
 function populateExportDropdowns(){
-  const cSel=el('export-campus-select'), sSel=el('export-sup-select');
+  const cSel=el('export-campus-select'), sSel=el('export-sup-select'), coSel=el('export-cosup-select');
   if(cSel) cSel.innerHTML='<option value="">— Select campus —</option>'+CAMPUSES.map(c=>`<option value="${c.id}">${esc(c.name)}</option>`).join('');
   if(sSel) sSel.innerHTML='<option value="">— Select supervisor —</option>'+SUPS.map(s=>`<option value="${s.id}">${esc(s.name)}</option>`).join('');
+  // Co-supervisor export: list anyone eligible to co-supervise (co or both types).
+  if(coSel){
+    const coEligible = SUPS.filter(s=>s.supervisorType==='co' || s.supervisorType==='both' || !s.supervisorType);
+    coSel.innerHTML='<option value="">— Select co-supervisor —</option>'+coEligible.map(s=>`<option value="${s.id}">${esc(s.name)}</option>`).join('');
+  }
 }
 window.populateExportDropdowns=populateExportDropdowns;
 
