@@ -33,14 +33,19 @@ service cloud.firestore {
     function isEnabled() {
       return myExists() && myProfile().get('disabled', false) == false;
     }
+    // Is the signed-in user a read-only student-portal account?
+    function isStudent() {
+      return myExists() && myProfile().get('role', 'supervisor') == 'student';
+    }
 
     // ── Users collection ─────────────────────────────────────
-    // Read: any authenticated user (supervisors need to list each other).
+    // Read: PUBLIC. The student lookup page is unauthenticated and needs to read
+    //   supervisor names/emails. (You decided this contact info is not sensitive.)
     // Create own profile: always allowed when authenticated (handles first-login auto-create).
     // Update own profile or any profile as admin.
     // Delete: admin only.
     match /users/{userId} {
-      allow read: if isAuth();
+      allow read: if true;
       allow create: if isAuth() && (request.auth.uid == userId || isAdmin());
       allow update: if isAuth() && (request.auth.uid == userId || isAdmin());
       allow delete: if isAdmin();
@@ -78,7 +83,9 @@ service cloud.firestore {
     //     (the slot is locked to the claimer / that student's principal / admin).
     // Disabled accounts cannot write at all.
     match /students/{studentId} {
-      allow read: if isAuth();
+      // Read: PUBLIC, so the unauthenticated student lookup page works. Writes
+      // remain restricted to admins and the relevant supervisors below.
+      allow read: if true;
       allow create: if isAdmin();
       allow delete: if isAdmin();
 
@@ -92,7 +99,7 @@ service cloud.firestore {
       //     following must hold: the slot was empty before, the writer is the
       //     student's principal, the writer previously claimed the slot, or the
       //     writer is assigning THEMSELVES as the co-supervisor.
-      allow update: if isAuth() && isEnabled() && !isCoOnly()
+      allow update: if isAuth() && isEnabled() && !isCoOnly() && !isStudent()
         && (
              // co-supervisor unchanged → fine
              request.resource.data.get('coSupervisorId', null)
@@ -111,7 +118,7 @@ service cloud.firestore {
       //   • cannot touch principal fields,
       //   • any co-supervisor they set must be their own uid,
       //   • cannot overwrite a co-supervisor claimed by someone else.
-      allow update: if isAuth() && isEnabled() && isCoOnly()
+      allow update: if isAuth() && isEnabled() && isCoOnly() && !isStudent()
         && request.resource.data.get('principalSupervisorId', null)
              == resource.data.get('principalSupervisorId', null)
         && request.resource.data.get('principalSupervisorName', null)
