@@ -256,6 +256,8 @@ tbody tr:hover td{background:var(--bg-hover) !important;cursor:default}
       Sign In
     </button>
     <p style="text-align:center;margin-top:16px;font-size:12px;color:var(--text2)">Contact your administrator for account access</p>
+    <hr style="border:none;border-top:1px solid var(--border);margin:16px 0"/>
+    <p style="text-align:center;font-size:13px"><a href="#students" id="goto-student-link" style="color:var(--accent);font-weight:500;text-decoration:none">🎓 Student? Find your supervisors →</a></p>
   </div>
 </div>
 
@@ -589,7 +591,27 @@ tbody tr:hover td{background:var(--bg-hover) !important;cursor:default}
   </div>
 </div>
 
-<!-- ═══════════════ SCRIPT ═══════════════ -->
+<!-- ═══════════════ STUDENT PAGE (public, no login) ═══════════════ -->
+<div id="page-student" class="page">
+  <nav class="navbar">
+    <div class="navbar-brand"><div class="logo-dot">🎓</div>Student Portal</div>
+    <div class="navbar-right">
+      <button class="btn btn-sm" id="student-to-login-btn">Staff Login</button>
+    </div>
+  </nav>
+  <div style="max-width:720px;margin:32px auto;padding:0 16px">
+    <div class="card" style="padding:24px">
+      <h2 style="margin-bottom:6px">Find Your Supervisors</h2>
+      <p style="color:var(--text2);font-size:13px;margin-bottom:18px">Enter your Student ID to see your principal supervisor and co-supervisor along with their contact details.</p>
+      <div style="display:flex;gap:8px;flex-wrap:wrap">
+        <input type="text" id="student-lookup-id" class="search-input" placeholder="e.g. 2024001" style="flex:1;min-width:200px" autocomplete="off"/>
+        <button class="btn btn-primary" id="student-lookup-btn" style="padding:10px 18px">🔍 Search</button>
+      </div>
+      <div id="student-lookup-result" style="margin-top:20px"></div>
+    </div>
+  </div>
+</div>
+
 <script type="module">
 import { initializeApp }                              from "https://www.gstatic.com/firebasejs/10.12.2/firebase-app.js";
 import { getAuth, signInWithEmailAndPassword,
@@ -807,7 +829,9 @@ onAuthStateChanged(auth, async user => {
       else await mountSupervisor();
     } else {
       ME=null; PROFILE=null;
-      showPage('page-login');
+      // Public student lookup is reachable without logging in via #students.
+      if(window.location.hash==='#students') openStudentPortal();
+      else showPage('page-login');
     }
   } catch(e) {
     console.error('Fatal error:', e);
@@ -835,6 +859,80 @@ el('login-password').addEventListener('keydown',e=>{ if(e.key==='Enter') el('log
 async function doLogout(){ if(svUnsub){svUnsub();svUnsub=null;} await signOut(auth); }
 el('logout-btn-admin').addEventListener('click',doLogout);
 // logout-btn-sup bound in mountSupervisor
+
+/* ── Student portal (PUBLIC, no login) ──────────────────────
+   A public, read-only lookup. Students enter their Student ID to see their
+   principal supervisor + co-supervisor names and emails. No account or password
+   is required. Reads the students list and supervisor (users) list directly. */
+let studentDataLoaded = false;
+async function openStudentPortal(){
+  showPage('page-student');
+  window.location.hash = 'students';
+  el('student-to-login-btn').onclick = ()=>{ window.location.hash=''; showPage('page-login'); };
+  const input=el('student-lookup-id');
+  const out=el('student-lookup-result');
+  const go=()=>studentLookup(input.value.trim());
+  el('student-lookup-btn').onclick=go;
+  input.onkeydown=e=>{ if(e.key==='Enter') go(); };
+  input.value=''; out.innerHTML='';
+  // Lazy-load data once (anonymous reads).
+  if(!studentDataLoaded){
+    out.innerHTML=`<div class="text-sm text-muted" style="text-align:center;padding:12px">Loading…</div>`;
+    try{
+      const [stuSnap,supSnap]=await Promise.all([
+        getDocs(collection(db,'students')),
+        getDocs(query(collection(db,'users'),where('role','==','supervisor')))
+      ]);
+      STUDENTS=stuSnap.docs.map(d=>({id:d.id,...d.data()}));
+      SUPS=supSnap.docs.map(d=>({id:d.id,...d.data()}));
+      studentDataLoaded=true;
+      out.innerHTML='';
+    }catch(e){
+      out.innerHTML=`<div class="alert alert-danger">Could not load data: ${esc(e.message)}</div>`;
+    }
+  }
+  input.focus();
+}
+
+function studentLookup(idRaw){
+  const out=el('student-lookup-result');
+  const idQ=(idRaw||'').trim().toLowerCase();
+  if(!idQ){ out.innerHTML=`<div class="alert alert-info">Please enter your Student ID.</div>`; return; }
+  const matches=(STUDENTS||[]).filter(s=>
+    String(s.studentId||'').trim().toLowerCase()===idQ);
+  if(!matches.length){
+    out.innerHTML=`<div class="alert alert-info">No record found for Student ID <strong>${esc(idRaw)}</strong>. Please check the ID or contact your administrator.</div>`;
+    return;
+  }
+  out.innerHTML=matches.map(s=>{
+    const pName=s.principalSupervisorName||supName(s.principalSupervisorId);
+    const pEmail=supEmail(s.principalSupervisorId);
+    const cName=s.coSupervisorName||supName(s.coSupervisorId);
+    const cEmail=supEmail(s.coSupervisorId);
+    const mail=(email)=> email
+      ? `<a href="mailto:${esc(email)}">${esc(email)}</a>`
+      : `<span class="text-muted">Not available yet</span>`;
+    const block=(label,name,email)=> `
+      <div class="card" style="padding:14px 16px;margin-top:10px">
+        <div class="text-xs text-muted" style="text-transform:uppercase;letter-spacing:.04em">${label}</div>
+        <div class="fw-600" style="margin-top:2px">${name?esc(name):'<span style="color:var(--text2);font-weight:400">Not assigned yet</span>'}</div>
+        ${name?`<div class="text-sm" style="margin-top:2px">✉️ ${mail(email)}</div>`:''}
+      </div>`;
+    return `<div style="margin-top:6px">
+      <div class="card" style="padding:16px;background:var(--bg2)">
+        <div class="fw-600" style="font-size:1.05rem">${esc(s.name||'Student')}</div>
+        <div class="text-xs text-muted">ID: ${esc(s.studentId||'')}${s.campusName?' · '+esc(s.campusName):''}</div>
+        ${s.proposalTitle?`<div class="text-sm" style="margin-top:8px">📝 ${esc(s.proposalTitle)}</div>`:''}
+      </div>
+      ${block('Principal Supervisor',pName,pEmail)}
+      ${block('Co-Supervisor',cName,cEmail)}
+    </div>`;
+  }).join('');
+}
+
+// Public routing: open the student portal via the login-page link or #students hash.
+el('goto-student-link')?.addEventListener('click',e=>{ e.preventDefault(); openStudentPortal(); });
+window.addEventListener('hashchange',()=>{ if(window.location.hash==='#students' && !ME) openStudentPortal(); });
 
 /* ── Load shared data ───────────────────────────────────── */
 async function loadShared(){
