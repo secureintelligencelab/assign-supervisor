@@ -62,6 +62,15 @@ service cloud.firestore {
     // Admins can do anything. Other supervisors can update (claim themselves,
     // add comments, set themselves as co-supervisor).
     //
+    // Principal / both supervisors:
+    //   • may claim students, edit comments, etc.
+    //   • may change the CO-SUPERVISOR field when: the slot is empty, they are
+    //     this student's principal, they previously claimed the slot, or they
+    //     are setting THEMSELVES as co-supervisor (a 'both' user may co-supervise
+    //     students on ANY campus, up to the app-enforced limit).
+    //   • may NOT overwrite a co-supervisor already claimed by someone else
+    //     (unless they are that student's principal).
+    //
     // Co-supervisor-only accounts are restricted:
     //   • They may NOT change the principal supervisor fields.
     //   • If they set a co-supervisor, it must be THEMSELVES.
@@ -77,19 +86,25 @@ service cloud.firestore {
       allow update: if isAdmin();
 
       // Enabled, non-co supervisors (principal / both):
-      //   • may edit anything EXCEPT overwriting a co-supervisor that was claimed
-      //     by another user — unless they are this student's principal.
+      //   • If the co-supervisor field is UNCHANGED, the update is allowed
+      //     (claiming a student, comments, clearing their own allocation, etc.).
+      //   • If the co-supervisor field IS being changed, at least one of the
+      //     following must hold: the slot was empty before, the writer is the
+      //     student's principal, the writer previously claimed the slot, or the
+      //     writer is assigning THEMSELVES as the co-supervisor.
       allow update: if isAuth() && isEnabled() && !isCoOnly()
         && (
-             // co-supervisor unchanged
+             // co-supervisor unchanged → fine
              request.resource.data.get('coSupervisorId', null)
                == resource.data.get('coSupervisorId', null)
-             // or the slot was empty before
+             // or the slot was empty before (anyone enabled may claim it)
              || resource.data.get('coSupervisorId', null) == null
-             // or this writer claimed it
+             // or this writer previously claimed the slot
              || resource.data.get('coAllocatedBy', null) == request.auth.uid
              // or this writer is the student's principal supervisor
              || resource.data.get('principalSupervisorId', null) == request.auth.uid
+             // or this writer is setting THEMSELVES as the co-supervisor
+             || request.resource.data.get('coSupervisorId', null) == request.auth.uid
            );
 
       // Enabled co-supervisor-only accounts:

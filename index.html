@@ -1015,7 +1015,18 @@ function renderSVTable(students){
         ? `<div><span class="fw-600 text-sm">${esc(s.coSupervisorName||'—')}</span><br><span class="text-xs text-muted">Co-supervisor</span></div>`
         : `<span class="text-xs text-muted">—</span>`;
     } else {
-      const eligibleCo = SUPS.filter(sup=>!sup.disabled && (isAdmin || sup.supervisorType!=='principal'));
+      // Eligible co-supervisors are any non-disabled supervisor whose role allows
+      // co-supervision (i.e. type 'co' or 'both'; admins see everyone). A user with
+      // the combined 'both' role MUST always be selectable as a co-supervisor —
+      // including selecting THEMSELVES — for students on ANY campus.
+      const eligibleCo = SUPS.filter(sup=>{
+        if(sup.disabled) return false;
+        if(isAdmin) return true;
+        // 'both' supervisors are valid co-supervisors regardless of campus.
+        if(sup.supervisorType==='both') return true;
+        // Otherwise only dedicated co-supervisors qualify (principal-only excluded).
+        return sup.supervisorType!=='principal';
+      });
       const coOpts=eligibleCo.map(sup=>{
         const sel=s.coSupervisorId===sup.id?'selected':'';
         const cnt=coCount[sup.id]||0;
@@ -1026,6 +1037,8 @@ function renderSVTable(students){
         // but may only nominate THEMSELVES for students on other principals' lists.
         const selfOnly = isCoOnlyUser || (isBothUser && !iAmPrincipal);
         const notSelf = selfOnly && sup.id!==myUid;
+        // Never block a 'both' user from selecting THEMSELVES on capacity grounds
+        // unless they are genuinely at the limit; the self option stays available.
         const disAttr=((full&&!isAdmin)||notSelf)?'disabled':'';
         return `<option value="${sup.id}" data-name="${esc(sup.name)}" ${sel} ${disAttr}>${esc(sup.name)} (${cnt}/${max})${full?' – Full':''}</option>`;
       }).join('');
