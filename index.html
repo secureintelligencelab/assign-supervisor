@@ -420,6 +420,7 @@ tbody tr:hover td{background:var(--bg-hover) !important;cursor:default}
           <div class="g2">
             <div class="form-group"><label>Full Name</label><input type="text" id="sup-name" placeholder="Dr. Jane Smith"/></div>
             <div class="form-group"><label>Email Address</label><input type="email" id="sup-email" placeholder="jane@university.edu"/></div>
+            <div class="form-group"><label>Alternative Email <span style="text-transform:none;font-weight:400;color:var(--text3)">(optional — shown to students)</span></label><input type="email" id="sup-alt-email" placeholder="jane.personal@email.com"/></div>
             <div class="form-group"><label>Password <span id="sup-pass-note" style="text-transform:none;font-weight:400;color:var(--text3)">(required for new)</span></label><input type="password" id="sup-password" placeholder="Min. 6 characters"/></div>
             <div class="form-group"><label>Campus</label><select id="sup-campus"><option value="">— Select Campus —</option></select></div>
             <div class="form-group"><label>Supervisor Type</label>
@@ -695,6 +696,7 @@ document.addEventListener('keydown',e=>{ if(e.key==='Escape'){ el('summary-modal
    OR co-supervisor), with student + both supervisors' names and emails so they
    can communicate. Supervisor emails are resolved from the SUPS (users) list. */
 function supEmail(id){ const u=SUPS.find(x=>x.id===id); return u?.email||''; }
+function supAltEmail(id){ const u=SUPS.find(x=>x.id===id); return u?.altEmail||''; }
 function supName(id){ const u=SUPS.find(x=>x.id===id); return u?.name||''; }
 
 function myConnectedStudents(){
@@ -723,8 +725,11 @@ function renderContacts(){
                : 'Co-Supervisor';
     const pEmail = supEmail(s.principalSupervisorId);
     const cEmail = supEmail(s.coSupervisorId);
+    const pAlt   = supAltEmail(s.principalSupervisorId);
+    const cAlt   = supAltEmail(s.coSupervisorId);
     const pName  = s.principalSupervisorName || supName(s.principalSupervisorId) || '—';
     const cName  = s.coSupervisorName || supName(s.coSupervisorId) || '—';
+    const altLine=(alt)=> alt ? `<br>${mailLink(alt)} <span class="text-xs text-muted">(alternative)</span>` : '';
     return `<div class="card" style="padding:14px 16px;margin-bottom:10px">
       <div style="display:flex;justify-content:space-between;align-items:flex-start;gap:12px;flex-wrap:wrap">
         <div>
@@ -736,8 +741,8 @@ function renderContacts(){
       ${s.proposalTitle?`<div class="text-xs" style="margin-top:6px">📝 ${esc(s.proposalTitle)}</div>`:''}
       <div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(220px,1fr));gap:8px 18px;margin-top:12px;font-size:13px">
         <div><span class="text-muted">Student email:</span><br>${mailLink(s.email,s.email)}</div>
-        <div><span class="text-muted">Principal supervisor:</span><br>${esc(pName)}<br>${mailLink(pEmail)}</div>
-        <div><span class="text-muted">Co-supervisor:</span><br>${esc(cName)}<br>${mailLink(cEmail)}</div>
+        <div><span class="text-muted">Principal supervisor:</span><br>${esc(pName)}<br>${mailLink(pEmail)}${altLine(pAlt)}</div>
+        <div><span class="text-muted">Co-supervisor:</span><br>${esc(cName)}<br>${mailLink(cEmail)}${altLine(cAlt)}</div>
       </div>
     </div>`;
   }).join('');
@@ -748,7 +753,9 @@ function contactsEmailList(){
   myConnectedStudents().forEach(s=>{
     if(s.email) set.add(s.email);
     const p=supEmail(s.principalSupervisorId); if(p) set.add(p);
+    const pa=supAltEmail(s.principalSupervisorId); if(pa) set.add(pa);
     const c=supEmail(s.coSupervisorId); if(c) set.add(c);
+    const ca=supAltEmail(s.coSupervisorId); if(ca) set.add(ca);
   });
   return [...set];
 }
@@ -907,16 +914,19 @@ function studentLookup(idRaw){
   out.innerHTML=matches.map(s=>{
     const pName=s.principalSupervisorName||supName(s.principalSupervisorId);
     const pEmail=supEmail(s.principalSupervisorId);
+    const pAlt=supAltEmail(s.principalSupervisorId);
     const cName=s.coSupervisorName||supName(s.coSupervisorId);
     const cEmail=supEmail(s.coSupervisorId);
+    const cAlt=supAltEmail(s.coSupervisorId);
     const mail=(email)=> email
       ? `<a href="mailto:${esc(email)}">${esc(email)}</a>`
       : `<span class="text-muted">Not available yet</span>`;
-    const block=(label,name,email)=> `
+    const block=(label,name,email,altEmail)=> `
       <div class="card" style="padding:14px 16px;margin-top:10px">
         <div class="text-xs text-muted" style="text-transform:uppercase;letter-spacing:.04em">${label}</div>
         <div class="fw-600" style="margin-top:2px">${name?esc(name):'<span style="color:var(--text2);font-weight:400">Not assigned yet</span>'}</div>
         ${name?`<div class="text-sm" style="margin-top:2px">✉️ ${mail(email)}</div>`:''}
+        ${name&&altEmail?`<div class="text-sm" style="margin-top:2px">✉️ ${mail(altEmail)} <span class="text-xs text-muted">(alternative)</span></div>`:''}
       </div>`;
     return `<div style="margin-top:6px">
       <div class="card" style="padding:16px;background:var(--bg2)">
@@ -924,8 +934,8 @@ function studentLookup(idRaw){
         <div class="text-xs text-muted">ID: ${esc(s.studentId||'')}${s.campusName?' · '+esc(s.campusName):''}</div>
         ${s.proposalTitle?`<div class="text-sm" style="margin-top:8px">📝 ${esc(s.proposalTitle)}</div>`:''}
       </div>
-      ${block('Principal Supervisor',pName,pEmail)}
-      ${block('Co-Supervisor',cName,cEmail)}
+      ${block('Principal Supervisor',pName,pEmail,pAlt)}
+      ${block('Co-Supervisor',cName,cEmail,cAlt)}
     </div>`;
   }).join('');
 }
@@ -1660,22 +1670,23 @@ function initSupervisorsTab(){
   refreshCampusDropdowns(); renderSupervisorsList();
   el('sup-save-btn').onclick=async()=>{
     const name=el('sup-name').value.trim(), email=el('sup-email').value.trim(), pass=el('sup-password').value,
+          altEmail=el('sup-alt-email').value.trim(),
           campus=el('sup-campus').value, type=el('sup-type').value, editId=el('sup-edit-id').value;
     if(!name||!email){ toast('Name and email required','error'); return; }
     try{
-      if(editId){ await updateDoc(doc(db,'users',editId),{name,campus,supervisorType:type}); }
+      if(editId){ await updateDoc(doc(db,'users',editId),{name,campus,supervisorType:type,altEmail}); }
       else{
         if(!pass){ toast('Password required for new supervisor','error'); return; }
         const cred=await createUserWithEmailAndPassword(auth,email,pass);
-        await setDoc(doc(db,'users',cred.user.uid),{name,email,campus,supervisorType:type,role:'supervisor'});
+        await setDoc(doc(db,'users',cred.user.uid),{name,email,altEmail,campus,supervisorType:type,role:'supervisor'});
       }
-      ['sup-name','sup-email','sup-password'].forEach(id=>{const e=el(id);if(e){e.value='';e.disabled=false;}});
+      ['sup-name','sup-email','sup-alt-email','sup-password'].forEach(id=>{const e=el(id);if(e){e.value='';e.disabled=false;}});
       el('sup-edit-id').value=''; el('sup-form-title').textContent='Add Supervisor'; el('sup-save-btn').textContent='Add Supervisor'; hide('sup-cancel-btn');
       const snap=await getDocs(query(collection(db,'users'),where('role','==','supervisor'))); SUPS=snap.docs.map(d=>({id:d.id,...d.data()}));
       renderSupervisorsList(); renderPrefDropdown(); toast('Supervisor saved','success');
     }catch(e){ toast('Error: '+e.message,'error'); }
   };
-  el('sup-cancel-btn').onclick=()=>{ ['sup-name','sup-email','sup-password'].forEach(id=>{const e=el(id);if(e){e.value='';e.disabled=false;}}); el('sup-edit-id').value=''; el('sup-form-title').textContent='Add Supervisor'; el('sup-save-btn').textContent='Add Supervisor'; hide('sup-cancel-btn'); };
+  el('sup-cancel-btn').onclick=()=>{ ['sup-name','sup-email','sup-alt-email','sup-password'].forEach(id=>{const e=el(id);if(e){e.value='';e.disabled=false;}}); el('sup-edit-id').value=''; el('sup-form-title').textContent='Add Supervisor'; el('sup-save-btn').textContent='Add Supervisor'; hide('sup-cancel-btn'); };
 }
 function renderSupervisorsList(){
   const e=el('supervisors-list');
@@ -1686,13 +1697,13 @@ function renderSupervisorsList(){
     const toggleBtn=s.disabled
       ? `<button class="btn btn-sm" onclick="toggleSupEnabled('${s.id}',false)">Enable</button>`
       : `<button class="btn btn-sm" onclick="toggleSupEnabled('${s.id}',true)">Disable</button>`;
-    return `<tr style="${s.disabled?'opacity:.6':''}"><td class="fw-600">${esc(s.name)}</td><td class="text-muted">${esc(s.email)}</td><td><span class="badge badge-gray">${esc(cn)}</span></td>
+    return `<tr style="${s.disabled?'opacity:.6':''}"><td class="fw-600">${esc(s.name)}</td><td class="text-muted">${esc(s.email)}${s.altEmail?`<div class="text-xs">alt: ${esc(s.altEmail)}</div>`:''}</td><td><span class="badge badge-gray">${esc(cn)}</span></td>
     <td><span class="badge ${s.supervisorType==='co'?'badge-purple':s.supervisorType==='principal'?'badge-blue':'badge-green'}">${esc(s.supervisorType||'both')}</span></td>
     <td>${statusBadge}</td>
-    <td><div class="flex gap-8"><button class="btn btn-sm" onclick="editSup('${s.id}','${esc(s.name)}','${esc(s.email)}','${s.campus||''}','${s.supervisorType||'both'}')">Edit</button>${toggleBtn}<button class="btn btn-sm btn-danger" onclick="delSup('${s.id}')">Delete</button></div></td></tr>`;
+    <td><div class="flex gap-8"><button class="btn btn-sm" onclick="editSup('${s.id}','${esc(s.name)}','${esc(s.email)}','${esc(s.altEmail||'')}','${s.campus||''}','${s.supervisorType||'both'}')">Edit</button>${toggleBtn}<button class="btn btn-sm btn-danger" onclick="delSup('${s.id}')">Delete</button></div></td></tr>`;
   }).join('')}</tbody></table></div>`;
 }
-window.editSup=(id,name,email,campus,type)=>{ el('sup-name').value=name; el('sup-email').value=email; el('sup-email').disabled=true; el('sup-password').value=''; el('sup-campus').value=campus; el('sup-type').value=type; el('sup-edit-id').value=id; el('sup-form-title').textContent='Edit Supervisor'; el('sup-save-btn').textContent='Update Supervisor'; show('sup-cancel-btn'); };
+window.editSup=(id,name,email,altEmail,campus,type)=>{ el('sup-name').value=name; el('sup-email').value=email; el('sup-email').disabled=true; el('sup-alt-email').value=altEmail||''; el('sup-password').value=''; el('sup-campus').value=campus; el('sup-type').value=type; el('sup-edit-id').value=id; el('sup-form-title').textContent='Edit Supervisor'; el('sup-save-btn').textContent='Update Supervisor'; show('sup-cancel-btn'); };
 window.delSup=async(id)=>{ if(!confirm('Delete supervisor?')) return; try{ await deleteDoc(doc(db,'users',id)); const snap=await getDocs(query(collection(db,'users'),where('role','==','supervisor'))); SUPS=snap.docs.map(d=>({id:d.id,...d.data()})); renderSupervisorsList(); toast('Deleted','info'); }catch(e){ toast('Error: '+e.message,'error'); } };
 window.toggleSupEnabled=async(id,disable)=>{
   const sup=SUPS.find(x=>x.id===id);
