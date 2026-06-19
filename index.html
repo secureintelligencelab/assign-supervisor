@@ -8,27 +8,28 @@
 <style>
 *,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
 :root{
-  /* Light theme — chosen so admin & supervisors can easily scan menu items and student rows */
-  --bg:#eef3fb;          /* main page bg: soft cool blue */
-  --bg2:#ffffff;         /* cards / navbar */
-  --bg3:#f1f5fb;         /* inputs / table headers */
-  --bg-stripe:#f7faff;   /* alternating table row */
-  --bg-hover:#e3edff;    /* row + sidebar hover */
-  --sidebar-bg:#1d3557;  /* dark sidebar so menu items pop */
-  --sidebar-text:#cfd8e6;
+  /* Dark theme — easy on the eyes for long allocation sessions, day or night */
+  --bg:#0f172a;          /* main page bg: deep slate */
+  --bg2:#1e293b;         /* cards / navbar */
+  --bg3:#273449;         /* inputs / table headers */
+  --bg-stripe:#1b2638;   /* alternating table row */
+  --bg-hover:#33415a;    /* row + sidebar hover */
+  --sidebar-bg:#0b1220;  /* darker sidebar so menu items pop */
+  --sidebar-text:#aebacb;
   --sidebar-text-active:#ffffff;
-  --sidebar-hover:#264a78;
+  --sidebar-hover:#1c2740;
   --sidebar-active:#2e5fa8;
-  --border:#d6dee9;
-  --border2:#b8c4d6;
-  --accent:#2563eb;      /* primary brand blue */
-  --accent2:#7c3aed;     /* secondary purple */
-  --green:#16a34a;--amber:#d97706;--red:#dc2626;
-  --text:#0f172a;        /* near-black for strong readability */
-  --text2:#475569;       /* secondary */
-  --text3:#94a3b8;       /* muted */
+  --border:#334155;
+  --border2:#475569;
+  --accent:#3b82f6;      /* primary brand blue (brighter for dark bg) */
+  --accent2:#a78bfa;     /* secondary purple */
+  --green:#22c55e;--amber:#f59e0b;--red:#ef4444;
+  --text:#e8eef7;        /* near-white for strong readability */
+  --text2:#a3b1c6;       /* secondary */
+  --text3:#6b7a90;       /* muted */
   --r:10px;--rlg:16px;--font:'Inter',system-ui,sans-serif
 }
+html{color-scheme:dark}
 body{font-family:var(--font);background:var(--bg);color:var(--text);min-height:100vh;font-size:14px;line-height:1.6}
 a{color:var(--accent);text-decoration:none}
 h2{font-size:1.2rem;font-weight:600}
@@ -39,15 +40,16 @@ h3{font-size:1rem;font-weight:600}
 #page-admin.active{display:block!important}
 
 /* Navbar */
-.navbar{background:var(--bg2);border-bottom:1px solid var(--border);padding:0 24px;height:56px;display:flex;align-items:center;justify-content:space-between;position:sticky;top:0;z-index:100;box-shadow:0 1px 3px rgba(15,23,42,.06)}
+.navbar{background:var(--bg2);border-bottom:1px solid var(--border);padding:0 24px;min-height:56px;display:flex;align-items:center;justify-content:space-between;gap:8px;position:sticky;top:0;z-index:100;box-shadow:0 1px 3px rgba(0,0,0,.3)}
 .navbar-brand{display:flex;align-items:center;gap:10px;font-weight:700;font-size:1rem}
-.logo-dot{width:32px;height:32px;background:linear-gradient(135deg,var(--accent),var(--accent2));border-radius:9px;display:flex;align-items:center;justify-content:center;font-size:16px}
-.navbar-right{display:flex;align-items:center;gap:10px}
-.nav-badge{background:#eff6ff;border:1px solid #bfdbfe;border-radius:20px;padding:3px 11px;font-size:11px;color:#1d4ed8;font-weight:500}
-.ctx-picker{background:#fff7ed;border:1px solid #fdba74;border-radius:8px;padding:5px 28px 5px 12px;font-size:12px;font-weight:600;color:#9a3412;font-family:var(--font);cursor:pointer;outline:none;min-width:160px;-webkit-appearance:none;appearance:none;background-image:url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' width='12' height='12' viewBox='0 0 12 12'><path fill='%239a3412' d='M2 4l4 4 4-4'/></svg>");background-repeat:no-repeat;background-position:right 8px center}
-.ctx-picker:hover{background-color:#ffedd5}
-.ctx-picker:focus{border-color:#ea580c;box-shadow:0 0 0 3px rgba(234,88,12,.15)}
-.ctx-picker option{background:#fff;color:var(--text)}
+.nav-hamburger{display:none;background:none;border:none;color:var(--text);font-size:22px;cursor:pointer;padding:4px 8px 4px 0;line-height:1}
+.logo-dot{width:32px;height:32px;background:linear-gradient(135deg,var(--accent),var(--accent2));border-radius:9px;display:flex;align-items:center;justify-content:center;font-size:16px;flex-shrink:0}
+.navbar-right{display:flex;align-items:center;gap:10px;flex-wrap:wrap;justify-content:flex-end}
+.nav-badge{background:rgba(59,130,246,.18);border:1px solid rgba(59,130,246,.45);border-radius:20px;padding:3px 11px;font-size:11px;color:#93c5fd;font-weight:500}
+.ctx-picker{background:rgba(245,158,11,.15);border:1px solid rgba(245,158,11,.5);border-radius:8px;padding:5px 28px 5px 12px;font-size:12px;font-weight:600;color:#fcd34d;font-family:var(--font);cursor:pointer;outline:none;min-width:160px;-webkit-appearance:none;appearance:none;background-image:url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' width='12' height='12' viewBox='0 0 12 12'><path fill='%23fcd34d' d='M2 4l4 4 4-4'/></svg>");background-repeat:no-repeat;background-position:right 8px center}
+.ctx-picker:hover{background-color:rgba(245,158,11,.25)}
+.ctx-picker:focus{border-color:var(--amber);box-shadow:0 0 0 3px rgba(245,158,11,.2)}
+.ctx-picker option{background:var(--bg2);color:var(--text)}
 .avatar{width:32px;height:32px;background:linear-gradient(135deg,var(--accent),var(--accent2));border-radius:50%;display:flex;align-items:center;justify-content:center;font-weight:700;font-size:12px;color:#fff}
 
 /* Buttons */
@@ -67,24 +69,24 @@ h3{font-size:1rem;font-weight:600}
 /* Forms */
 .form-group{margin-bottom:14px}
 label{display:block;font-size:11px;color:var(--text2);margin-bottom:5px;font-weight:600;text-transform:uppercase;letter-spacing:.05em}
-input[type=text],input[type=email],input[type=password],input[type=url],input[type=number],select,textarea{width:100%;background:#ffffff;border:1px solid var(--border2);border-radius:var(--r);color:var(--text);padding:8px 12px;font-size:13px;font-family:var(--font);transition:border-color .15s,box-shadow .15s;outline:none}
+input[type=text],input[type=email],input[type=password],input[type=url],input[type=number],select,textarea{width:100%;background:var(--bg3);border:1px solid var(--border2);border-radius:var(--r);color:var(--text);padding:8px 12px;font-size:13px;font-family:var(--font);transition:border-color .15s,box-shadow .15s;outline:none}
 input:focus,select:focus,textarea:focus{border-color:var(--accent);box-shadow:0 0 0 3px rgba(37,99,235,.15)}
 select option{background:var(--bg2);color:var(--text)}
 textarea{resize:vertical;min-height:70px}
 
 /* Badges — high-contrast pill colours so status is easy to scan */
 .badge{display:inline-flex;align-items:center;gap:4px;padding:3px 10px;border-radius:20px;font-size:11px;font-weight:600;white-space:nowrap;border:1px solid transparent}
-.badge-green{background:#dcfce7;color:#15803d;border-color:#86efac}
-.badge-amber{background:#fef3c7;color:#92400e;border-color:#fcd34d}
-.badge-red{background:#fee2e2;color:#b91c1c;border-color:#fca5a5}
-.badge-blue{background:#dbeafe;color:#1d4ed8;border-color:#93c5fd}
-.badge-purple{background:#ede9fe;color:#6d28d9;border-color:#c4b5fd}
-.badge-gray{background:#e2e8f0;color:#475569;border-color:#cbd5e1}
+.badge-green{background:rgba(34,197,94,.16);color:#86efac;border-color:rgba(34,197,94,.4)}
+.badge-amber{background:rgba(245,158,11,.16);color:#fcd34d;border-color:rgba(245,158,11,.4)}
+.badge-red{background:rgba(239,68,68,.16);color:#fca5a5;border-color:rgba(239,68,68,.4)}
+.badge-blue{background:rgba(59,130,246,.18);color:#93c5fd;border-color:rgba(59,130,246,.45)}
+.badge-purple{background:rgba(167,139,250,.18);color:#c4b5fd;border-color:rgba(167,139,250,.45)}
+.badge-gray{background:rgba(148,163,184,.16);color:#cbd5e1;border-color:rgba(148,163,184,.35)}
 
 /* Table — zebra striping + strong hover so admin/supervisors can easily track students */
 .tw{overflow-x:auto;background:var(--bg2);border:1px solid var(--border);border-radius:var(--r);box-shadow:0 1px 3px rgba(15,23,42,.05)}
 table{width:100%;border-collapse:collapse;font-size:13px}
-th{text-align:left;padding:11px 12px;font-size:11px;font-weight:700;text-transform:uppercase;letter-spacing:.05em;color:var(--text);background:#dbe6f5;border-bottom:2px solid var(--accent);white-space:nowrap}
+th{text-align:left;padding:11px 12px;font-size:11px;font-weight:700;text-transform:uppercase;letter-spacing:.05em;color:var(--text);background:var(--bg3);border-bottom:2px solid var(--accent);white-space:nowrap}
 td{padding:10px 12px;border-bottom:1px solid var(--border);vertical-align:middle;color:var(--text)}
 tbody tr:nth-child(even) td{background:var(--bg-stripe)}
 tr:last-child td{border-bottom:none}
@@ -92,10 +94,10 @@ tbody tr:hover td{background:var(--bg-hover) !important;cursor:default}
 
 /* Alerts */
 .alert{padding:10px 14px;border-radius:var(--r);font-size:13px;margin-bottom:12px;font-weight:500}
-.alert-warning{background:#fef3c7;border:1px solid #fcd34d;color:#92400e}
-.alert-success{background:#dcfce7;border:1px solid #86efac;color:#15803d}
-.alert-danger{background:#fee2e2;border:1px solid #fca5a5;color:#b91c1c}
-.alert-info{background:#dbeafe;border:1px solid #93c5fd;color:#1d4ed8}
+.alert-warning{background:rgba(245,158,11,.13);border:1px solid rgba(245,158,11,.4);color:#fcd34d}
+.alert-success{background:rgba(34,197,94,.13);border:1px solid rgba(34,197,94,.4);color:#86efac}
+.alert-danger{background:rgba(239,68,68,.13);border:1px solid rgba(239,68,68,.4);color:#fca5a5}
+.alert-info{background:rgba(59,130,246,.13);border:1px solid rgba(59,130,246,.4);color:#93c5fd}
 
 /* Login */
 #page-login{min-height:100vh;
@@ -118,11 +120,11 @@ tbody tr:hover td{background:var(--bg-hover) !important;cursor:default}
 .spacer{flex:1}
 .search-wrap{position:relative}
 .search-icon{position:absolute;left:10px;top:50%;transform:translateY(-50%);color:var(--text3);pointer-events:none}
-.search-input{background:#ffffff;border:1px solid var(--border2);border-radius:var(--r);padding:7px 12px 7px 32px;color:var(--text);font-size:13px;outline:none;width:240px;font-family:var(--font)}
+.search-input{background:var(--bg3);border:1px solid var(--border2);border-radius:var(--r);padding:7px 12px 7px 32px;color:var(--text);font-size:13px;outline:none;width:240px;font-family:var(--font)}
 .search-input:focus{border-color:var(--accent);box-shadow:0 0 0 3px rgba(37,99,235,.15)}
 
 /* Supervisor selects in table */
-.sup-select{background:#ffffff;border:1px solid var(--border2);border-radius:7px;padding:5px 8px;color:var(--text);font-size:12px;min-width:160px;font-family:var(--font);cursor:pointer}
+.sup-select{background:var(--bg3);border:1px solid var(--border2);border-radius:7px;padding:5px 8px;color:var(--text);font-size:12px;min-width:160px;font-family:var(--font);cursor:pointer}
 .sup-select:disabled{opacity:.5;cursor:not-allowed}
 
 /* Export bar */
@@ -130,7 +132,7 @@ tbody tr:hover td{background:var(--bg-hover) !important;cursor:default}
 .export-group{display:flex;flex-direction:column;gap:6px}
 
 /* Preference chip */
-.pref-warn{display:inline-flex;align-items:center;gap:4px;background:#fef3c7;border:1px solid #fcd34d;border-radius:6px;padding:2px 7px;font-size:11px;color:#92400e;font-weight:500}
+.pref-warn{display:inline-flex;align-items:center;gap:4px;background:rgba(245,158,11,.15);border:1px solid rgba(245,158,11,.45);border-radius:6px;padding:2px 7px;font-size:11px;color:#fcd34d;font-weight:500}
 
 /* Toast */
 #toast-container{position:fixed;bottom:24px;right:24px;z-index:9999;display:flex;flex-direction:column;gap:8px}
@@ -155,6 +157,8 @@ tbody tr:hover td{background:var(--bg-hover) !important;cursor:default}
 .sidebar-item.active{color:var(--sidebar-text-active);border-left-color:#fbbf24;background:var(--sidebar-active);font-weight:600}
 .sidebar-section{font-size:10px;text-transform:uppercase;letter-spacing:.1em;color:#94a3b8;padding:14px 20px 6px;font-weight:700}
 .main-content{flex:1;padding:24px;overflow:auto;background:var(--bg)}
+.sidebar-backdrop{display:none;position:fixed;inset:0;background:rgba(0,0,0,.55);z-index:90}
+.sidebar-backdrop.show{display:block}
 .tab-panel{display:none}.tab-panel.active{display:block}
 
 /* Campus pills */
@@ -165,14 +169,14 @@ tbody tr:hover td{background:var(--bg-hover) !important;cursor:default}
 
 /* Drop zone */
 .drop-zone{border:2px dashed var(--border2);border-radius:var(--r);padding:28px;text-align:center;cursor:pointer;transition:all .15s;color:var(--text2);background:var(--bg2)}
-.drop-zone:hover,.drop-zone.dragging{border-color:var(--accent);background:#eff6ff;color:var(--text)}
+.drop-zone:hover,.drop-zone.dragging{border-color:var(--accent);background:rgba(59,130,246,.12);color:var(--text)}
 
 /* Proposal cell – full title, no truncation */
 .pc{max-width:300px;white-space:normal;word-break:break-word;line-height:1.4}
 
 /* Campus picker card */
 .campus-pick-card{background:var(--bg2);border:1px solid var(--border);border-radius:var(--rlg);padding:20px 16px;cursor:pointer;transition:all .18s;text-align:center;box-shadow:0 1px 3px rgba(15,23,42,.05)}
-.campus-pick-card:hover{border-color:var(--accent);background:#eff6ff;transform:translateY(-2px);box-shadow:0 4px 12px rgba(37,99,235,.15)}
+.campus-pick-card:hover{border-color:var(--accent);background:rgba(59,130,246,.12);transform:translateY(-2px);box-shadow:0 4px 12px rgba(0,0,0,.35)}
 .campus-pick-card .cp-icon{font-size:28px;margin-bottom:8px}
 .campus-pick-card .cp-name{font-weight:600;font-size:14px}
 .campus-pick-card .cp-sub{font-size:11px;color:var(--text2);margin-top:3px}
@@ -181,8 +185,8 @@ tbody tr:hover td{background:var(--bg-hover) !important;cursor:default}
 .summary-snippet{font-size:12px;color:var(--text2);line-height:1.5;margin-top:4px}
 .read-more-btn{background:none;border:none;color:var(--accent);font-size:11px;cursor:pointer;padding:0;font-family:var(--font)}
 .read-more-btn:hover{text-decoration:underline}
-.summary-btn{background:#eff6ff;border:1px solid #bfdbfe;border-radius:5px;padding:2px 8px;font-size:11px;color:var(--accent);cursor:pointer;white-space:nowrap;font-family:var(--font);font-weight:500}
-.summary-btn:hover{background:#dbeafe}
+.summary-btn{background:rgba(59,130,246,.15);border:1px solid rgba(59,130,246,.4);border-radius:5px;padding:2px 8px;font-size:11px;color:#93c5fd;cursor:pointer;white-space:nowrap;font-family:var(--font);font-weight:500}
+.summary-btn:hover{background:rgba(59,130,246,.28)}
 .modal-overlay{position:fixed;inset:0;background:rgba(15,23,42,.55);z-index:9000;display:flex;align-items:center;justify-content:center;padding:16px}
 .modal-box{background:var(--bg2);border:1px solid var(--border2);border-radius:var(--rlg);padding:28px 28px 22px;max-width:560px;width:100%;box-shadow:0 8px 48px rgba(15,23,42,.25);position:relative}
 .modal-title{font-size:1rem;font-weight:600;margin-bottom:12px;line-height:1.4}
@@ -201,7 +205,32 @@ tbody tr:hover td{background:var(--bg-hover) !important;cursor:default}
 .g3{display:grid;grid-template-columns:1fr 1fr 1fr;gap:12px}
 .container{max-width:1500px;margin:0 auto;padding:20px}
 
-@media(max-width:768px){.sidebar{display:none}.stats-strip{grid-template-columns:1fr 1fr}.g2,.g3{grid-template-columns:1fr}.search-input{width:100%}}
+@media(max-width:768px){
+  .nav-hamburger{display:block}
+  .navbar{padding:8px 14px}
+  .navbar-right{gap:7px}
+  .main-content{padding:16px 14px}
+  .container{padding:14px}
+  /* Sidebar becomes a slide-in drawer */
+  .sidebar{position:fixed;top:0;left:0;height:100vh;z-index:95;transform:translateX(-100%);transition:transform .25s ease;overflow-y:auto;padding-top:18px;box-shadow:4px 0 24px rgba(0,0,0,.5)}
+  .sidebar.open{transform:translateX(0)}
+  .layout-sidebar{display:block;min-height:calc(100vh - 56px)}
+  .stats-strip{grid-template-columns:1fr 1fr}
+  .g2,.g3{grid-template-columns:1fr}
+  .search-input{width:100%}
+  .search-wrap{width:100%}
+  .toolbar .spacer{display:none}
+  .export-bar{flex-direction:column;align-items:stretch}
+  .modal-box{padding:22px 18px 18px}
+  /* Tap targets a little larger on touch */
+  .btn{padding:9px 14px}
+  .sidebar-item{padding:14px 20px}
+}
+@media(max-width:420px){
+  .stats-strip{grid-template-columns:1fr}
+  .navbar-brand{font-size:.9rem}
+  .nav-badge,#sup-name-display,#admin-name-display{display:none}
+}
 </style>
 </head>
 <body>
@@ -221,11 +250,53 @@ tbody tr:hover td{background:var(--bg-hover) !important;cursor:default}
     <button class="modal-close" id="contacts-close-btn">✕</button>
     <div class="modal-title">📋 My Students &amp; Contacts</div>
     <p class="text-xs text-muted" style="margin:-4px 0 14px">Students you supervise as principal or co-supervisor, with contact details so you can reach the student and the other supervisor.</p>
-    <div style="display:flex;gap:8px;margin-bottom:14px">
+    <div style="display:flex;gap:8px;margin-bottom:14px;flex-wrap:wrap">
+      <button class="btn btn-sm btn-primary" id="contacts-email-all-btn">✉️ Email students…</button>
       <button class="btn btn-sm" id="contacts-copy-btn">📑 Copy all emails</button>
       <button class="btn btn-sm" id="contacts-csv-btn">⬇️ Download CSV</button>
     </div>
     <div id="contacts-body" style="max-height:62vh;overflow-y:auto"></div>
+  </div>
+</div>
+
+<!-- Email composer modal (supervisor → students) -->
+<div id="email-modal" class="modal-overlay hidden">
+  <div class="modal-box" style="max-width:640px">
+    <button class="modal-close" id="email-close-btn">✕</button>
+    <div class="modal-title">✉️ Email <span id="email-target-label">students</span></div>
+    <p class="text-xs text-muted" style="margin:-4px 0 14px">This opens your own email app with the message pre-filled, so it sends from your address. Review and send it there.</p>
+
+    <div class="form-group">
+      <label>Recipients</label>
+      <div id="email-recipients" class="text-sm" style="background:var(--bg3);border:1px solid var(--border);border-radius:var(--r);padding:8px 12px;max-height:90px;overflow-y:auto;word-break:break-word"></div>
+    </div>
+
+    <div class="form-group">
+      <label>Quick template</label>
+      <div style="display:flex;gap:8px;flex-wrap:wrap">
+        <button type="button" class="btn btn-sm" data-tpl="meeting">📅 Meeting request</button>
+        <button type="button" class="btn btn-sm" data-tpl="reminder">⏰ Reminder</button>
+        <button type="button" class="btn btn-sm" data-tpl="feedback">📝 Feedback / check-in</button>
+        <button type="button" class="btn btn-sm" data-tpl="blank">✏️ Blank</button>
+      </div>
+    </div>
+
+    <div class="form-group">
+      <label>Subject</label>
+      <input type="text" id="email-subject" placeholder="e.g. Supervision meeting this week"/>
+    </div>
+    <div class="form-group">
+      <label>Message</label>
+      <textarea id="email-body" rows="9" placeholder="Write your message…"></textarea>
+    </div>
+
+    <div id="email-bulk-note" class="alert alert-info hidden" style="font-size:12px">Sending to several students: recipients are added as <strong>Bcc</strong> so addresses stay private.</div>
+
+    <div class="flex gap-8 mt-8">
+      <button class="btn btn-primary" id="email-send-btn">Open in email app</button>
+      <button class="btn" id="email-copy-btn">Copy message</button>
+      <button class="btn" id="email-cancel-btn">Cancel</button>
+    </div>
   </div>
 </div>
 
@@ -273,7 +344,7 @@ tbody tr:hover td{background:var(--bg-hover) !important;cursor:default}
         <div id="sup-avatar" class="avatar">?</div>
         <span id="sup-name-display" style="font-size:13px;color:var(--text2)">—</span>
       </div>
-      <button class="btn btn-sm hidden" id="back-to-admin-btn" style="background:#eff6ff;border-color:var(--accent);color:var(--accent)">🔙 Admin Panel</button>
+      <button class="btn btn-sm hidden" id="back-to-admin-btn" style="background:rgba(59,130,246,.15);border-color:var(--accent);color:#93c5fd">🔙 Admin Panel</button>
       <button class="btn btn-sm" id="logout-btn-sup">Sign Out</button>
     </div>
   </nav>
@@ -310,6 +381,7 @@ tbody tr:hover td{background:var(--bg-hover) !important;cursor:default}
           <input type="text" id="sv-search" class="search-input" placeholder="Search students, IDs or proposals…"/>
         </div>
         <button class="btn btn-sm" id="my-contacts-btn" title="View your students and their supervisors' contact details">📋 My Students &amp; Contacts</button>
+        <button class="btn btn-sm btn-primary" id="email-all-students-btn" title="Send one email to all of your students">✉️ Email all students</button>
         <span style="font-size:12px;color:var(--text2)">🔴 Live</span>
       </div>
       <div class="alert alert-info mb-16" id="sv-info-banner">
@@ -345,7 +417,7 @@ tbody tr:hover td{background:var(--bg-hover) !important;cursor:default}
 <!-- ═══════════════ ADMIN PAGE ═══════════════ -->
 <div id="page-admin" class="page">
   <nav class="navbar">
-    <div class="navbar-brand"><div class="logo-dot">🎓</div>Admin Panel</div>
+    <div class="navbar-brand"><button class="nav-hamburger" id="sidebar-toggle" aria-label="Menu">☰</button><div class="logo-dot">🎓</div>Admin Panel</div>
     <div class="navbar-right">
       <select id="admin-semester-picker" class="ctx-picker" title="Active Semester"></select>
       <div class="flex items-center gap-8">
@@ -357,7 +429,8 @@ tbody tr:hover td{background:var(--bg-hover) !important;cursor:default}
     </div>
   </nav>
   <div class="layout-sidebar">
-    <aside class="sidebar">
+    <div class="sidebar-backdrop" id="sidebar-backdrop"></div>
+    <aside class="sidebar" id="admin-sidebar">
       <div class="sidebar-section">Setup</div>
       <div class="sidebar-item" data-tab="tab-semesters">📅 Semesters</div>
       <div class="sidebar-item active" data-tab="tab-campuses">🏫 Campuses</div>
@@ -736,7 +809,10 @@ function renderContacts(){
           <div class="fw-600">${esc(s.name||'(Unnamed student)')}</div>
           <div class="text-xs text-muted">${esc(s.studentId||'')}${s.campusName?' · '+esc(s.campusName):''}</div>
         </div>
-        <span class="badge badge-blue">Your role: ${esc(role)}</span>
+        <div style="display:flex;gap:6px;align-items:center;flex-wrap:wrap">
+          <span class="badge badge-blue">Your role: ${esc(role)}</span>
+          ${s.email?`<button class="btn btn-sm btn-primary" onclick="emailStudent('${esc(s.id)}')">✉️ Email</button>`:''}
+        </div>
       </div>
       ${s.proposalTitle?`<div class="text-xs" style="margin-top:6px">📝 ${esc(s.proposalTitle)}</div>`:''}
       <div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(220px,1fr));gap:8px 18px;margin-top:12px;font-size:13px">
@@ -793,6 +869,120 @@ el('contacts-csv-btn')?.addEventListener('click',()=>{
   const a=document.createElement('a'); a.href=url; a.download='my-students-contacts.csv'; a.click();
   URL.revokeObjectURL(url);
 });
+
+/* ── Email students (supervisor → student[s]) ──────────────────
+   Static app with no mail server, so we compose a pre-filled message
+   and open the supervisor's own email client via mailto:. Single
+   student → To:. Multiple students → Bcc: to keep addresses private.
+   Templates give quick starting points for common purposes. */
+let EMAIL_TARGETS=[]; // array of student objects currently being emailed
+
+function studentFirstName(s){
+  const n=(s?.name||'').trim();
+  return n ? n.split(/\s+/)[0] : 'there';
+}
+function myDisplayName(){ return (PROFILE?.name||PROFILE?.email||'Your supervisor'); }
+
+function emailTemplate(kind, targets){
+  const sup=myDisplayName();
+  const greetName = targets.length===1 ? studentFirstName(targets[0]) : 'all';
+  const greeting = `Hi ${greetName},`;
+  const signoff = `\n\nBest regards,\n${sup}`;
+  if(kind==='meeting'){
+    return {
+      subject:'Supervision meeting',
+      body:`${greeting}\n\nI'd like to arrange a supervision meeting to discuss your progress. Could you let me know your availability for the coming week?\n\nWe can meet in person or online — whichever works best for you.${signoff}`
+    };
+  }
+  if(kind==='reminder'){
+    return {
+      subject:'Reminder',
+      body:`${greeting}\n\nThis is a quick reminder regarding your project. Please make sure to complete the outstanding items and get back to me if you have any questions.${signoff}`
+    };
+  }
+  if(kind==='feedback'){
+    return {
+      subject:'Project check-in',
+      body:`${greeting}\n\nI wanted to check in on how your project is progressing. Please share a brief update on what you've completed and anything you're currently stuck on, and we can take it from there.${signoff}`
+    };
+  }
+  return { subject:'', body:`${greeting}\n${signoff}` };
+}
+
+function renderEmailRecipients(){
+  const box=el('email-recipients');
+  const withEmail=EMAIL_TARGETS.filter(s=>s.email);
+  if(!withEmail.length){ box.innerHTML='<span class="text-muted">No students with an email address.</span>'; return; }
+  box.innerHTML=withEmail.map(s=>`${esc(s.name||'Student')} &lt;${esc(s.email)}&gt;`).join(', ');
+  el('email-bulk-note').classList.toggle('hidden', withEmail.length<2);
+}
+
+function openEmailComposer(targets, label){
+  EMAIL_TARGETS=(targets||[]).filter(s=>s && s.email);
+  if(!EMAIL_TARGETS.length){ toast('No email address available for that student','info'); return; }
+  el('email-target-label').textContent = label || (EMAIL_TARGETS.length===1 ? (EMAIL_TARGETS[0].name||'student') : `${EMAIL_TARGETS.length} students`);
+  const tpl=emailTemplate('meeting',EMAIL_TARGETS);
+  el('email-subject').value=tpl.subject;
+  el('email-body').value=tpl.body;
+  renderEmailRecipients();
+  el('email-modal').classList.remove('hidden');
+}
+
+window.emailStudent=(id)=>{
+  const s=(STUDENTS||[]).find(x=>x.id===id);
+  if(!s){ toast('Student not found','error'); return; }
+  openEmailComposer([s], s.name||'student');
+};
+
+function buildMailto(){
+  const targets=EMAIL_TARGETS.filter(s=>s.email);
+  const subject=el('email-subject').value;
+  const body=el('email-body').value;
+  const enc=encodeURIComponent;
+  let head, params=[];
+  if(targets.length<=1){
+    head='mailto:'+enc(targets.map(s=>s.email).join(','));
+  } else {
+    head='mailto:'; // recipients go to Bcc for privacy
+    params.push('bcc='+enc(targets.map(s=>s.email).join(',')));
+  }
+  params.push('subject='+enc(subject));
+  params.push('body='+enc(body));
+  return head+'?'+params.join('&');
+}
+
+el('contacts-email-all-btn')?.addEventListener('click',()=>{
+  const rows=myConnectedStudents().filter(s=>s.email);
+  if(!rows.length){ toast('None of your students have an email address on file','info'); return; }
+  openEmailComposer(rows, `${rows.length} student${rows.length>1?'s':''}`);
+});
+// Toolbar shortcut — email all connected students without opening the contacts modal first
+el('email-all-students-btn')?.addEventListener('click',()=>{
+  const rows=myConnectedStudents().filter(s=>s.email);
+  if(!rows.length){ toast('None of your students have an email address on file','info'); return; }
+  openEmailComposer(rows, `${rows.length} student${rows.length>1?'s':''}`);
+});
+el('email-close-btn')?.addEventListener('click',()=>el('email-modal').classList.add('hidden'));
+el('email-cancel-btn')?.addEventListener('click',()=>el('email-modal').classList.add('hidden'));
+el('email-modal')?.addEventListener('click',e=>{ if(e.target===el('email-modal')) el('email-modal').classList.add('hidden'); });
+document.querySelectorAll('#email-modal [data-tpl]').forEach(btn=>{
+  btn.addEventListener('click',()=>{
+    const tpl=emailTemplate(btn.getAttribute('data-tpl'),EMAIL_TARGETS);
+    el('email-subject').value=tpl.subject;
+    el('email-body').value=tpl.body;
+  });
+});
+el('email-send-btn')?.addEventListener('click',()=>{
+  if(!EMAIL_TARGETS.filter(s=>s.email).length){ toast('No recipients','error'); return; }
+  window.location.href=buildMailto();
+  toast('Opening your email app…','success');
+});
+el('email-copy-btn')?.addEventListener('click',async()=>{
+  const text=el('email-subject').value+'\n\n'+el('email-body').value;
+  try{ await navigator.clipboard.writeText(text); toast('Message copied','success'); }
+  catch{ toast('Copy failed — select and copy manually','error'); }
+});
+
 
 function parseCSV(text){
   const lines=text.trim().split('\n'); if(lines.length<2) return [];
@@ -1458,8 +1648,15 @@ async function mountAdmin(){
       if(item.dataset.tab==='tab-allocations') renderAllocations();
       if(item.dataset.tab==='tab-students') renderStudentsList(scopedStudentsForAdmin());
       if(item.dataset.tab==='tab-semesters') renderSemestersList();
+      closeSidebarDrawer(); // collapse the drawer on mobile after choosing
     };
   });
+  // Mobile sidebar drawer toggle
+  const sidebar=el('admin-sidebar'), backdrop=el('sidebar-backdrop');
+  const openDrawer=()=>{ sidebar?.classList.add('open'); backdrop?.classList.add('show'); };
+  window.closeSidebarDrawer=()=>{ sidebar?.classList.remove('open'); backdrop?.classList.remove('show'); };
+  el('sidebar-toggle').onclick=()=>{ sidebar?.classList.contains('open') ? closeSidebarDrawer() : openDrawer(); };
+  if(backdrop) backdrop.onclick=closeSidebarDrawer;
   el('goto-sv-btn').onclick=async()=>{ if(svUnsub){svUnsub();svUnsub=null;} await mountSupervisor(); };
   el('export-csv-btn').onclick=exportCSV;
   el('export-campus-btn').onclick=exportByCampus;
@@ -1835,6 +2032,8 @@ async function renderAllocations(){
 
   const snap=await getDocs(query(collection(db,'students'),orderBy('slNo')));
   let students=snap.docs.map(d=>({id:d.id,...d.data()}));
+  // Suspended (inactive) students are excluded from the allocation system entirely.
+  students = students.filter(s=>s.active!==false);
   if(adminSemester) students = students.filter(s=>s.semester===adminSemester);
   if(adminAllocCampus!=='all') students = students.filter(s=>s.campus===adminAllocCampus);
 
@@ -1974,6 +2173,7 @@ function downloadCSV(rows,filename){
 async function exportCSV(){
   const snap=await getDocs(query(collection(db,'students'),orderBy('slNo')));
   let docs = snap.docs.map(d=>({id:d.id,...d.data()}));
+  docs = docs.filter(s=>s.active!==false); // skip suspended students
   if(adminSemester) docs = docs.filter(s=>s.semester===adminSemester);
   if(adminAllocCampus!=='all') docs = docs.filter(s=>s.campus===adminAllocCampus);
   if(!docs.length){ toast('Nothing to export for this filter','error'); return; }
@@ -2005,7 +2205,7 @@ async function exportByCampus(){
   if(!campusId){ toast('Select a campus first','error'); return; }
   const campus=CAMPUSES.find(c=>c.id===campusId);
   const snap=await getDocs(query(collection(db,'students'),orderBy('slNo')));
-  let students=snap.docs.map(d=>d.data()).filter(s=>s.campus===campusId);
+  let students=snap.docs.map(d=>d.data()).filter(s=>s.campus===campusId&&s.active!==false);
   if(adminSemester) students = students.filter(s=>s.semester===adminSemester);
   if(!students.length){ toast('No students for this campus in the selected semester','error'); return; }
   const semTag = adminSemester ? '_'+safeName(semesterLabel(adminSemester)) : '';
@@ -2018,7 +2218,7 @@ async function exportBySupervisor(){
   if(!supId){ toast('Select a supervisor first','error'); return; }
   const sup=SUPS.find(x=>x.id===supId);
   const snap=await getDocs(query(collection(db,'students'),orderBy('slNo')));
-  let students=snap.docs.map(d=>d.data()).filter(s=>s.principalSupervisorId===supId);
+  let students=snap.docs.map(d=>d.data()).filter(s=>s.principalSupervisorId===supId&&s.active!==false);
   if(adminSemester) students = students.filter(s=>s.semester===adminSemester);
   if(!students.length){ toast('No students for this principal supervisor in the selected semester','error'); return; }
   const semTag = adminSemester ? '_'+safeName(semesterLabel(adminSemester)) : '';
@@ -2031,7 +2231,7 @@ async function exportByCoSupervisor(){
   if(!supId){ toast('Select a co-supervisor first','error'); return; }
   const sup=SUPS.find(x=>x.id===supId);
   const snap=await getDocs(query(collection(db,'students'),orderBy('slNo')));
-  let students=snap.docs.map(d=>d.data()).filter(s=>s.coSupervisorId===supId);
+  let students=snap.docs.map(d=>d.data()).filter(s=>s.coSupervisorId===supId&&s.active!==false);
   if(adminSemester) students = students.filter(s=>s.semester===adminSemester);
   if(!students.length){ toast('No students for this co-supervisor in the selected semester','error'); return; }
   const semTag = adminSemester ? '_'+safeName(semesterLabel(adminSemester)) : '';
