@@ -300,6 +300,28 @@ tbody tr:hover td{background:var(--bg-hover) !important;cursor:default}
   </div>
 </div>
 
+<!-- Pick supervisors to email -->
+<div id="sup-pick-modal" class="modal-overlay hidden">
+  <div class="modal-box" style="max-width:560px">
+    <button class="modal-close" id="sup-pick-close-btn">✕</button>
+    <div class="modal-title">👥 Email other supervisors</div>
+    <p class="text-xs text-muted" style="margin:-4px 0 12px">Choose who to email, then compose your message.</p>
+    <div style="display:flex;gap:8px;margin-bottom:10px;flex-wrap:wrap">
+      <input type="text" id="sup-pick-search" class="search-input" style="width:100%;padding-left:12px" placeholder="Search supervisors by name…"/>
+    </div>
+    <div style="display:flex;gap:8px;margin-bottom:10px;flex-wrap:wrap">
+      <button class="btn btn-sm" id="sup-pick-all">Select all</button>
+      <button class="btn btn-sm" id="sup-pick-none">Clear</button>
+      <span id="sup-pick-count" class="text-xs text-muted" style="align-self:center">0 selected</span>
+    </div>
+    <div id="sup-pick-list" style="max-height:50vh;overflow-y:auto;border:1px solid var(--border);border-radius:var(--r)"></div>
+    <div class="flex gap-8 mt-16">
+      <button class="btn btn-primary" id="sup-pick-next-btn">Compose email →</button>
+      <button class="btn" id="sup-pick-cancel-btn">Cancel</button>
+    </div>
+  </div>
+</div>
+
 <div id="loading-overlay">
   <div class="spinner" style="width:36px;height:36px;border-width:3px"></div>
   <div style="color:var(--text2);font-size:13px;margin-top:8px">Connecting…</div>
@@ -382,6 +404,7 @@ tbody tr:hover td{background:var(--bg-hover) !important;cursor:default}
         </div>
         <button class="btn btn-sm" id="my-contacts-btn" title="View your students and their supervisors' contact details">📋 My Students &amp; Contacts</button>
         <button class="btn btn-sm btn-primary" id="email-all-students-btn" title="Send one email to all of your students">✉️ Email all students</button>
+        <button class="btn btn-sm" id="email-colleague-btn" title="Send an email to other supervisors">👥 Email a supervisor</button>
         <span style="font-size:12px;color:var(--text2)">🔴 Live</span>
       </div>
       <div class="alert alert-info mb-16" id="sv-info-banner">
@@ -398,11 +421,10 @@ tbody tr:hover td{background:var(--bg-hover) !important;cursor:default}
               <th style="min-width:180px">Principal Supervisor</th>
               <th style="min-width:160px">Co-Supervisor</th>
               <th style="min-width:130px">Student Preference</th>
-              <th style="min-width:160px">Comments</th>
               <th style="min-width:110px">Summary / Link</th>
             </tr></thead>
             <tbody id="students-tbody">
-              <tr><td colspan="9" style="text-align:center;padding:48px;color:var(--text2)">
+              <tr><td colspan="8" style="text-align:center;padding:48px;color:var(--text2)">
                 <div class="spinner"></div><br><span style="display:block;margin-top:8px">Loading students…</span>
               </td></tr>
             </tbody>
@@ -875,7 +897,8 @@ el('contacts-csv-btn')?.addEventListener('click',()=>{
    and open the supervisor's own email client via mailto:. Single
    student → To:. Multiple students → Bcc: to keep addresses private.
    Templates give quick starting points for common purposes. */
-let EMAIL_TARGETS=[]; // array of student objects currently being emailed
+let EMAIL_TARGETS=[]; // array of {name,email} objects currently being emailed
+let EMAIL_KIND='student'; // 'student' | 'colleague'
 
 function studentFirstName(s){
   const n=(s?.name||'').trim();
@@ -888,6 +911,23 @@ function emailTemplate(kind, targets){
   const greetName = targets.length===1 ? studentFirstName(targets[0]) : 'all';
   const greeting = `Hi ${greetName},`;
   const signoff = `\n\nBest regards,\n${sup}`;
+  // Templates aimed at fellow supervisors
+  if(EMAIL_KIND==='colleague'){
+    if(kind==='meeting'){
+      return { subject:'Meeting request',
+        body:`${greeting}\n\nI'd like to set up a short meeting to coordinate on supervision matters. Could you let me know your availability this week?${signoff}` };
+    }
+    if(kind==='reminder'){
+      return { subject:'Reminder',
+        body:`${greeting}\n\nJust a quick reminder regarding the item we discussed. Please let me know if anything is outstanding on your side.${signoff}` };
+    }
+    if(kind==='feedback'){
+      return { subject:'Co-supervision update',
+        body:`${greeting}\n\nI wanted to share a brief update on a student we jointly supervise and check whether you have any input before we proceed.${signoff}` };
+    }
+    return { subject:'', body:`${greeting}\n${signoff}` };
+  }
+  // Templates aimed at students
   if(kind==='meeting'){
     return {
       subject:'Supervision meeting',
@@ -912,15 +952,20 @@ function emailTemplate(kind, targets){
 function renderEmailRecipients(){
   const box=el('email-recipients');
   const withEmail=EMAIL_TARGETS.filter(s=>s.email);
-  if(!withEmail.length){ box.innerHTML='<span class="text-muted">No students with an email address.</span>'; return; }
-  box.innerHTML=withEmail.map(s=>`${esc(s.name||'Student')} &lt;${esc(s.email)}&gt;`).join(', ');
-  el('email-bulk-note').classList.toggle('hidden', withEmail.length<2);
+  const noun = EMAIL_KIND==='colleague' ? 'supervisors' : 'students';
+  if(!withEmail.length){ box.innerHTML=`<span class="text-muted">No ${noun} with an email address.</span>`; return; }
+  box.innerHTML=withEmail.map(s=>`${esc(s.name||'Recipient')} &lt;${esc(s.email)}&gt;`).join(', ');
+  const note=el('email-bulk-note');
+  note.classList.toggle('hidden', withEmail.length<2);
+  note.innerHTML=`Sending to several ${noun}: recipients are added as <strong>Bcc</strong> so addresses stay private.`;
 }
 
-function openEmailComposer(targets, label){
+function openEmailComposer(targets, label, kind){
+  EMAIL_KIND = kind || 'student';
   EMAIL_TARGETS=(targets||[]).filter(s=>s && s.email);
-  if(!EMAIL_TARGETS.length){ toast('No email address available for that student','info'); return; }
-  el('email-target-label').textContent = label || (EMAIL_TARGETS.length===1 ? (EMAIL_TARGETS[0].name||'student') : `${EMAIL_TARGETS.length} students`);
+  if(!EMAIL_TARGETS.length){ toast('No email address available','info'); return; }
+  const noun = EMAIL_KIND==='colleague' ? 'supervisor' : 'student';
+  el('email-target-label').textContent = label || (EMAIL_TARGETS.length===1 ? (EMAIL_TARGETS[0].name||noun) : `${EMAIL_TARGETS.length} ${noun}s`);
   const tpl=emailTemplate('meeting',EMAIL_TARGETS);
   el('email-subject').value=tpl.subject;
   el('email-body').value=tpl.body;
@@ -931,7 +976,7 @@ function openEmailComposer(targets, label){
 window.emailStudent=(id)=>{
   const s=(STUDENTS||[]).find(x=>x.id===id);
   if(!s){ toast('Student not found','error'); return; }
-  openEmailComposer([s], s.name||'student');
+  openEmailComposer([s], s.name||'student', 'student');
 };
 
 function buildMailto(){
@@ -954,13 +999,13 @@ function buildMailto(){
 el('contacts-email-all-btn')?.addEventListener('click',()=>{
   const rows=myConnectedStudents().filter(s=>s.email);
   if(!rows.length){ toast('None of your students have an email address on file','info'); return; }
-  openEmailComposer(rows, `${rows.length} student${rows.length>1?'s':''}`);
+  openEmailComposer(rows, `${rows.length} student${rows.length>1?'s':''}`, 'student');
 });
 // Toolbar shortcut — email all connected students without opening the contacts modal first
 el('email-all-students-btn')?.addEventListener('click',()=>{
   const rows=myConnectedStudents().filter(s=>s.email);
   if(!rows.length){ toast('None of your students have an email address on file','info'); return; }
-  openEmailComposer(rows, `${rows.length} student${rows.length>1?'s':''}`);
+  openEmailComposer(rows, `${rows.length} student${rows.length>1?'s':''}`, 'student');
 });
 el('email-close-btn')?.addEventListener('click',()=>el('email-modal').classList.add('hidden'));
 el('email-cancel-btn')?.addEventListener('click',()=>el('email-modal').classList.add('hidden'));
@@ -981,6 +1026,67 @@ el('email-copy-btn')?.addEventListener('click',async()=>{
   const text=el('email-subject').value+'\n\n'+el('email-body').value;
   try{ await navigator.clipboard.writeText(text); toast('Message copied','success'); }
   catch{ toast('Copy failed — select and copy manually','error'); }
+});
+
+/* ── Email other supervisors ───────────────────────────────────
+   Supervisor picks one or more colleagues from the supervisor list
+   (excluding themselves and disabled accounts), then composes a
+   message that opens in their own mail client. */
+const SUP_PICK=new Set(); // selected supervisor ids
+
+function emailableSupervisors(){
+  const myUid=PROFILE?.uid;
+  return (SUPS||[]).filter(s=>s.id!==myUid && !s.disabled && s.email);
+}
+function renderSupPickList(filter){
+  const list=el('sup-pick-list'); if(!list) return;
+  const term=(filter||'').toLowerCase();
+  const sups=emailableSupervisors().filter(s=>(s.name||'').toLowerCase().includes(term));
+  if(!sups.length){ list.innerHTML=`<div class="text-muted text-sm" style="padding:16px;text-align:center">No supervisors found.</div>`; updateSupPickCount(); return; }
+  list.innerHTML=sups.map(s=>{
+    const cn=CAMPUSES.find(c=>c.id===s.campus)?.name||'—';
+    const checked=SUP_PICK.has(s.id)?'checked':'';
+    return `<label style="display:flex;align-items:center;gap:10px;padding:9px 12px;border-bottom:1px solid var(--border);cursor:pointer">
+      <input type="checkbox" data-supid="${s.id}" ${checked} style="width:auto;margin:0;flex-shrink:0"/>
+      <span style="flex:1"><span class="fw-600">${esc(s.name||'Unnamed')}</span> <span class="text-xs text-muted">· ${esc(cn)}</span><br><span class="text-xs text-muted">${esc(s.email)}</span></span>
+    </label>`;
+  }).join('');
+  list.querySelectorAll('input[data-supid]').forEach(cb=>{
+    cb.addEventListener('change',()=>{
+      const id=cb.getAttribute('data-supid');
+      if(cb.checked) SUP_PICK.add(id); else SUP_PICK.delete(id);
+      updateSupPickCount();
+    });
+  });
+  updateSupPickCount();
+}
+function updateSupPickCount(){
+  const n=SUP_PICK.size;
+  setTxt('sup-pick-count', `${n} selected`);
+}
+function openSupPicker(){
+  if(!emailableSupervisors().length){ toast('No other supervisors with an email address are available','info'); return; }
+  SUP_PICK.clear();
+  el('sup-pick-search').value='';
+  renderSupPickList('');
+  el('sup-pick-modal').classList.remove('hidden');
+}
+el('email-colleague-btn')?.addEventListener('click',openSupPicker);
+el('sup-pick-close-btn')?.addEventListener('click',()=>el('sup-pick-modal').classList.add('hidden'));
+el('sup-pick-cancel-btn')?.addEventListener('click',()=>el('sup-pick-modal').classList.add('hidden'));
+el('sup-pick-modal')?.addEventListener('click',e=>{ if(e.target===el('sup-pick-modal')) el('sup-pick-modal').classList.add('hidden'); });
+el('sup-pick-search')?.addEventListener('input',e=>renderSupPickList(e.target.value));
+el('sup-pick-all')?.addEventListener('click',()=>{
+  const term=el('sup-pick-search').value;
+  emailableSupervisors().filter(s=>(s.name||'').toLowerCase().includes(term.toLowerCase())).forEach(s=>SUP_PICK.add(s.id));
+  renderSupPickList(term);
+});
+el('sup-pick-none')?.addEventListener('click',()=>{ SUP_PICK.clear(); renderSupPickList(el('sup-pick-search').value); });
+el('sup-pick-next-btn')?.addEventListener('click',()=>{
+  const chosen=emailableSupervisors().filter(s=>SUP_PICK.has(s.id));
+  if(!chosen.length){ toast('Select at least one supervisor','info'); return; }
+  el('sup-pick-modal').classList.add('hidden');
+  openEmailComposer(chosen, chosen.length===1?(chosen[0].name||'supervisor'):`${chosen.length} supervisors`, 'colleague');
 });
 
 
@@ -1342,7 +1448,7 @@ function renderSVStats(students){
 
 function renderSVTable(students){
   const tbody=el('students-tbody');
-  if(!students.length){ tbody.innerHTML=`<tr><td colspan="9" style="text-align:center;padding:48px;color:var(--text2)">No students found</td></tr>`; return; }
+  if(!students.length){ tbody.innerHTML=`<tr><td colspan="8" style="text-align:center;padding:48px;color:var(--text2)">No students found</td></tr>`; return; }
   const isAdmin=PROFILE?.role==='admin', myUid=PROFILE?.uid;
 
   // Count current allocations per supervisor within the SAME semester only
@@ -1459,7 +1565,6 @@ function renderSVTable(students){
 
     const prefCell=s.studentPreference?`<span class="pref-warn" title="Prefers: ${esc(s.studentPreference)}">⭐ ${esc(s.studentPreference)}</span>`:`<span class="text-xs text-muted">None</span>`;
     const canEdit=isAdmin||isMine;
-    const commentCell=`<div class="flex items-center gap-8"><span class="truncate text-sm" style="max-width:110px" title="${esc(s.comment||'')}">${esc(s.comment||'—')}</span>${canEdit?`<button class="btn btn-sm" data-action="edit-comment" data-sid="${s.id}">✏️</button>`:''}</div>`;
 
     // Summary: inline snippet + "Read more" → modal; link shown as small icon if present
     const summary=(s.proposalSummary||'').trim();
@@ -1487,7 +1592,6 @@ function renderSVTable(students){
       <td>${principalCell}</td>
       <td>${coCell}</td>
       <td>${prefCell}</td>
-      <td>${commentCell}</td>
       <td>${summaryCell}${deallocBtn}</td>
     </tr>`;
   }).join('');
@@ -1591,14 +1695,6 @@ function bindSVEvents(students){
       if(!confirm(`Remove allocation for ${s?.name}?`)) return;
       try{ await updateDoc(doc(db,'students',btn.dataset.sid),{principalSupervisorId:null,principalSupervisorName:null,coSupervisorId:null,coSupervisorName:null,coAllocatedBy:null,coAllocatedAt:null,allocatedAt:null,allocatedBy:null}); toast('Allocation removed','info'); }
       catch(err){ toast('Error: '+err.message,'error'); }
-    });
-  });
-  tbody.querySelectorAll('[data-action="edit-comment"]').forEach(btn=>{
-    btn.addEventListener('click',()=>{
-      const s=students.find(x=>x.id===btn.dataset.sid);
-      const v=prompt(`Comment for ${s?.name}:`,s?.comment||'');
-      if(v===null) return;
-      updateDoc(doc(db,'students',btn.dataset.sid),{comment:v}).then(()=>toast('Comment saved','success')).catch(e=>toast('Error: '+e.message,'error'));
     });
   });
   tbody.querySelectorAll('[data-action="edit-link"]').forEach(btn=>{
@@ -2041,7 +2137,7 @@ async function renderAllocations(){
   setTxt('a-co-alloc',students.filter(s=>s.coSupervisorId).length); setTxt('a-co-pending',students.filter(s=>!s.coSupervisorId).length);
 
   if(!students.length){
-    el('alloc-tbody').innerHTML=`<tr><td colspan="9" style="text-align:center;padding:32px;color:var(--text2)">No students match this semester + campus filter.</td></tr>`;
+    el('alloc-tbody').innerHTML=`<tr><td colspan="8" style="text-align:center;padding:32px;color:var(--text2)">No students match this semester + campus filter.</td></tr>`;
     return;
   }
 
