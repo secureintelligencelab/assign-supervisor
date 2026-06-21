@@ -361,7 +361,7 @@ tbody tr:hover td{background:var(--bg-hover) !important;cursor:default}
     <div class="navbar-right">
       <select id="sv-semester-picker" class="ctx-picker" title="Semester" style="display:none"></select>
       <span id="sup-campus-badge" class="nav-badge">—</span>
-      <span id="alloc-mode-badge" class="badge badge-amber">—</span>
+      <span id="alloc-mode-badge" class="badge badge-amber" style="display:none">—</span>
       <div class="flex items-center gap-8">
         <div id="sup-avatar" class="avatar">?</div>
         <span id="sup-name-display" style="font-size:13px;color:var(--text2)">—</span>
@@ -384,6 +384,8 @@ tbody tr:hover td{background:var(--bg-hover) !important;cursor:default}
     <!-- Main student view (hidden until campus chosen) -->
     <div id="sv-main-view" class="hidden">
       <div class="stats-strip">
+        <div class="stat-card" style="border-color:rgba(59,130,246,.45);background:rgba(59,130,246,.07)"><div class="stat-val" style="color:var(--accent)" id="stat-my-principal">—</div><div class="stat-lbl">My Students (Principal)</div><div class="progress-bar"><div class="progress-fill" id="my-principal-progress" style="width:0%"></div></div></div>
+        <div class="stat-card" style="border-color:rgba(167,139,250,.45);background:rgba(167,139,250,.07)"><div class="stat-val" style="color:var(--accent2)" id="stat-my-co">—</div><div class="stat-lbl">My Students (Co-Sup)</div><div class="progress-bar"><div class="progress-fill" id="my-co-progress" style="width:0%"></div></div></div>
         <div class="stat-card"><div class="stat-val" id="stat-total">—</div><div class="stat-lbl">Total Students</div></div>
         <div class="stat-card"><div class="stat-val" style="color:var(--green)" id="stat-alloc">—</div><div class="stat-lbl">Principal Allocated</div></div>
         <div class="stat-card"><div class="stat-val" style="color:var(--amber)" id="stat-pending">—</div><div class="stat-lbl">Principal Pending</div></div>
@@ -408,7 +410,7 @@ tbody tr:hover td{background:var(--bg-hover) !important;cursor:default}
         <span style="font-size:12px;color:var(--text2)">🔴 Live</span>
       </div>
       <div class="alert alert-info mb-16" id="sv-info-banner">
-        ℹ️ Select your name in the <strong>Principal Supervisor</strong> column to claim a student. Principal supervisors can only be assigned to students of their own campus.
+        ℹ️ Select your name in the <strong>Principal Supervisor</strong> column to take on a student. Principal supervisors can only be assigned to students of their own campus.
       </div>
       <div class="card" style="padding:0;overflow:hidden">
         <div class="tw">
@@ -460,6 +462,7 @@ tbody tr:hover td{background:var(--bg-hover) !important;cursor:default}
       <div class="sidebar-section" style="margin-top:8px">Per Semester</div>
       <div class="sidebar-item" data-tab="tab-students">🎓 Students</div>
       <div class="sidebar-item" data-tab="tab-allocations">📋 Allocations</div>
+      <div class="sidebar-item" data-tab="tab-by-supervisor">👥 By Supervisor</div>
       <div class="sidebar-section" style="margin-top:8px">System</div>
       <div class="sidebar-item" data-tab="tab-settings">⚙️ Settings</div>
     </aside>
@@ -549,6 +552,7 @@ tbody tr:hover td{background:var(--bg-hover) !important;cursor:default}
             <div class="form-group"><label>Student Name</label><input type="text" id="s-name" placeholder="Full name"/></div>
             <div class="form-group"><label>Student ID</label><input type="text" id="s-id" placeholder="cihe260061"/></div>
             <div class="form-group"><label>Student Email</label><input type="email" id="s-email" placeholder="student@email.com"/></div>
+            <div class="form-group"><label>Personal Email <span style="text-transform:none;font-weight:400;color:var(--text3)">(optional)</span></label><input type="email" id="s-personal-email" placeholder="personal@email.com"/></div>
             <div class="form-group"><label>Campus</label><select id="s-campus"><option value="">— Select Campus —</option></select></div>
             <div class="form-group"><label>Semester</label><select id="s-semester"><option value="">— Active Semester —</option></select></div>
           </div>
@@ -566,7 +570,7 @@ tbody tr:hover td{background:var(--bg-hover) !important;cursor:default}
         </div>
         <div class="card mb-16">
           <div class="card-header"><h3>📂 Bulk Import via CSV</h3></div>
-          <p class="text-sm text-muted mb-8">Columns: <code style="background:var(--bg3);padding:1px 6px;border-radius:4px;font-size:11px">SL. No, Student Name, ID, Email, Proposal Title, Summary, Link, Student's Preferences, Campus, Semester</code> <span class="text-xs">(Semester is optional — defaults to the active semester)</span></p>
+          <p class="text-sm text-muted mb-8">Columns: <code style="background:var(--bg3);padding:1px 6px;border-radius:4px;font-size:11px">SL. No, Student Name, ID, Email, Personal Email, Proposal Title, Summary, Link, Student's Preferences, Campus, Semester</code> <span class="text-xs">(Personal Email &amp; Semester are optional — Semester defaults to the active semester)</span></p>
           <div id="csv-drop-zone" class="drop-zone"><div style="font-size:32px;margin-bottom:8px">📄</div><div class="fw-600">Drop CSV file here or click to browse</div></div>
           <input type="file" id="csv-input" accept=".csv" style="display:none"/>
           <div id="csv-preview" class="hidden mt-16"></div>
@@ -631,7 +635,30 @@ tbody tr:hover td{background:var(--bg-hover) !important;cursor:default}
         </div>
       </div>
 
-      <!-- SETTINGS -->
+      <!-- BY SUPERVISOR -->
+      <div id="tab-by-supervisor" class="tab-panel">
+        <h2 class="mb-16">👥 Students by Supervisor</h2>
+        <div id="bysup-context-strip" class="alert alert-info mb-16">
+          <span id="bysup-context-text">Showing every supervisor and the students they have taken on.</span>
+        </div>
+        <div class="toolbar mb-16">
+          <div id="bysup-campus-pills" class="campus-pills" style="margin:0"></div>
+          <div class="spacer"></div>
+          <div class="search-wrap">
+            <span class="search-icon">🔍</span>
+            <input type="text" id="bysup-search" class="search-input" placeholder="Search supervisor name…"/>
+          </div>
+        </div>
+        <div class="stats-strip mb-16">
+          <div class="stat-card"><div class="stat-val" id="bs-supervisors">—</div><div class="stat-lbl">Active Supervisors</div></div>
+          <div class="stat-card"><div class="stat-val" style="color:var(--accent)" id="bs-principal-load">—</div><div class="stat-lbl">Principal Selections</div></div>
+          <div class="stat-card"><div class="stat-val" style="color:var(--accent2)" id="bs-co-load">—</div><div class="stat-lbl">Co-Sup Selections</div></div>
+          <div class="stat-card"><div class="stat-val" style="color:var(--amber)" id="bs-no-students">—</div><div class="stat-lbl">Supervisors w/ None</div></div>
+        </div>
+        <div id="bysup-list"><div class="text-muted text-sm" style="padding:12px">Click <strong>By Supervisor</strong> in the sidebar…</div></div>
+      </div>
+
+
       <div id="tab-settings" class="tab-panel">
         <h2 class="mb-16">⚙️ Settings</h2>
         <div class="card" style="max-width:520px">
@@ -745,6 +772,7 @@ let svCampus  = 'all';
 let svSemester  = null;     // selected semester id for supervisor view
 let adminSemester = null;   // selected semester id for admin view
 let adminAllocCampus = 'all'; // campus filter inside the Allocations tab
+let bysupCampus = 'all'; // campus filter inside the By Supervisor tab
 
 /* ── Helpers ────────────────────────────────────────────── */
 const esc  = s => String(s||'').replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;');
@@ -1284,8 +1312,15 @@ async function mountSupervisor(){
   const cn = CAMPUSES.find(c=>c.id===p.campus)?.name||'All Campuses';
   setTxt('sup-campus-badge','🏫 '+cn);
   const mEl=el('alloc-mode-badge');
-  if(SETTINGS.allocationMode==='fcfs'){ mEl.className='badge badge-amber'; mEl.textContent='🔒 First-Come-First-Serve'; }
-  else{ mEl.className='badge badge-blue'; mEl.textContent='👥 Multi-Supervisor'; }
+  if(SETTINGS.allocationMode==='fcfs'){ mEl.style.display='none'; mEl.textContent=''; }
+  else{ mEl.style.display=''; mEl.className='badge badge-blue'; mEl.textContent='👥 Multi-Supervisor'; }
+
+  // Personal load cards only make sense for an actual supervisor account.
+  const isAdminViewing = PROFILE?.role==='admin';
+  ['stat-my-principal','stat-my-co'].forEach(id=>{
+    const card=el(id)?.closest('.stat-card');
+    if(card) card.style.display = isAdminViewing ? 'none' : '';
+  });
 
   // Semester picker (supervisor)
   const semPicker = el('sv-semester-picker');
@@ -1444,6 +1479,19 @@ function renderSVStats(students){
   setTxt('stat-total',total); setTxt('stat-alloc',alloc); setTxt('stat-pending',total-alloc); setTxt('stat-pct',pct+'%');
   setTxt('stat-co-alloc',coAlloc); setTxt('stat-co-pending',total-coAlloc);
   el('alloc-progress').style.width=pct+'%';
+
+  // Personal load for the logged-in supervisor, counted within the current semester
+  // (matching how capacity limits reset per semester).
+  const myUid = PROFILE?.uid;
+  const pool = svSemester ? STUDENTS.filter(s=>s.semester===svSemester && s.active!==false)
+                          : STUDENTS.filter(s=>s.active!==false);
+  const myPrincipal = myUid ? pool.filter(s=>s.principalSupervisorId===myUid).length : 0;
+  const myCo        = myUid ? pool.filter(s=>s.coSupervisorId===myUid).length : 0;
+  const maxP = SETTINGS.maxPrincipal||6, maxC = SETTINGS.maxCo||6;
+  setTxt('stat-my-principal', `${myPrincipal} / ${maxP}`);
+  setTxt('stat-my-co', `${myCo} / ${maxC}`);
+  const pBar=el('my-principal-progress'); if(pBar) pBar.style.width=Math.min(100,Math.round(myPrincipal/maxP*100))+'%';
+  const cBar=el('my-co-progress'); if(cBar) cBar.style.width=Math.min(100,Math.round(myCo/maxC*100))+'%';
 }
 
 function renderSVTable(students){
@@ -1742,6 +1790,7 @@ async function mountAdmin(){
       document.querySelectorAll('.tab-panel').forEach(t=>t.classList.remove('active'));
       item.classList.add('active'); el(item.dataset.tab)?.classList.add('active');
       if(item.dataset.tab==='tab-allocations') renderAllocations();
+      if(item.dataset.tab==='tab-by-supervisor') renderBySupervisor();
       if(item.dataset.tab==='tab-students') renderStudentsList(scopedStudentsForAdmin());
       if(item.dataset.tab==='tab-semesters') renderSemestersList();
       closeSidebarDrawer(); // collapse the drawer on mobile after choosing
@@ -1758,6 +1807,7 @@ async function mountAdmin(){
   el('export-campus-btn').onclick=exportByCampus;
   el('export-sup-btn').onclick=exportBySupervisor;
   el('export-cosup-btn').onclick=exportByCoSupervisor;
+  const bysupSearch=el('bysup-search'); if(bysupSearch) bysupSearch.oninput=()=>renderBySupervisor(false);
 
   // Reset sidebar to first tab on each mount
   document.querySelectorAll('.sidebar-item').forEach(i=>i.classList.remove('active'));
@@ -1794,6 +1844,7 @@ function refreshAdminSemesterPicker(){
     }catch(e){ console.warn('reload students fail',e); }
     renderStudentsList(scopedStudentsForAdmin());
     if(el('tab-allocations').classList.contains('active')) renderAllocations();
+    if(el('tab-by-supervisor').classList.contains('active')) renderBySupervisor();
     toast('Switched to '+semesterLabel(adminSemester),'info',2000);
   };
 }
@@ -2021,19 +2072,19 @@ function initStudentsTab(){
     if(!semester){ toast('Please create a Semester first (Semesters tab)','error'); return; }
     const semesterName = SEMESTERS.find(s=>s.id===semester)?.name || '';
     const editId=el('s-edit-id').value;
-    const data={ slNo:parseInt(el('s-slno').value)||0, name, studentId:el('s-id').value.trim(), email:el('s-email').value.trim(), campus, campusName, semester, semesterName, proposalTitle:el('s-title').value.trim(), proposalSummary:el('s-summary').value.trim(), proposalLink:el('s-link').value.trim(), studentPreference:el('s-pref').value };
+    const data={ slNo:parseInt(el('s-slno').value)||0, name, studentId:el('s-id').value.trim(), email:el('s-email').value.trim(), personalEmail:el('s-personal-email').value.trim(), campus, campusName, semester, semesterName, proposalTitle:el('s-title').value.trim(), proposalSummary:el('s-summary').value.trim(), proposalLink:el('s-link').value.trim(), studentPreference:el('s-pref').value };
     if(!editId) data.active = true; // new students are active by default
     try{
       if(editId) await updateDoc(doc(db,'students',editId),{...data,updatedAt:serverTimestamp()});
       else await addDoc(collection(db,'students'),{...data,createdAt:serverTimestamp()});
-      ['s-slno','s-name','s-id','s-email','s-title','s-summary','s-link'].forEach(id=>{const e=el(id);if(e)e.value='';}); el('s-campus').value=''; el('s-pref').value=''; el('s-edit-id').value='';
+      ['s-slno','s-name','s-id','s-email','s-personal-email','s-title','s-summary','s-link'].forEach(id=>{const e=el(id);if(e)e.value='';}); el('s-campus').value=''; el('s-pref').value=''; el('s-edit-id').value='';
       // Keep semester selection sticky to whatever was used — easier bulk-add
       el('student-form-title').textContent='Add Student'; el('student-save-btn').textContent='Add Student'; hide('student-cancel-btn');
       const snap=await getDocs(query(collection(db,'students'),orderBy('slNo'))); STUDENTS=snap.docs.map(d=>({id:d.id,...d.data()}));
       renderStudentsList(scopedStudentsForAdmin()); toast('Student saved','success');
     }catch(e){ toast('Error: '+e.message,'error'); }
   };
-  el('student-cancel-btn').onclick=()=>{ ['s-slno','s-name','s-id','s-email','s-title','s-summary','s-link'].forEach(id=>{const e=el(id);if(e)e.value='';}); el('s-campus').value=''; el('s-pref').value=''; el('s-edit-id').value=''; el('student-form-title').textContent='Add Student'; el('student-save-btn').textContent='Update Student'; hide('student-cancel-btn'); };
+  el('student-cancel-btn').onclick=()=>{ ['s-slno','s-name','s-id','s-email','s-personal-email','s-title','s-summary','s-link'].forEach(id=>{const e=el(id);if(e)e.value='';}); el('s-campus').value=''; el('s-pref').value=''; el('s-edit-id').value=''; el('student-form-title').textContent='Add Student'; el('student-save-btn').textContent='Update Student'; hide('student-cancel-btn'); };
   const dz=el('csv-drop-zone'); dz.addEventListener('click',()=>el('csv-input').click()); dz.addEventListener('dragover',e=>{e.preventDefault();dz.classList.add('dragging');}); dz.addEventListener('dragleave',()=>dz.classList.remove('dragging')); dz.addEventListener('drop',e=>{e.preventDefault();dz.classList.remove('dragging');handleCSV(e.dataTransfer.files[0]);}); el('csv-input').addEventListener('change',e=>handleCSV(e.target.files[0]));
 }
 function renderPrefDropdown(){ const e=el('s-pref'); if(!e) return; e.innerHTML=`<option value="">— No preference —</option>`+SUPS.map(s=>`<option value="${esc(s.name)}">${esc(s.name)}</option>`).join(''); }
@@ -2053,7 +2104,7 @@ function renderStudentsList(students){
       ? `<button class="btn btn-sm" onclick="toggleStudentActive('${s.id}',true)">Activate</button>`
       : `<button class="btn btn-sm" onclick="toggleStudentActive('${s.id}',false)">Deactivate</button>`;
     return `<tr style="${isInactive?'opacity:.6':''}"><td class="text-xs text-muted">${s.slNo||''}</td><td class="fw-600">${esc(s.name)}</td><td class="text-xs text-muted">${esc(s.studentId)}</td>
-    <td class="text-xs">${s.email?`<a href="mailto:${esc(s.email)}">${esc(s.email)}</a>`:'<span class="text-muted">—</span>'}</td>
+    <td class="text-xs">${s.email?`<a href="mailto:${esc(s.email)}">${esc(s.email)}</a>`:'<span class="text-muted">—</span>'}${s.personalEmail?`<div class="text-xs"><a href="mailto:${esc(s.personalEmail)}">${esc(s.personalEmail)}</a> <span class="text-muted">(personal)</span></div>`:''}</td>
     <td><span class="badge badge-gray">${esc(cn)}</span></td>
     <td><span class="badge badge-purple">📅 ${esc(sn)}</span></td>
     <td>${statusBadge}</td>
@@ -2065,7 +2116,7 @@ function renderStudentsList(students){
     <td><div class="flex gap-8"><button class="btn btn-sm" onclick="editStudent('${s.id}')">Edit</button>${toggleBtn}<button class="btn btn-sm btn-danger" onclick="delStudent('${s.id}')">Delete</button>${s.principalSupervisorId?`<button class="btn btn-sm" onclick="clearAlloc('${s.id}')">Clear</button>`:''}</div></td></tr>`;
   }).join('')}</tbody></table></div>`;
 }
-window.editStudent=id=>{ const s=STUDENTS.find(x=>x.id===id); if(!s) return; el('s-slno').value=s.slNo||''; el('s-name').value=s.name||''; el('s-id').value=s.studentId||''; el('s-email').value=s.email||''; el('s-campus').value=s.campus||''; el('s-semester').value=s.semester||''; el('s-title').value=s.proposalTitle||''; el('s-summary').value=s.proposalSummary||''; el('s-link').value=s.proposalLink||''; el('s-pref').value=s.studentPreference||''; el('s-edit-id').value=id; el('student-form-title').textContent='Edit Student'; el('student-save-btn').textContent='Update Student'; show('student-cancel-btn'); el('student-form-title').scrollIntoView({behavior:'smooth'}); };
+window.editStudent=id=>{ const s=STUDENTS.find(x=>x.id===id); if(!s) return; el('s-slno').value=s.slNo||''; el('s-name').value=s.name||''; el('s-id').value=s.studentId||''; el('s-email').value=s.email||''; el('s-personal-email').value=s.personalEmail||''; el('s-campus').value=s.campus||''; el('s-semester').value=s.semester||''; el('s-title').value=s.proposalTitle||''; el('s-summary').value=s.proposalSummary||''; el('s-link').value=s.proposalLink||''; el('s-pref').value=s.studentPreference||''; el('s-edit-id').value=id; el('student-form-title').textContent='Edit Student'; el('student-save-btn').textContent='Update Student'; show('student-cancel-btn'); el('student-form-title').scrollIntoView({behavior:'smooth'}); };
 window.delStudent=async id=>{ const s=STUDENTS.find(x=>x.id===id); if(!confirm(`Delete ${s?.name}?`)) return; try{ await deleteDoc(doc(db,'students',id)); STUDENTS=STUDENTS.filter(x=>x.id!==id); renderStudentsList(scopedStudentsForAdmin()); toast('Deleted','info'); }catch(e){ toast('Error: '+e.message,'error'); } };
 window.toggleStudentActive=async(id,activate)=>{
   const s=STUDENTS.find(x=>x.id===id);
@@ -2094,6 +2145,7 @@ async function handleCSV(file){
       name:row['Student Name']||row['name']||row['Name']||'',
       studentId:row['ID']||row['id']||row['Student ID']||'',
       email:row['Email']||row['email']||row['Student Email']||row['Student email']||'',
+      personalEmail:row['Personal Email']||row['personal email']||row['Personal email']||row['PersonalEmail']||'',
       proposalTitle:row['Proposal Title']||row['title']||row['Proposal']||'',
       proposalSummary:row['Summary']||row['summary']||row['Proposal Summary']||'',
       proposalLink:row['Link']||row['link']||row['Proposal Link']||'',
@@ -2180,6 +2232,117 @@ function buildAllocCampusPills(){
 }
 window.aPrincipal=async(sid,sel)=>{ const supId=sel.value, supName=sel.selectedOptions[0]?.dataset?.name||''; if(!supId) return; try{ await updateDoc(doc(db,'students',sid),{principalSupervisorId:supId,principalSupervisorName:supName,allocatedAt:serverTimestamp(),allocatedBy:ME.uid}); toast('Principal updated','success'); }catch(e){ toast('Error: '+e.message,'error'); } };
 window.aCo=async(sid,sel)=>{ const coId=sel.value, coName=sel.selectedOptions[0]?.dataset?.name||''; try{ await updateDoc(doc(db,'students',sid),{coSupervisorId:coId||null,coSupervisorName:coName||null,coAllocatedBy:coId?ME.uid:null,coAllocatedAt:coId?serverTimestamp():null}); toast('Co-supervisor updated','success'); }catch(e){ toast('Error: '+e.message,'error'); } };
+
+/* ── By Supervisor: which students each supervisor has selected, and how many ── */
+async function renderBySupervisor(refetch=true){
+  buildBySupCampusPills();
+  const semTxt = adminSemester ? '📅 '+semesterLabel(adminSemester) : 'All semesters';
+  const campusTxt = bysupCampus==='all' ? 'All campuses' : '🏫 '+(CAMPUSES.find(c=>c.id===bysupCampus)?.name||'Unknown');
+  setTxt('bysup-context-text', `Showing supervisor selections for: ${semTxt}  ·  ${campusTxt}`);
+
+  // Refresh students so counts are current (skipped on search-only re-renders).
+  if(refetch){
+    try{
+      const snap=await getDocs(query(collection(db,'students'),orderBy('slNo')));
+      STUDENTS=snap.docs.map(d=>({id:d.id,...d.data()}));
+    }catch(e){ console.warn('bysup reload fail',e); }
+  }
+
+  let students=STUDENTS.filter(s=>s.active!==false);
+  if(adminSemester) students=students.filter(s=>s.semester===adminSemester);
+  if(bysupCampus!=='all') students=students.filter(s=>s.campus===bysupCampus);
+
+  // Build a per-supervisor map: principal + co students.
+  const map={}; // supId -> {sup, principal:[], co:[]}
+  SUPS.forEach(sup=>{ map[sup.id]={sup, principal:[], co:[]}; });
+  students.forEach(s=>{
+    if(s.principalSupervisorId){
+      if(!map[s.principalSupervisorId]) map[s.principalSupervisorId]={sup:{id:s.principalSupervisorId,name:s.principalSupervisorName||'(removed supervisor)'},principal:[],co:[]};
+      map[s.principalSupervisorId].principal.push(s);
+    }
+    if(s.coSupervisorId){
+      if(!map[s.coSupervisorId]) map[s.coSupervisorId]={sup:{id:s.coSupervisorId,name:s.coSupervisorName||'(removed supervisor)'},principal:[],co:[]};
+      map[s.coSupervisorId].co.push(s);
+    }
+  });
+
+  let rows=Object.values(map);
+  // Search filter by supervisor name
+  const q=(el('bysup-search')?.value||'').trim().toLowerCase();
+  if(q) rows=rows.filter(r=>String(r.sup.name||'').toLowerCase().includes(q));
+
+  // Sort: most students first, then by name
+  rows.sort((a,b)=>{
+    const la=a.principal.length+a.co.length, lb=b.principal.length+b.co.length;
+    if(lb!==la) return lb-la;
+    return String(a.sup.name||'').localeCompare(String(b.sup.name||''));
+  });
+
+  // Stats
+  const activeSupervisors=rows.filter(r=>r.principal.length+r.co.length>0).length;
+  const totalPrincipal=rows.reduce((n,r)=>n+r.principal.length,0);
+  const totalCo=rows.reduce((n,r)=>n+r.co.length,0);
+  const noneCount=rows.filter(r=>r.principal.length+r.co.length===0).length;
+  setTxt('bs-supervisors',activeSupervisors);
+  setTxt('bs-principal-load',totalPrincipal);
+  setTxt('bs-co-load',totalCo);
+  setTxt('bs-no-students',noneCount);
+
+  const maxP=SETTINGS.maxPrincipal||6, maxC=SETTINGS.maxCo||6;
+  const listEl=el('bysup-list');
+  if(!rows.length){ listEl.innerHTML=`<div class="text-muted text-sm" style="padding:12px">No supervisors to show for this filter.</div>`; return; }
+
+  listEl.innerHTML=rows.map(r=>{
+    const pN=r.principal.length, cN=r.co.length, tot=pN+cN;
+    const cn=CAMPUSES.find(c=>c.id===r.sup.campus)?.name;
+    const pBadge=`<span class="badge badge-blue">Principal: ${pN}${maxP?` / ${maxP}`:''}</span>`;
+    const cBadge=`<span class="badge badge-purple">Co-Sup: ${cN}${maxC?` / ${maxC}`:''}</span>`;
+    const pFull=maxP&&pN>=maxP, cFull=maxC&&cN>=maxC;
+    const fullTag=(pFull||cFull)?`<span class="badge badge-amber">⚠ At limit</span>`:'';
+    const studentRow=(s,role)=>`<tr>
+      <td class="text-xs text-muted">${s.slNo||''}</td>
+      <td class="fw-600">${esc(s.name)}</td>
+      <td class="text-xs text-muted">${esc(s.studentId||'')}</td>
+      <td class="text-xs">${s.email?`<a href="mailto:${esc(s.email)}">${esc(s.email)}</a>`:'<span class="text-muted">—</span>'}</td>
+      <td><span class="badge badge-gray">${esc(CAMPUSES.find(c=>c.id===s.campus)?.name||'—')}</span></td>
+      <td>${role==='principal'?'<span class="badge badge-blue">Principal</span>':'<span class="badge badge-purple">Co-Sup</span>'}</td>
+      <td class="pc text-sm">${esc(s.proposalTitle||'—')}</td>
+    </tr>`;
+    const allRows=[...r.principal.map(s=>studentRow(s,'principal')),...r.co.map(s=>studentRow(s,'co'))].join('');
+    const inner = tot
+      ? `<div class="tw mt-8"><table><thead><tr><th>#</th><th>Student</th><th>ID</th><th>Email</th><th>Campus</th><th>Role</th><th>Proposal Title</th></tr></thead><tbody>${allRows}</tbody></table></div>`
+      : `<div class="text-muted text-sm" style="padding:10px 4px">No students selected yet.</div>`;
+    return `<div class="card mb-16">
+      <div class="card-header" style="cursor:pointer" onclick="toggleBysup('${r.sup.id}')">
+        <div class="flex items-center gap-12" style="flex-wrap:wrap">
+          <h3 style="margin:0">${esc(r.sup.name||'(unknown)')}${cn?` <span class="text-xs text-muted">· ${esc(cn)}</span>`:''}</h3>
+          <span class="badge ${tot?'badge-green':'badge-gray'}">${tot} student${tot===1?'':'s'} total</span>
+          ${pBadge} ${cBadge} ${fullTag}
+        </div>
+        <button class="btn btn-sm" id="bysup-toggle-${r.sup.id}" data-open="0">Show students ▾</button>
+      </div>
+      <div id="bysup-body-${r.sup.id}" class="hidden">${inner}</div>
+    </div>`;
+  }).join('');
+}
+window.renderBySupervisor=renderBySupervisor;
+
+window.toggleBysup=(supId)=>{
+  const body=el(`bysup-body-${supId}`), btn=el(`bysup-toggle-${supId}`);
+  if(!body) return;
+  const open=body.classList.toggle('hidden')===false;
+  if(btn){ btn.textContent=open?'Hide students ▴':'Show students ▾'; btn.dataset.open=open?'1':'0'; }
+};
+
+function buildBySupCampusPills(){
+  const pEl=el('bysup-campus-pills');
+  if(!pEl) return;
+  pEl.innerHTML=`<button class="campus-pill ${bysupCampus==='all'?'active':''}" data-campus="all">All Campuses</button>`+
+    CAMPUSES.map(c=>`<button class="campus-pill ${bysupCampus===c.id?'active':''}" data-campus="${c.id}">${esc(c.name)}</button>`).join('');
+  pEl.querySelectorAll('.campus-pill').forEach(p=>{
+    p.onclick=()=>{ pEl.querySelectorAll('.campus-pill').forEach(x=>x.classList.remove('active')); p.classList.add('active'); bysupCampus=p.dataset.campus; renderBySupervisor(); };
+  });
+}
 
 /* ── Settings ── */
 function initSettingsTab(){
@@ -2273,11 +2436,11 @@ async function exportCSV(){
   if(adminSemester) docs = docs.filter(s=>s.semester===adminSemester);
   if(adminAllocCampus!=='all') docs = docs.filter(s=>s.campus===adminAllocCampus);
   if(!docs.length){ toast('Nothing to export for this filter','error'); return; }
-  const rows=[['Sl.No','Student Name','Student ID','Student Email','Campus','Semester','Proposal Title','Proposal Summary','Principal Supervisor','Co-Supervisor','Student Preference','Allocated At','Proposal Link','Comment']];
+  const rows=[['Sl.No','Student Name','Student ID','Student Email','Personal Email','Campus','Semester','Proposal Title','Proposal Summary','Principal Supervisor','Co-Supervisor','Student Preference','Allocated At','Proposal Link','Comment']];
   docs.forEach(s=>{
     const cn=CAMPUSES.find(c=>c.id===s.campus)?.name||s.campus||'';
     const sn=s.semesterName||SEMESTERS.find(x=>x.id===s.semester)?.name||'';
-    rows.push([s.slNo||'',csvCell(s.name),csvCell(s.studentId),csvCell(s.email),csvCell(cn),csvCell(sn),csvCell(s.proposalTitle),csvCell(s.proposalSummary),csvCell(s.principalSupervisorName),csvCell(s.coSupervisorName),csvCell(s.studentPreference),csvCell(fmtDate(s.allocatedAt)),csvCell(s.proposalLink),csvCell(s.comment)]);
+    rows.push([s.slNo||'',csvCell(s.name),csvCell(s.studentId),csvCell(s.email),csvCell(s.personalEmail),csvCell(cn),csvCell(sn),csvCell(s.proposalTitle),csvCell(s.proposalSummary),csvCell(s.principalSupervisorName),csvCell(s.coSupervisorName),csvCell(s.studentPreference),csvCell(fmtDate(s.allocatedAt)),csvCell(s.proposalLink),csvCell(s.comment)]);
   });
   const semTag = adminSemester ? '_'+safeName(semesterLabel(adminSemester)) : '';
   const campTag = adminAllocCampus==='all' ? '' : '_'+safeName(CAMPUSES.find(c=>c.id===adminAllocCampus)?.name);
@@ -2287,10 +2450,10 @@ async function exportCSV(){
 
 // Slim export: Student Name, ID, Title, Principal Supervisor, Co-Supervisor
 function buildSlimRows(students){
-  const rows=[['Student Name','Student ID','Student Email','Semester','Proposal Title','Principal Supervisor','Co-Supervisor']];
+  const rows=[['Student Name','Student ID','Student Email','Personal Email','Semester','Proposal Title','Principal Supervisor','Co-Supervisor']];
   students.forEach(s=>{
     const sn=s.semesterName||SEMESTERS.find(x=>x.id===s.semester)?.name||'';
-    rows.push([csvCell(s.name),csvCell(s.studentId),csvCell(s.email),csvCell(sn),csvCell(s.proposalTitle),csvCell(s.principalSupervisorName),csvCell(s.coSupervisorName)]);
+    rows.push([csvCell(s.name),csvCell(s.studentId),csvCell(s.email),csvCell(s.personalEmail),csvCell(sn),csvCell(s.proposalTitle),csvCell(s.principalSupervisorName),csvCell(s.coSupervisorName)]);
   });
   return rows;
 }
