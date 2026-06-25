@@ -1601,10 +1601,12 @@ function renderSVTable(students){
         // but may only nominate THEMSELVES for students on other principals' lists.
         const selfOnly = isCoOnlyUser || (isBothUser && !iAmPrincipal);
         const notSelf = selfOnly && sup.id!==myUid;
+        // The principal supervisor of THIS student cannot also be its co-supervisor.
+        const isPrincipalOfStudent = s.principalSupervisorId===sup.id;
         // Never block a 'both' user from selecting THEMSELVES on capacity grounds
         // unless they are genuinely at the limit; the self option stays available.
-        const disAttr=((full&&!isAdmin)||notSelf)?'disabled':'';
-        return `<option value="${sup.id}" data-name="${esc(sup.name)}" ${sel} ${disAttr}>${esc(sup.name)} (${cnt}/${max})${full?' – Full':''}</option>`;
+        const disAttr=((full&&!isAdmin)||notSelf||isPrincipalOfStudent)?'disabled':'';
+        return `<option value="${sup.id}" data-name="${esc(sup.name)}" ${sel} ${disAttr}>${esc(sup.name)} (${cnt}/${max})${isPrincipalOfStudent?' – Principal':full?' – Full':''}</option>`;
       }).join('');
       // A co-supervisor slot can only be filled once a principal is assigned (non-admins).
       const coDisabled=(!isAlloc&&!isAdmin)?'disabled title="Assign a principal supervisor first"':'';
@@ -1658,6 +1660,11 @@ function bindSVEvents(students){
       }
       if(!supId) return;
       const s=students.find(x=>x.id===sid);
+      // A student's co-supervisor cannot also be its principal supervisor.
+      if(s && s.coSupervisorId===supId){
+        toast(`${supName} is already the co-supervisor for ${s?.name} and cannot also be the principal supervisor.`,'error');
+        e.target.value=s?.principalSupervisorId||''; return;
+      }
       const sup=SUPS.find(x=>x.id===supId);
       // Enforce campus match for principal (non-admin)
       if(!PROFILE||PROFILE.role!=='admin'){
@@ -1688,6 +1695,11 @@ function bindSVEvents(students){
     sel.addEventListener('change',async e=>{
       const sid=e.target.dataset.sid, coId=e.target.value, coName=e.target.selectedOptions[0]?.dataset?.name||'';
       const s=students.find(x=>x.id===sid);
+      // A student's principal supervisor cannot also be its co-supervisor.
+      if(coId && s && s.principalSupervisorId===coId){
+        toast(`${coName} is already the principal supervisor for ${s?.name} and cannot also be the co-supervisor.`,'error');
+        e.target.value=s?.coSupervisorId||''; return;
+      }
       // A co-supervisor-only account may only assign THEMSELVES as co-supervisor
       // (they cannot assign students to other co-supervisors).
       if(PROFILE?.role!=='admin' && PROFILE?.supervisorType==='co' && coId && coId!==PROFILE?.uid){
