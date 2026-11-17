@@ -144,7 +144,7 @@ code{font-family:ui-monospace,SFMono-Regular,Menlo,monospace;font-size:.92em}
 .form-group{margin-bottom:14px}
 label{display:block;font-size:12px;color:var(--text2);margin-bottom:6px;font-weight:600}
 .opt{font-weight:400;color:var(--text3)}
-input[type=text],input[type=email],input[type=password],input[type=url],input[type=number],select,textarea{width:100%;height:38px;background:var(--bg3);border:1px solid var(--border2);border-radius:9px;color:var(--text);padding:0 12px;font-size:13.5px;font-family:var(--font);transition:border-color .15s,box-shadow .15s,background .15s;outline:none}
+input[type=text],input[type=email],input[type=password],input[type=url],input[type=number],input[type=date],input[type=tel],select,textarea{width:100%;height:38px;background:var(--bg3);border:1px solid var(--border2);border-radius:9px;color:var(--text);padding:0 12px;font-size:13.5px;font-family:var(--font);transition:border-color .15s,box-shadow .15s,background .15s;outline:none}
 textarea{height:auto;padding:9px 12px;resize:vertical;min-height:72px;line-height:1.5}
 input::placeholder,textarea::placeholder{color:var(--text3)}
 input:hover,select:hover,textarea:hover{border-color:color-mix(in srgb,var(--border2) 60%,var(--accent))}
@@ -376,6 +376,45 @@ input.search-input:focus{border-color:var(--primary);box-shadow:var(--ring);back
 .log-more{display:flex;justify-content:center;padding:14px}
 .retention-note{display:flex;gap:10px;align-items:center;font-size:12.5px;color:var(--text2);flex-wrap:wrap}
 
+/* ───────────── Supervisor registration ───────────── */
+.reg-wrap{max-width:880px;margin:0 auto;padding:44px 16px 24px}
+.reg-wrap .card{margin-bottom:16px}
+.reg-num{display:inline-grid;place-items:center;width:24px;height:24px;border-radius:8px;background:var(--primary-soft);color:var(--accent);font-size:12px;font-weight:700;flex-shrink:0}
+.req{color:var(--red)}
+.check-row{display:flex;gap:10px;align-items:flex-start;padding:7px 0;margin:0;font-size:13.5px;font-weight:400;color:var(--text);cursor:pointer;line-height:1.5}
+.check-row input{width:16px;height:16px;margin-top:3px;flex-shrink:0;accent-color:var(--primary);cursor:pointer}
+.check-row input:disabled{cursor:not-allowed}
+.radio-row{display:flex;gap:18px;align-items:center;height:38px}
+.radio-row label{display:inline-flex;gap:7px;align-items:center;margin:0;font-size:13.5px;font-weight:400;color:var(--text);cursor:pointer}
+.radio-row input{accent-color:var(--primary)}
+.policy-list{list-style:none;display:grid;gap:8px;margin-top:10px}
+.policy-list li{display:flex;gap:9px;align-items:flex-start;font-size:13.5px}
+.policy-list .ic{color:var(--accent);margin-top:2px}
+.sub-head{font-family:var(--font);font-size:12px;font-weight:700;text-transform:uppercase;letter-spacing:.06em;color:var(--text2);margin:14px 0 4px}
+.steps{display:flex;gap:6px;flex-wrap:wrap;margin:12px 0 4px}
+.step{flex:1;min-width:128px;padding:8px 10px;border-radius:9px;border:1px solid var(--border);background:var(--bg3);font-size:12px;font-weight:600;color:var(--text3);line-height:1.35}
+.step small{display:block;font-weight:500;font-size:11px;margin-top:1px}
+.step.done{color:var(--b-green-fg);background:var(--b-green-bg);border-color:var(--b-green-bd)}
+.step.now{color:var(--b-blue-fg);background:var(--b-blue-bg);border-color:var(--b-blue-bd)}
+.step.bad{color:var(--b-red-fg);background:var(--b-red-bg);border-color:var(--b-red-bd)}
+.ref-code{font-family:ui-monospace,SFMono-Regular,Menlo,monospace;font-size:15px;font-weight:600;letter-spacing:.02em;background:var(--bg3);border:1px solid var(--border2);border-radius:9px;padding:8px 12px;display:inline-block;user-select:all;overflow-wrap:anywhere}
+.reg-sec{border-top:1px solid var(--border);padding-top:14px;margin-top:16px}
+.reg-sec h4{font-family:var(--font);font-size:11.5px;font-weight:700;text-transform:uppercase;letter-spacing:.07em;color:var(--text2);margin-bottom:10px}
+.reg-act{background:var(--bg3);border:1px solid var(--border2);border-radius:12px;padding:16px}
+.kv{display:grid;grid-template-columns:repeat(auto-fit,minmax(210px,1fr));gap:10px 18px;font-size:13.5px}
+.kv .k{font-size:11.5px;color:var(--text3);margin-bottom:1px}
+.kv .wide{grid-column:1/-1}
+.nav-count{margin-left:auto;min-width:20px;text-align:center;background:var(--primary);color:#fff;border-radius:999px;font-size:11px;font-weight:700;padding:0 6px;line-height:18px}
+.btn .nav-count{margin-left:2px}
+.sem-box{background:var(--bg3);border:1px solid var(--border);border-radius:10px;padding:6px 12px}
+.sem-box .sem-list{display:grid;grid-template-columns:repeat(auto-fill,minmax(200px,1fr));gap:0 14px;border-top:1px solid var(--border);margin-top:4px;padding-top:4px}
+.log-ic.t-reg{background:var(--b-green-bg);color:var(--b-green-fg)}
+.hp-field{position:absolute;left:-9999px;width:1px;height:1px;opacity:0}
+
+.sig-pad canvas{display:block;width:100%;max-width:460px;aspect-ratio:10/3;background:#fff;border:1.5px dashed var(--border2);border-radius:10px;touch-action:none;cursor:crosshair}
+.sig-pad .sig-foot{display:flex;justify-content:space-between;align-items:center;max-width:460px;margin-top:4px}
+.sig-img{display:block;height:54px;max-width:220px;background:#fff;border:1px solid var(--border);border-radius:8px;padding:2px 6px;margin-top:3px}
+
 /* Footer */
 .app-foot{padding:26px 16px 30px;text-align:center;font-size:12px;color:var(--text3)}
 .app-foot a{color:var(--text2)}
@@ -504,6 +543,16 @@ input.search-input:focus{border-color:var(--primary);box-shadow:var(--ring);back
       <p class="modal-desc">Every recorded change to this record, newest first.</p>
     </div>
     <div id="history-body" class="log-list" style="max-height:60vh;overflow-y:auto"></div>
+  </div>
+</div>
+
+<!-- Supervisor registration detail / review modal -->
+<div id="reg-modal" class="modal-overlay hidden">
+  <div class="modal-box" style="max-width:860px">
+    <button class="modal-close" id="reg-close-btn" aria-label="Close"><svg class="ic"><use href="#i-x"/></svg></button>
+    <span class="eyebrow"><svg class="ic ic-sm"><use href="#i-clip"/></svg>Supervisor registration</span>
+    <div class="modal-title" id="reg-modal-title" style="margin-top:4px">—</div>
+    <div id="reg-modal-body"></div>
   </div>
 </div>
 
@@ -640,7 +689,12 @@ input.search-input:focus{border-color:var(--primary);box-shadow:var(--ring);back
           <span><span class="pl-t" style="display:block">I'm a student</span><span class="pl-s">Look up your supervisors with your Student ID</span></span>
           <svg class="ic ic-arrow"><use href="#i-arrow"/></svg>
         </a>
-        <p class="login-foot">No account? Contact your administrator for access.</p>
+        <a href="#register" id="goto-register-link" class="portal-link" style="margin-top:10px">
+          <span class="pl-ic"><svg class="ic"><use href="#i-userplus"/></svg></span>
+          <span><span class="pl-t" style="display:block">Register as a supervisor</span><span class="pl-s">Fill in the supervisor registration form, or check your status</span></span>
+          <svg class="ic ic-arrow"><use href="#i-arrow"/></svg>
+        </a>
+        <p class="login-foot">Supervisor accounts are created once a registration form is approved.</p>
       </div>
     </section>
   </div>
@@ -684,6 +738,7 @@ input.search-input:focus{border-color:var(--primary);box-shadow:var(--ring);back
           <p id="sv-sub">Pick students to supervise and keep in touch with your team.</p>
         </div>
         <div class="sv-hero-actions">
+          <button class="btn hidden" id="reg-review-btn" title="Supervisor registrations waiting for review"><svg class="ic"><use href="#i-userplus"/></svg>Registrations<span class="nav-count hidden" id="sv-reg-count"></span></button>
           <button class="btn" id="my-contacts-btn" title="Your students and their supervisors' contact details"><svg class="ic"><use href="#i-book"/></svg>My students</button>
           <button class="btn" id="email-colleague-btn" title="Email other supervisors"><svg class="ic"><use href="#i-users"/></svg>Email a supervisor</button>
           <button class="btn btn-primary" id="email-all-students-btn" title="Send one email to all of your students"><svg class="ic"><use href="#i-mail"/></svg>Email all students</button>
@@ -705,6 +760,7 @@ input.search-input:focus{border-color:var(--primary);box-shadow:var(--ring);back
         </div>
       </div>
 
+      <div class="alert alert-warning mb-16 hidden" id="sv-sem-notice"></div>
       <div class="alert alert-info mb-16" id="sv-info-banner">
         Select your name in the <strong>Principal Supervisor</strong> column to take on a student. Principal supervisors can only be assigned to students of their own campus.
       </div>
@@ -769,6 +825,7 @@ input.search-input:focus{border-color:var(--primary);box-shadow:var(--ring);back
       <div class="sidebar-item" data-tab="tab-semesters"><svg class="ic"><use href="#i-cal"/></svg>Semesters</div>
       <div class="sidebar-item active" data-tab="tab-campuses"><svg class="ic"><use href="#i-building"/></svg>Campuses</div>
       <div class="sidebar-item" data-tab="tab-supervisors"><svg class="ic"><use href="#i-users"/></svg>Supervisors</div>
+      <div class="sidebar-item" data-tab="tab-registrations"><svg class="ic"><use href="#i-userplus"/></svg>Registrations<span class="nav-count hidden" id="reg-nav-count"></span></div>
       <div class="sidebar-section">Per semester</div>
       <div class="sidebar-item" data-tab="tab-students"><svg class="ic"><use href="#i-cap"/></svg>Students</div>
       <div class="sidebar-item" data-tab="tab-allocations"><svg class="ic"><use href="#i-clip"/></svg>Allocations</div>
@@ -791,7 +848,7 @@ input.search-input:focus{border-color:var(--primary);box-shadow:var(--ring);back
         <div class="page-head"><div>
           <span class="eyebrow">Setup</span>
           <h2>Semesters</h2>
-          <p>Semesters scope <strong>students &amp; allocations</strong>; campuses and supervisors are reused across every semester. The <strong>Active</strong> semester is everyone's default working context.</p>
+          <p>Semesters scope <strong>students, allocations and the supervisor list</strong>; campuses are reused across every semester. The <strong>Active</strong> semester is everyone's default working context.</p>
         </div></div>
         <div class="card mb-16">
           <div class="card-header"><h3 id="sem-form-title">Add semester</h3></div>
@@ -838,7 +895,7 @@ input.search-input:focus{border-color:var(--primary);box-shadow:var(--ring);back
         <div class="page-head"><div>
           <span class="eyebrow">Setup</span>
           <h2>Supervisors</h2>
-          <p>Create supervisor accounts, set their campus and role, and send them the link to sign in.</p>
+          <p>Set each supervisor's campus, role and the semesters they are listed for, and send them the link to sign in. New accounts come from approved registrations.</p>
         </div></div>
 
         <div class="card share-card mb-16">
@@ -858,7 +915,8 @@ input.search-input:focus{border-color:var(--primary);box-shadow:var(--ring);back
           <button class="btn btn-primary" id="invite-all-btn"><svg class="ic"><use href="#i-send"/></svg>Email link to all supervisors</button>
         </div>
 
-        <div class="card mb-16">
+        <div class="alert alert-info mb-16 hidden" id="sup-add-locked">New supervisor accounts are created from <strong>approved registration forms</strong>. Open <a href="#" id="sup-goto-reg">Registrations</a> to review forms and create accounts. To add someone manually, turn the rule off under Registrations → Account policy.</div>
+        <div class="card mb-16" id="sup-form-card">
           <div class="card-header"><h3 id="sup-form-title">Add supervisor</h3></div>
           <div class="g2">
             <div class="form-group"><label>Full name</label><input type="text" id="sup-name" placeholder="Dr. Jane Smith"/></div>
@@ -874,6 +932,7 @@ input.search-input:focus{border-color:var(--primary);box-shadow:var(--ring);back
               </select>
             </div>
           </div>
+          <div class="form-group"><label>On the supervisor list for</label><div class="sem-box" id="sup-sem-box"></div></div>
           <input type="hidden" id="sup-edit-id"/>
           <div class="form-actions">
             <button class="btn btn-primary" id="sup-save-btn">Add Supervisor</button>
@@ -881,7 +940,72 @@ input.search-input:focus{border-color:var(--primary);box-shadow:var(--ring);back
           </div>
           <p class="hint">Creating a supervisor also creates their sign-in account. You stay signed in as admin.</p>
         </div>
-        <div class="card"><div class="card-header"><h3>All supervisors</h3></div><div id="supervisors-list"><div class="text-muted text-sm">Loading…</div></div></div>
+        <div class="card"><div class="card-header" style="margin-bottom:10px"><h3>Supervisor list</h3></div>
+          <p class="card-sub" style="margin-top:0">The list can differ from semester to semester. Only supervisors on a semester's list can be chosen for that semester's students. The semester is the one selected at the top of the page.</p>
+          <div class="toolbar" id="sup-list-tools"></div><div id="supervisors-list"><div class="text-muted text-sm">Loading…</div></div></div>
+      </div>
+
+      <!-- REGISTRATIONS -->
+      <div id="tab-registrations" class="tab-panel">
+        <div class="page-head"><div>
+          <span class="eyebrow">Setup</span>
+          <h2>Supervisor registrations</h2>
+          <p>Prospective supervisors fill in the registration form. Each form moves from the <strong>Research Office</strong> to the <strong>School / Division</strong> for endorsement, then to the <strong>Associate Dean Research / RSC</strong> for a decision. A sign-in account is created only after approval.</p>
+        </div></div>
+
+        <div class="card share-card mb-16">
+          <div class="share-main">
+            <span class="share-ic"><svg class="ic"><use href="#i-clip"/></svg></span>
+            <div style="min-width:0;flex:1">
+              <h3>Registration form link</h3>
+              <p class="text-sm text-muted" style="margin-top:2px">Public page — no sign-in needed. Send it to anyone who wants to register as a supervisor.</p>
+              <div class="link-field">
+                <code data-register-url></code>
+                <button class="btn btn-sm" data-copy="register"><svg class="ic"><use href="#i-copy"/></svg>Copy</button>
+                <a class="btn btn-sm btn-ghost" data-register-link href="#register" target="_blank" rel="noopener" title="Open"><svg class="ic"><use href="#i-ext"/></svg></a>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <div id="admin-reg-host"></div>
+
+        <div class="grid-2 mt-16">
+          <div class="card">
+            <div class="card-header"><h3><svg class="ic"><use href="#i-shield"/></svg>Reviewing officers</h3></div>
+            <p class="card-sub">Who acts at each stage. Administrators can act at every stage. An officer can be an existing supervisor or a separate review-only account.</p>
+            <div id="officers-list" class="mb-16"><div class="text-muted text-sm">Loading…</div></div>
+            <div class="form-group">
+              <label>Person</label>
+              <select id="of-user"><option value="">— New review-only account —</option></select>
+            </div>
+            <div id="of-new-fields">
+              <div class="g2">
+                <div class="form-group"><label>Full name</label><input type="text" id="of-name" placeholder="e.g. Research Office"/></div>
+                <div class="form-group"><label>Email address</label><input type="email" id="of-email" placeholder="research.office@cihe.edu.au"/></div>
+              </div>
+              <div class="form-group"><label>Password</label><input type="password" id="of-pass" placeholder="Min. 6 characters" autocomplete="new-password"/></div>
+            </div>
+            <label>Stages this person handles</label>
+            <label class="check-row"><input type="checkbox" id="of-r-office"/> <span><strong>Research Office</strong> — checks documents, forwards the form, keeps the office checklist</span></label>
+            <label class="check-row"><input type="checkbox" id="of-r-school"/> <span><strong>School / Division</strong> — endorses the form (Section 6)</span></label>
+            <label class="check-row"><input type="checkbox" id="of-r-adr"/> <span><strong>Associate Dean Research / RSC</strong> — records the registration outcome (Section 7)</span></label>
+            <div class="form-group mt-8">
+              <label>School / Division <span class="opt">(only limits which endorsements they see)</span></label>
+              <select id="of-school"><option value="">Any school / division</option></select>
+            </div>
+            <div class="form-actions">
+              <button class="btn btn-primary" id="of-save-btn">Save officer</button>
+              <button class="btn btn-ghost" id="of-clear-btn">Clear</button>
+            </div>
+          </div>
+
+          <div class="card">
+            <div class="card-header"><h3><svg class="ic"><use href="#i-userplus"/></svg>Account policy</h3></div>
+            <label class="check-row"><input type="checkbox" id="set-require-reg"/> <span><strong>Only create supervisor accounts from approved registrations</strong><br><span class="text-muted text-sm">When on, the manual "Add supervisor" form is hidden. New accounts are created from the <em>Approved</em> queue above. Existing supervisors are not affected.</span></span></label>
+            <div class="alert alert-info mt-16" style="font-size:12.5px">This app has no mail server, so nothing is emailed automatically. After each step you are offered a pre-filled email to the next office, and each officer sees their queue when they sign in.</div>
+          </div>
+        </div>
       </div>
 
       <!-- STUDENTS -->
@@ -1040,6 +1164,7 @@ input.search-input:focus{border-color:var(--primary);box-shadow:var(--ring);back
               <option value="alloc">Supervisor assignments</option>
               <option value="student">Students</option>
               <option value="sup">Supervisors</option>
+              <option value="reg">Registrations</option>
               <option value="setup">Campuses &amp; semesters</option>
               <option value="system">Settings &amp; admin</option>
             </select>
@@ -1167,6 +1292,157 @@ input.search-input:focus{border-color:var(--primary);box-shadow:var(--ring);back
   <footer class="app-foot">Supervision Hub · <a data-hub-link href="https://secureintelligencelab.github.io/supervision-hub/" target="_blank" rel="noopener">secureintelligencelab.github.io/supervision-hub</a></footer>
 </div>
 
+<!-- ═══════════════ REVIEW PAGE (officers; supervisors who hold an office role) ═══════════════ -->
+<div id="page-review" class="page">
+  <nav class="navbar">
+    <div class="navbar-brand">
+      <span class="brand-mark"><svg class="ic"><use href="#i-cap"/></svg></span>
+      <div class="brand-text"><span class="brand-name">Supervision Hub</span><span class="brand-sub">Registration review</span></div>
+    </div>
+    <div class="navbar-right">
+      <button class="btn btn-sm btn-soft hidden" id="rv-back-btn"><svg class="ic"><use href="#i-back"/></svg><span class="btn-lbl-md">Supervisor workspace</span></button>
+      <span class="nav-sep nav-hide-md"></span>
+      <button class="icon-btn theme-toggle" title="Switch light / dark" aria-label="Switch light or dark theme"><svg class="ic i-moon"><use href="#i-moon"/></svg><svg class="ic i-sun"><use href="#i-sun"/></svg></button>
+      <div class="user-chip"><div id="rv-avatar" class="avatar">?</div><span id="rv-name-display" class="uc-name">—</span></div>
+      <button class="icon-btn" id="logout-btn-rv" title="Sign out" aria-label="Sign out"><svg class="ic"><use href="#i-logout"/></svg></button>
+    </div>
+  </nav>
+  <div class="container">
+    <div class="sv-hero">
+      <div>
+        <span class="eyebrow">Registration review</span>
+        <h1 style="margin-top:4px">Supervisor registrations</h1>
+        <p id="rv-roles">—</p>
+      </div>
+    </div>
+    <div id="review-host"></div>
+  </div>
+  <footer class="app-foot">Supervision Hub · <a data-hub-link href="https://secureintelligencelab.github.io/supervision-hub/" target="_blank" rel="noopener">secureintelligencelab.github.io/supervision-hub</a></footer>
+</div>
+
+<!-- ═══════════════ REGISTRATION PAGE (public, no login) ═══════════════ -->
+<div id="page-register" class="page">
+  <nav class="navbar">
+    <div class="navbar-brand">
+      <span class="brand-mark"><svg class="ic"><use href="#i-cap"/></svg></span>
+      <div class="brand-text"><span class="brand-name">Supervision Hub</span><span class="brand-sub">Supervisor registration</span></div>
+    </div>
+    <div class="navbar-right">
+      <button class="icon-btn theme-toggle" title="Switch light / dark" aria-label="Switch light or dark theme"><svg class="ic i-moon"><use href="#i-moon"/></svg><svg class="ic i-sun"><use href="#i-sun"/></svg></button>
+      <button class="btn btn-sm" id="register-to-login-btn"><svg class="ic"><use href="#i-user"/></svg>Staff sign in</button>
+    </div>
+  </nav>
+  <div class="reg-wrap">
+    <div style="text-align:center;margin-bottom:24px">
+      <span class="eyebrow">CIHE Australia · Master of Research</span>
+      <h1 style="font-size:clamp(1.7rem,4vw,2.2rem);margin:8px 0 10px">Supervisor registration form</h1>
+      <p style="color:var(--text2);font-size:14.5px;max-width:640px;margin:0 auto">For academics who would like to register as <strong>external supervisors</strong> for CIHE Australia Master of Research students. Complete every field marked <span class="req">*</span>. Your form goes to the Research Office, then to the School / Division and the Associate Dean Research or RSC. An account is created once your registration is approved.</p>
+    </div>
+
+    <div class="card">
+      <div class="card-header" style="margin-bottom:10px"><h3><svg class="ic"><use href="#i-search"/></svg>Already submitted? Check your status</h3></div>
+      <div style="display:flex;gap:8px;flex-wrap:wrap">
+        <input type="text" id="rg-ref" placeholder="Your reference code" autocomplete="off" style="flex:1;min-width:220px"/>
+        <button class="btn" id="rg-ref-btn">Check status</button>
+      </div>
+      <div id="rg-ref-result" class="mt-8"></div>
+    </div>
+
+    <div id="rg-form-wrap">
+      <div class="card">
+        <div class="card-header"><h3><span class="reg-num">1</span>Registration type</h3></div>
+        <div class="g2">
+          <div class="form-group"><label for="rg-discipline">Master of Research discipline <span class="req">*</span></label><select id="rg-discipline"></select></div>
+          <div class="form-group"><label for="rg-level">Supervision level sought <span class="req">*</span></label><select id="rg-level"></select></div>
+        </div>
+        <div class="form-group" style="margin-bottom:0"><label>Preferred campus / location <span class="req">*</span> <span class="opt">(tick every campus you can supervise at)</span></label>
+          <div class="sem-box" id="rg-campus-box"><span class="text-sm text-muted">Loading campuses…</span></div>
+        </div>
+      </div>
+
+      <div class="card">
+        <div class="card-header"><h3><span class="reg-num">2</span>Personal details</h3></div>
+        <div class="g3">
+          <div class="form-group"><label for="rg-title">Title <span class="req">*</span></label><select id="rg-title"></select></div>
+          <div class="form-group"><label for="rg-first">First name <span class="req">*</span></label><input type="text" id="rg-first" autocomplete="given-name"/></div>
+          <div class="form-group"><label for="rg-last">Last name <span class="req">*</span></label><input type="text" id="rg-last" autocomplete="family-name"/></div>
+        </div>
+        <div class="g3">
+          <div class="form-group"><label>Australian citizen / PR? <span class="req">*</span></label>
+            <div class="radio-row"><label><input type="radio" name="rg-citizen" value="Yes"/> Yes</label><label><input type="radio" name="rg-citizen" value="No"/> No</label></div>
+          </div>
+          <div class="form-group"><label for="rg-phone">Phone number <span class="req">*</span></label><input type="tel" id="rg-phone" placeholder="Include country code" autocomplete="tel"/></div>
+          <div class="form-group"><label for="rg-email">Email address <span class="req">*</span></label><input type="email" id="rg-email" placeholder="you@institution.edu" autocomplete="email"/></div>
+        </div>
+        <div class="form-group"><label for="rg-address">Residential address <span class="req">*</span> <span class="opt">(street, suburb, city, state, postcode)</span></label><textarea id="rg-address" rows="2" autocomplete="street-address"></textarea></div>
+      </div>
+
+      <div class="card">
+        <div class="card-header"><h3><span class="reg-num">3</span>Academic &amp; professional profile</h3></div>
+        <div class="g2">
+          <div class="form-group"><label for="rg-position">Current position title <span class="req">*</span></label><input type="text" id="rg-position"/></div>
+          <div class="form-group"><label for="rg-institution">Employing institution <span class="req">*</span></label><input type="text" id="rg-institution"/></div>
+        </div>
+        <div class="form-group"><label for="rg-inst-address">Institution address <span class="opt">(street, suburb, city, state, postcode, country)</span></label><textarea id="rg-inst-address" rows="2"></textarea></div>
+        <div class="form-group"><label for="rg-phd">PhD / doctoral qualification details <span class="opt">(degree, institution, year)</span></label><input type="text" id="rg-phd"/></div>
+        <div class="form-group"><label for="rg-areas">Research areas &amp; specialisations <span class="req">*</span></label><textarea id="rg-areas" rows="3"></textarea></div>
+        <div class="form-group"><label for="rg-profile">ORCID iD / Google Scholar profile link</label><input type="text" id="rg-profile" placeholder="https://orcid.org/0000-0000-0000-0000"/></div>
+        <div class="g3">
+          <div class="form-group"><label for="rg-hdr-done">HDR students supervised to completion <span class="req">*</span></label><select id="rg-hdr-done"></select></div>
+          <div class="form-group"><label for="rg-hdr-now">Current HDR students supervising <span class="req">*</span></label><select id="rg-hdr-now"></select></div>
+          <div class="form-group"><label for="rg-mode">Supervision mode <span class="req">*</span></label><select id="rg-mode"></select></div>
+        </div>
+      </div>
+
+      <div class="card">
+        <div class="card-header"><h3><svg class="ic"><use href="#i-file"/></svg>Supporting documents</h3></div>
+        <p class="card-sub">The Research Office needs your CV, PhD certificate and transcripts. Paste a share link for each (Google Drive, OneDrive, Dropbox…), or email them to <a data-office-mail href="mailto:research.office@cihe.edu.au">research.office@cihe.edu.au</a> quoting the reference you receive after submitting.</p>
+        <div class="g2">
+          <div class="form-group"><label for="rg-doc-cv">CV link</label><input type="url" id="rg-doc-cv" placeholder="https://…"/></div>
+          <div class="form-group"><label for="rg-doc-phd">PhD certificate link</label><input type="url" id="rg-doc-phd" placeholder="https://…"/></div>
+          <div class="form-group"><label for="rg-doc-tr">Transcripts link</label><input type="url" id="rg-doc-tr" placeholder="https://…"/></div>
+          <div class="form-group"><label for="rg-doc-other">Other relevant documents <span class="opt">(optional)</span></label><input type="url" id="rg-doc-other" placeholder="https://…"/></div>
+        </div>
+      </div>
+
+      <div class="card">
+        <div class="card-header" style="margin-bottom:6px"><h3><span class="reg-num">4</span>Relevant policies</h3></div>
+        <p class="text-sm text-muted">As a supervisor at CIHE Australia, you are required to read and comply with the following:</p>
+        <ul class="policy-list">
+          <li><svg class="ic ic-sm"><use href="#i-file"/></svg><span><a href="https://crownhe.sharepoint.com/:b:/r/sites/SharedFolders/Shared%20Documents/INTRANET_2024/POLICIES/QA19%20Student%20Academic%20Integrity%20Policy%204.01.pdf?csf=1&amp;web=1&amp;e=BAf77e" target="_blank" rel="noopener">QA19-Student-Academic-Integrity and Honesty Policy</a></span></li>
+          <li><svg class="ic ic-sm"><use href="#i-file"/></svg><span><a href="https://crownhe.sharepoint.com/:b:/r/sites/SharedFolders/Shared%20Documents/INTRANET_2024/POLICIES/QA63%20Research%20and%20Scholarship%20Policy%202.11.pdf?csf=1&amp;web=1&amp;e=5BJ5ot" target="_blank" rel="noopener">QA63 Research and Scholarship Policy</a></span></li>
+          <li><svg class="ic ic-sm"><use href="#i-file"/></svg><span><a href="https://crownhe.sharepoint.com/:b:/r/sites/SharedFolders/Shared%20Documents/INTRANET_2024/POLICIES/QA71%20AI%20Governance%20and%20Risk%20Management%20Policy%20v1.0.pdf?csf=1&amp;web=1&amp;e=m9IeS5" target="_blank" rel="noopener">QA71 AI Governance and Risk Management Policy</a></span></li>
+          <li><svg class="ic ic-sm"><use href="#i-file"/></svg><span><a href="https://crownhe.sharepoint.com/:b:/r/sites/SharedFolders/Shared%20Documents/INTRANET_2024/POLICIES/QA65%20Responsible%20Conduct%20of%20Research%20Policy%201.11.pdf?csf=1&amp;web=1&amp;e=8dM4sE" target="_blank" rel="noopener">QA65 Responsible Conduct of Research Policy</a></span></li>
+          <li><svg class="ic ic-sm"><use href="#i-file"/></svg><span><a href="https://crownhe.sharepoint.com/:b:/r/sites/SharedFolders/Shared%20Documents/INTRANET_2024/POLICIES/QA60%20Research%20and%20Scholarship%20Funding%20Policy%201.21.pdf?csf=1&amp;web=1&amp;e=7fHKRR" target="_blank" rel="noopener">QA60 Research and Scholarship Funding Policy</a></span></li>
+          <li><svg class="ic ic-sm"><use href="#i-file"/></svg><span><a href="https://crownhe.sharepoint.com/:b:/r/sites/SharedFolders/Shared%20Documents/INTRANET_2024/POLICIES/QA55%20Human%20Research%20Ethics%20Policy%202.11.pdf?csf=1&amp;web=1&amp;e=re2IHL" target="_blank" rel="noopener">QA55 Human Research Ethics Policy</a></span></li>
+          <li><svg class="ic ic-sm"><use href="#i-file"/></svg><span>QA72 External Research Supervisor Engagement Policy</span></li>
+          <li><svg class="ic ic-sm"><use href="#i-file"/></svg><span><a href="https://www.nhmrc.gov.au/about-us/publications/australian-code-responsible-conduct-research-2018" target="_blank" rel="noopener">NHMRC Australian Code for the Responsible Conduct of Research, 2018</a></span></li>
+          <li><svg class="ic ic-sm"><use href="#i-file"/></svg><span><a href="https://www.acgr.edu.au/good-practice/graduate-research-good-practice-principles/" target="_blank" rel="noopener">Australian Council of Graduate Research (ACGR) Good Practice Guidelines for HDR Supervision</a></span></li>
+        </ul>
+      </div>
+
+      <div class="card">
+        <div class="card-header" style="margin-bottom:6px"><h3><span class="reg-num">5</span>Supervisor declaration</h3></div>
+        <p class="text-sm text-muted mb-8">Please read each statement carefully and tick the box to confirm your agreement.</p>
+        <div id="rg-declarations"></div>
+        <div class="g2 mt-16">
+          <div class="form-group"><label for="rg-signature">Print full name <span class="req">*</span></label><input type="text" id="rg-signature" autocomplete="name"/></div>
+          <div class="form-group"><label>Date</label><input type="text" id="rg-date" disabled/></div>
+        </div>
+        <div class="form-group"><label>Signature <span class="req">*</span></label><div id="rg-sig-host"></div></div>
+        <input type="text" id="rg-website" class="hp-field" tabindex="-1" autocomplete="off" aria-hidden="true"/>
+        <div id="rg-error" class="alert alert-danger hidden mt-16"></div>
+        <div class="form-actions mt-16">
+          <button class="btn btn-primary" id="rg-submit-btn" style="height:42px;padding:0 22px"><svg class="ic"><use href="#i-send"/></svg>Submit registration</button>
+        </div>
+      </div>
+    </div>
+
+    <div id="rg-done" class="hidden"></div>
+  </div>
+  <footer class="app-foot">Enquiries: <a data-office-mail href="mailto:research.office@cihe.edu.au">research.office@cihe.edu.au</a> · <a href="https://www.cihe.edu.au" target="_blank" rel="noopener">www.cihe.edu.au</a></footer>
+</div>
+
 <script type="module">
 import { initializeApp }                              from "https://www.gstatic.com/firebasejs/10.12.2/firebase-app.js";
 import { getAuth, signInWithEmailAndPassword,
@@ -1176,7 +1452,7 @@ import { getFirestore, collection, doc,
          getDocs, getDoc, addDoc, setDoc,
          updateDoc, deleteDoc, query, where,
          orderBy, onSnapshot, serverTimestamp,
-         writeBatch, limit, startAfter, Timestamp,
+         writeBatch, limit, startAfter, Timestamp, arrayUnion,
          getCountFromServer }                          from "https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore.js";
 
 /* ── Firebase init ──────────────────────────────────────── */
@@ -1281,6 +1557,7 @@ document.addEventListener('click',e=>{
   const b=e.target.closest('[data-copy]'); if(!b) return;
   e.preventDefault();
   if(b.dataset.copy==='student') copyText(STUDENT_URL,'Student lookup link copied');
+  else if(b.dataset.copy==='register') copyText(REGISTER_URL,'Registration form link copied');
   else copyText(HUB_URL,'Supervision Hub link copied');
 });
 
@@ -1321,6 +1598,20 @@ const ACT = {
   'sem.edit':          {v:'edited semester',                    c:'setup',  i:'i-edit'},
   'sem.delete':        {v:'deleted semester',                   c:'setup',  i:'i-trash', t:'danger'},
   'sem.active':        {v:'set the active semester to',         c:'setup',  i:'i-cal'},
+  'sup.semester.add':  {v:'added to a semester list:',           c:'sup',    i:'i-cal'},
+  'sup.semester.remove':{v:'removed from a semester list:',      c:'sup',    i:'i-cal', t:'danger'},
+  'sup.semester.copy': {v:'copied a supervisor list into',       c:'sup',    i:'i-copy'},
+  'reg.forward':       {v:'forwarded for endorsement the registration of', c:'reg', i:'i-arrow'},
+  'reg.close':         {v:'closed the registration of',         c:'reg',    i:'i-x', t:'danger'},
+  'reg.endorse':       {v:'endorsed the registration of',       c:'reg',    i:'i-check'},
+  'reg.return':        {v:'returned to the Research Office the registration of', c:'reg', i:'i-back'},
+  'reg.decide':        {v:'recorded the ADR / RSC decision for',c:'reg',    i:'i-shield'},
+  'reg.checklist':     {v:'updated the office checklist for',   c:'reg',    i:'i-clip'},
+  'reg.account':       {v:'created the supervisor account for', c:'reg',    i:'i-userplus'},
+  'reg.reopen':        {v:'reopened the registration of',       c:'reg',    i:'i-refresh'},
+  'reg.delete':        {v:'deleted the registration of',        c:'reg',    i:'i-trash', t:'danger'},
+  'officer.set':       {v:'set registration review stages for', c:'reg',    i:'i-shield'},
+  'officer.remove':    {v:'removed registration review from',   c:'reg',    i:'i-x', t:'danger'},
   'settings.edit':     {v:'changed settings',                   c:'system', i:'i-sliders'},
   'admin.promote':     {v:'made an admin:',                     c:'system', i:'i-shield'},
   'log.clear':         {v:'cleared the activity log',           c:'system', i:'i-trash', t:'danger'},
@@ -1747,7 +2038,7 @@ function emailTemplate(kind, targets){
 function renderEmailRecipients(){
   const box=el('email-recipients');
   const withEmail=EMAIL_TARGETS.filter(s=>s.email);
-  const noun = EMAIL_KIND==='student' ? 'students' : 'supervisors';
+  const noun = EMAIL_KIND==='student' ? 'students' : EMAIL_KIND==='route' ? 'recipients' : 'supervisors';
   if(!withEmail.length){ box.innerHTML=`<span class="text-muted">No ${noun} with an email address.</span>`; return; }
   box.innerHTML=withEmail.map(s=>`${esc(s.name||'Recipient')} &lt;${esc(s.email)}&gt;`).join(', ');
   const note=el('email-bulk-note');
@@ -1924,12 +2215,15 @@ onAuthStateChanged(auth, async user => {
         if(errEl){ errEl.textContent='Your account has been disabled. Please contact your administrator.'; errEl.classList.remove('hidden'); }
         return;
       }
-      if(PROFILE.role==='admin') await mountAdmin();
+      if(window.location.hash.startsWith('#register')) openRegisterPortal(); // public form, also viewable while signed in
+      else if(PROFILE.role==='admin') await mountAdmin();
+      else if(PROFILE.role==='officer') await mountReview(); // review-only account
       else await mountSupervisor();
     } else {
       ME=null; PROFILE=null;
       // Public student lookup is reachable without logging in via #students.
       if(window.location.hash==='#students') openStudentPortal();
+      else if(window.location.hash.startsWith('#register')) openRegisterPortal();
       else showPage('page-login');
     }
   } catch(e) {
@@ -1946,7 +2240,7 @@ el('login-btn').addEventListener('click', async()=>{
   errEl.classList.add('hidden');
   if(!email||!pass){ errEl.textContent='Email and password required.'; show('login-error'); return; }
   const btn=el('login-btn'); btn.disabled=true; btn.textContent='Signing in…';
-  try{ await signInWithEmailAndPassword(auth,email,pass); }
+  try{ await signInWithEmailAndPassword(auth,email,pass); btn.disabled=false; btn.textContent='Sign in'; }
   catch(e){
     errEl.textContent = e.message.includes('invalid-credential')||e.message.includes('wrong-password')
       ? 'Incorrect email or password.' : e.message.replace('Firebase:','').trim();
@@ -2117,7 +2411,7 @@ async function mountSupervisor(){
       return `<option value="${s.id}" ${s.id===svSemester?'selected':''}>${lbl}</option>`;
     }).join('');
     semPicker.onchange = ()=>{
-      svSemester = semPicker.value; startLive();
+      svSemester = semPicker.value; startLive(); updateSvSemNotice();
       const sub=el('sv-sub'); if(sub) sub.textContent = sub.textContent.replace(/ · [^·]*$/,'') + ' · ' + semesterLabel(svSemester);
     };
   } else {
@@ -2126,6 +2420,7 @@ async function mountSupervisor(){
 
   // Use onclick (idempotent on re-mount)
   el('logout-btn-sup').onclick=doLogout;
+  syncSvReviewButton(); updateSvSemNotice();
 
   // Back to admin button (only for admins using supervisor view)
   if(p.role==='admin'){
@@ -2304,6 +2599,8 @@ function renderSVTable(students){
 
   tbody.innerHTML=students.map(s=>{
     const isAlloc=!!s.principalSupervisorId, isMine=s.principalSupervisorId===myUid;
+    // Not on this semester's supervisor list → may only manage students they already hold.
+    const offList=!isAdmin && !supInSemester(PROFILE,s.semester) && !isMine && s.coSupervisorId!==myUid;
     const locked=isAlloc&&!isAdmin&&SETTINGS.allocationMode==='fcfs'&&!isMine;
     const statusBadge=isAlloc?(isMine?`<span class="badge badge-blue">My Student</span>`:`<span class="badge badge-amber">Allocated</span>`):`<span class="badge badge-green">Available</span>`;
 
@@ -2315,6 +2612,8 @@ function renderSVTable(students){
       // Disabled supervisors are never selectable.
       const eligiblePrincipal = SUPS.filter(sup=>{
         if(sup.disabled) return false;
+        // Only supervisors on this semester's list (the current holder stays visible).
+        if(!supInSemester(sup,s.semester) && s.principalSupervisorId!==sup.id) return false;
         if(isAdmin) return true;
         // Must be principal or both type
         if(sup.supervisorType==='co') return false;
@@ -2333,7 +2632,8 @@ function renderSVTable(students){
       const noSups=!eligiblePrincipal.length?`<option value="" disabled>No eligible supervisors for this campus</option>`:'';
       // A co-supervisor-only account may NOT nominate/assign a principal supervisor.
       // The dropdown is still shown (so they can see who the principal is) but is disabled.
-      const principalDisabled = isCoOnlyUser ? 'disabled title="Co-supervisors cannot assign a principal supervisor"' : '';
+      const principalDisabled = isCoOnlyUser ? 'disabled title="Co-supervisors cannot assign a principal supervisor"'
+        : offList ? 'disabled title="You are not on the supervisor list for this semester"' : '';
       principalCell=`<select class="sup-select" data-action="assign-principal" data-sid="${s.id}" ${principalDisabled}><option value="">— Select supervisor —</option>${noSups}${opts}</select>`;
     }
 
@@ -2361,6 +2661,7 @@ function renderSVTable(students){
       canEditCo = iAmPrincipal || isCoOnlyUser || isBothUser;
     }
 
+    if(offList) canEditCo = false;
     let coCell;
     if(!canEditCo){
       // Read-only: show the assigned co-supervisor (or a dash if none yet).
@@ -2374,6 +2675,7 @@ function renderSVTable(students){
       // including selecting THEMSELVES — for students on ANY campus.
       const eligibleCo = SUPS.filter(sup=>{
         if(sup.disabled) return false;
+        if(!supInSemester(sup,s.semester) && s.coSupervisorId!==sup.id) return false;
         if(isAdmin) return true;
         // 'both' supervisors are valid co-supervisors regardless of campus.
         if(sup.supervisorType==='both') return true;
@@ -2466,7 +2768,7 @@ function bindSVEvents(students){
         if(!confirm(`⚠️ This student prefers "${s.studentPreference}".\n\nOverride and assign "${supName}"?`)){ e.target.value=s.principalSupervisorId||''; return; }
       }
       if(PROFILE?.role!=='admin'){
-        const cnt=STUDENTS.filter(x=>x.principalSupervisorId===supId&&x.id!==sid).length;
+        const cnt=STUDENTS.filter(x=>x.principalSupervisorId===supId&&x.id!==sid&&(!s?.semester||x.semester===s.semester)).length;
         if(cnt>=SETTINGS.maxPrincipal){ toast(`${supName} has reached the limit of ${SETTINGS.maxPrincipal} principal students.`,'error'); e.target.value=s.principalSupervisorId||''; return; }
       }
       try{
@@ -2498,7 +2800,7 @@ function bindSVEvents(students){
       }
       // Check co capacity
       if(coId&&PROFILE?.role!=='admin'){
-        const cnt=STUDENTS.filter(x=>x.coSupervisorId===coId&&x.id!==sid).length;
+        const cnt=STUDENTS.filter(x=>x.coSupervisorId===coId&&x.id!==sid&&(!s?.semester||x.semester===s.semester)).length;
         if(cnt>=SETTINGS.maxCo){ toast(`${coName} has reached the limit of ${SETTINGS.maxCo} co-supervised students.`,'error'); e.target.value=s.coSupervisorId||''; return; }
       }
       try{
@@ -2613,7 +2915,8 @@ async function mountAdmin(){
       if(item.dataset.tab==='tab-students') renderStudentsList(scopedStudentsForAdmin());
       if(item.dataset.tab==='tab-semesters') renderSemestersList();
       if(item.dataset.tab==='tab-activity') openActivityTab();
-      if(item.dataset.tab==='tab-supervisors') renderSupervisorsList();
+      if(item.dataset.tab==='tab-supervisors') openSupervisorsTab();
+      if(item.dataset.tab==='tab-registrations') openRegistrationsTab();
       closeSidebarDrawer(); // collapse the drawer on mobile after choosing
       window.scrollTo({top:0});
     };
@@ -2630,8 +2933,8 @@ async function mountAdmin(){
   el('export-sup-btn').onclick=exportBySupervisor;
   el('export-cosup-btn').onclick=exportByCoSupervisor;
   el('invite-all-btn').onclick=()=>{
-    const list=SUPS.filter(s=>!s.disabled && s.email);
-    if(!list.length){ toast('No enabled supervisors with an email address yet','info'); return; }
+    const list=SUPS.filter(s=>!s.disabled && s.email && (supScope!=='semester' || supInSemester(s,adminSemester)));
+    if(!list.length){ toast('No enabled supervisors with an email address in this list yet','info'); return; }
     openEmailComposer(list, `${list.length} supervisor${list.length>1?'s':''}`, 'invite');
   };
   const bysupSearch=el('bysup-search'); if(bysupSearch) bysupSearch.oninput=()=>renderBySupervisor(false);
@@ -2642,7 +2945,7 @@ async function mountAdmin(){
   document.querySelector('.sidebar-item[data-tab="tab-campuses"]')?.classList.add('active');
   el('tab-campuses')?.classList.add('active');
 
-  initSemestersTab(); initCampusesTab(); initSupervisorsTab(); initStudentsTab(); initSettingsTab();
+  initSemestersTab(); initCampusesTab(); initSupervisorsTab(); initStudentsTab(); initSettingsTab(); initRegistrationsTab();
 }
 
 /* Helpers used across admin tabs */
@@ -2672,6 +2975,7 @@ function refreshAdminSemesterPicker(){
     renderStudentsList(scopedStudentsForAdmin());
     if(el('tab-allocations').classList.contains('active')) renderAllocations();
     if(el('tab-by-supervisor').classList.contains('active')) renderBySupervisor();
+    openSupervisorsTab(); renderSemestersList();
     toast('Switched to '+semesterLabel(adminSemester),'info',2000);
   };
 }
@@ -2713,13 +3017,13 @@ async function reloadSemesters(){
   // If our cached selected semester is gone, fall back
   if(adminSemester && !SEMESTERS.find(s=>s.id===adminSemester)) adminSemester = SEMESTERS.find(s=>s.isActive)?.id || SEMESTERS[0]?.id || null;
   if(svSemester && !SEMESTERS.find(s=>s.id===svSemester))       svSemester    = SEMESTERS.find(s=>s.isActive)?.id || SEMESTERS[0]?.id || null;
-  renderSemestersList(); refreshAdminSemesterPicker(); refreshSemesterDropdowns();
+  renderSemestersList(); refreshAdminSemesterPicker(); refreshSemesterDropdowns(); openSupervisorsTab();
 }
 
 function renderSemestersList(){
   const e=el('semesters-list');
   if(!SEMESTERS.length){ e.innerHTML=`<div class="text-muted text-sm" style="padding:12px">No semesters yet. Add one to start managing students by intake.</div>`; return; }
-  e.innerHTML=`<div class="tw"><table><thead><tr><th>Semester</th><th>Year</th><th>Term</th><th>Status</th><th>Students</th><th>Actions</th></tr></thead><tbody>${SEMESTERS.map(s=>{
+  e.innerHTML=`<div class="tw"><table><thead><tr><th>Semester</th><th>Year</th><th>Term</th><th>Status</th><th>Students</th><th>Supervisors listed</th><th>Actions</th></tr></thead><tbody>${SEMESTERS.map(s=>{
     const count = STUDENTS.filter(st=>st.semester===s.id).length;
     return `<tr>
       <td class="fw-600">${esc(s.name)}</td>
@@ -2727,6 +3031,7 @@ function renderSemestersList(){
       <td>${esc(s.term||'—')}</td>
       <td>${s.isActive?'<span class="badge badge-green badge-dot">Active</span>':'<span class="badge badge-gray">Archived</span>'}</td>
       <td><span class="badge badge-blue">${count}</span></td>
+      <td><span class="badge badge-purple">${SUPS.filter(x=>!x.disabled && supInSemester(x,s.id)).length}</span></td>
       <td><div class="flex gap-8">
         ${!s.isActive?`<button class="btn btn-sm" onclick="markActiveSemester('${s.id}')">Set Active</button>`:''}
         <button class="btn btn-sm" onclick="editSemester('${s.id}')">Edit</button>
@@ -2852,22 +3157,25 @@ function refreshCampusDropdowns(){
 
 /* ── Supervisors ── */
 function initSupervisorsTab(){
-  refreshCampusDropdowns(); renderSupervisorsList();
+  refreshCampusDropdowns(); renderSupervisorsList(); resetSupFormExtras();
+  el('sup-goto-reg').onclick=e=>{ e.preventDefault(); document.querySelector('.sidebar-item[data-tab="tab-registrations"]')?.click(); };
   el('sup-save-btn').onclick=async()=>{
     const name=el('sup-name').value.trim(), email=el('sup-email').value.trim(), pass=el('sup-password').value,
           altEmail=el('sup-alt-email').value.trim(),
           campus=el('sup-campus').value, type=el('sup-type').value, editId=el('sup-edit-id').value;
     if(!name||!email){ toast('Name and email required','error'); return; }
+    if(!editId && requireReg()){ toast('New supervisor accounts are created from approved registrations (Registrations tab).','error'); return; }
+    const semesters=readSemChecks('sup-sem-box'); // null = every semester
     const campusNm=id=>CAMPUSES.find(c=>c.id===id)?.name||'—';
     let createdNew=null;
     try{
       if(editId){
         const before=SUPS.find(x=>x.id===editId);
-        await updateDoc(doc(db,'users',editId),{name,campus,supervisorType:type,altEmail});
+        await updateDoc(doc(db,'users',editId),{name,campus,supervisorType:type,altEmail,semesters});
         logAct('sup.edit', name, describeChanges(
-          {...before, campus:campusNm(before?.campus), supervisorType:before?.supervisorType||'both'},
-          {name, altEmail, campus:campusNm(campus), supervisorType:type},
-          [['name','Name',1],['campus','Campus',1],['supervisorType','Type',1],['altEmail','Alternative email']]), editId);
+          {...before, campus:campusNm(before?.campus), supervisorType:before?.supervisorType||'both', semList:semListLabel(before||{})},
+          {name, altEmail, campus:campusNm(campus), supervisorType:type, semList:semListLabel({semesters})},
+          [['name','Name',1],['campus','Campus',1],['supervisorType','Type',1],['altEmail','Alternative email'],['semList','Semesters',1]]), editId);
       }
       else{
         if(!pass){ toast('Password required for new supervisor','error'); return; }
@@ -2875,7 +3183,7 @@ function initSupervisorsTab(){
         // then write the profile as the new user (same permissions as before).
         const pApp=provisionApp(), pAuth=getAuth(pApp);
         const cred=await createUserWithEmailAndPassword(pAuth,email,pass);
-        const profile={name,email,altEmail,campus,supervisorType:type,role:'supervisor'};
+        const profile={name,email,altEmail,campus,supervisorType:type,role:'supervisor',semesters};
         try{
           await setDoc(doc(getFirestore(pApp),'users',cred.user.uid),profile);
         }catch(err){
@@ -2886,7 +3194,7 @@ function initSupervisorsTab(){
         createdNew={name,email};
       }
       ['sup-name','sup-email','sup-alt-email','sup-password'].forEach(id=>{const e=el(id);if(e){e.value='';e.disabled=false;}});
-      el('sup-edit-id').value=''; el('sup-form-title').textContent='Add Supervisor'; el('sup-save-btn').textContent='Add Supervisor'; hide('sup-cancel-btn');
+      el('sup-edit-id').value=''; el('sup-form-title').textContent='Add Supervisor'; el('sup-save-btn').textContent='Add Supervisor'; hide('sup-cancel-btn'); resetSupFormExtras();
       const snap=await getDocs(query(collection(db,'users'),where('role','==','supervisor'))); SUPS=snap.docs.map(d=>({id:d.id,...d.data()}));
       renderSupervisorsList(); renderPrefDropdown(); toast('Supervisor saved','success');
       if(createdNew && confirm(`${createdNew.name} can now sign in.\n\nOpen an email to send them the Supervision Hub link?`)){
@@ -2894,34 +3202,56 @@ function initSupervisorsTab(){
       }
     }catch(e){ toast('Error: '+e.message,'error'); }
   };
-  el('sup-cancel-btn').onclick=()=>{ ['sup-name','sup-email','sup-alt-email','sup-password'].forEach(id=>{const e=el(id);if(e){e.value='';e.disabled=false;}}); el('sup-edit-id').value=''; el('sup-form-title').textContent='Add Supervisor'; el('sup-save-btn').textContent='Add Supervisor'; hide('sup-cancel-btn'); };
+  el('sup-cancel-btn').onclick=()=>{ ['sup-name','sup-email','sup-alt-email','sup-password'].forEach(id=>{const e=el(id);if(e){e.value='';e.disabled=false;}}); el('sup-edit-id').value=''; el('sup-form-title').textContent='Add Supervisor'; el('sup-save-btn').textContent='Add Supervisor'; hide('sup-cancel-btn'); resetSupFormExtras(); };
 }
 function renderSupervisorsList(){
   const e=el('supervisors-list');
+  renderSupListTools();
   if(!SUPS.length){ e.innerHTML=`<div class="text-muted text-sm" style="padding:12px">No supervisors yet.</div>`; return; }
+  const scoped = supScope==='semester' && !!adminSemester;
+  const inScope = scoped ? SUPS.filter(s=>supInSemester(s,adminSemester)) : SUPS;
+  if(supCampusF && !CAMPUSES.some(c=>c.id===supCampusF)) supCampusF='';
+  const list = inScope.filter(s=>supTypeMatch(s.supervisorType||'both',supTypeF) && (!supCampusF || s.campus===supCampusF));
+  if(inScope.length && !list.length){ e.innerHTML=`<div class="text-muted text-sm" style="padding:12px">No supervisors match these filters.</div>`; return; }
+  if(!list.length){ e.innerHTML=`<div class="text-muted text-sm" style="padding:12px">Nobody is on the supervisor list for <strong>${esc(semesterLabel(adminSemester))}</strong> yet. Switch to <em>All supervisors</em> to add people, or copy the list from another semester.</div>`; return; }
   const typeLbl={co:'Co-supervisor',principal:'Principal',both:'Principal & co'};
-  e.innerHTML=`<div class="tw"><table><thead><tr><th>Supervisor</th><th>Campus</th><th>Type</th><th>Status</th><th>Actions</th></tr></thead><tbody>${SUPS.map(s=>{
+  e.innerHTML=`<div class="tw"><table><thead><tr><th>Supervisor</th><th>Campus</th><th>Type</th><th>Semesters</th><th>Status</th><th>Actions</th></tr></thead><tbody>${list.map(s=>{
     const cn=CAMPUSES.find(c=>c.id===s.campus)?.name||s.campus||'—';
     const statusBadge=s.disabled?`<span class="badge badge-red badge-dot">Disabled</span>`:`<span class="badge badge-green badge-dot">Enabled</span>`;
     const toggleBtn=s.disabled
       ? `<button class="btn btn-sm" onclick="toggleSupEnabled('${s.id}',false)">Enable</button>`
       : `<button class="btn btn-sm" onclick="toggleSupEnabled('${s.id}',true)">Disable</button>`;
     const t=s.supervisorType||'both';
+    const every=!Array.isArray(s.semesters), onList=supInSemester(s,adminSemester);
+    const semBadge = every ? `<span class="badge badge-gray">Every semester</span>`
+      : `<span class="badge ${s.semesters.length?'badge-purple':'badge-amber'}" title="${esc(semListLabel(s))}">${s.semesters.length} semester${s.semesters.length===1?'':'s'}</span>`;
+    const semBtn = adminSemester ? (onList
+      ? `<button class="btn btn-sm" onclick="toggleSupSemester('${s.id}')" title="Remove from the list for ${esc(semesterLabel(adminSemester))}">Remove from semester</button>`
+      : `<button class="btn btn-sm btn-soft" onclick="toggleSupSemester('${s.id}')" title="Add to the list for ${esc(semesterLabel(adminSemester))}">${icon('i-cal')}Add to semester</button>`) : '';
     return `<tr style="${s.disabled?'opacity:.6':''}">
     <td><div class="flex items-center gap-12"><div class="avatar" style="width:32px;height:32px">${esc(ini(s.name))}</div><div style="min-width:0"><div class="fw-600">${esc(s.name)}</div><div class="text-xs text-muted">${esc(s.email)}${s.altEmail?` · alt: ${esc(s.altEmail)}`:''}</div></div></div></td>
     <td><span class="badge badge-gray">${esc(cn)}</span></td>
     <td><span class="badge ${t==='co'?'badge-purple':t==='principal'?'badge-blue':'badge-green'}">${esc(typeLbl[t]||t)}</span></td>
+    <td>${semBadge}${adminSemester&&!onList?`<div class="text-xs text-muted" style="margin-top:3px">Not listed this semester</div>`:''}</td>
     <td>${statusBadge}</td>
-    <td><div class="flex gap-8">
+    <td><div class="flex gap-8" style="flex-wrap:wrap">
+      ${semBtn}
       ${!s.disabled&&s.email?`<button class="btn btn-sm btn-soft" onclick="inviteSup('${s.id}')" title="Email this supervisor the Supervision Hub link">${icon('i-send')}Send link</button>`:''}
-      <button class="btn btn-sm" onclick="editSup('${s.id}','${esc(s.name).replace(/'/g,"\\'")}','${esc(s.email)}','${esc(s.altEmail||'')}','${s.campus||''}','${t}')">${icon('i-edit')}Edit</button>
+      <button class="btn btn-sm" onclick="editSup('${s.id}')">${icon('i-edit')}Edit</button>
       ${toggleBtn}
       <button class="btn btn-sm btn-ghost" onclick="showHistory('${s.id}','${esc(s.name).replace(/'/g,"\\'")}')" title="Change history">${icon('i-history')}</button>
       <button class="btn btn-sm btn-danger" onclick="delSup('${s.id}')" title="Delete">${icon('i-trash')}</button>
     </div></td></tr>`;
   }).join('')}</tbody></table></div>`;
 }
-window.editSup=(id,name,email,altEmail,campus,type)=>{ el('sup-name').value=name; el('sup-email').value=email; el('sup-email').disabled=true; el('sup-alt-email').value=altEmail||''; el('sup-password').value=''; el('sup-campus').value=campus; el('sup-type').value=type; el('sup-edit-id').value=id; el('sup-form-title').textContent='Edit Supervisor'; el('sup-save-btn').textContent='Update Supervisor'; show('sup-cancel-btn'); };
+window.editSup=(id)=>{
+  const s=SUPS.find(x=>x.id===id); if(!s) return;
+  el('sup-name').value=s.name||''; el('sup-email').value=s.email||''; el('sup-email').disabled=true; el('sup-alt-email').value=s.altEmail||''; el('sup-password').value='';
+  el('sup-campus').value=s.campus||''; el('sup-type').value=s.supervisorType||'both'; el('sup-edit-id').value=id;
+  el('sup-form-title').textContent='Edit Supervisor'; el('sup-save-btn').textContent='Update Supervisor'; show('sup-cancel-btn');
+  renderSemChecks('sup-sem-box', Array.isArray(s.semesters)?s.semesters:null); syncSupFormLock();
+  el('sup-form-card').scrollIntoView({behavior:'smooth',block:'start'});
+};
 window.inviteSup=(id)=>{
   const s=SUPS.find(x=>x.id===id);
   if(!s?.email){ toast('This supervisor has no email address','error'); return; }
@@ -3096,7 +3426,8 @@ async function renderAllocations(){
     return;
   }
 
-  const supOpts=SUPS.map(s=>`<option value="${s.id}" data-name="${esc(s.name)}">${esc(s.name)}</option>`).join('');
+  // Only supervisors on the student's semester list (whoever holds the student now stays selectable).
+  const supOptsFor=(st,cur)=>SUPS.filter(x=>supInSemester(x,st.semester)||x.id===cur).map(x=>`<option value="${x.id}" data-name="${esc(x.name)}">${esc(x.name)}</option>`).join('');
   el('alloc-tbody').innerHTML=students.map(s=>{
     const cn=CAMPUSES.find(c=>c.id===s.campus)?.name||'—';
     const sn=s.semesterName || SEMESTERS.find(x=>x.id===s.semester)?.name || '—';
@@ -3104,8 +3435,8 @@ async function renderAllocations(){
     <td><div class="fw-600">${esc(s.name)}</div><div class="text-xs text-muted">${esc(s.studentId)}</div></td>
     <td><span class="badge badge-gray">${esc(cn)}</span><br><span class="badge badge-purple" style="margin-top:4px">${esc(sn)}</span></td>
     <td><div class="pc text-sm">${esc(s.proposalTitle||'—')}</div>${s.proposalSummary?`<span class="text-xs text-muted">Has summary</span>`:''}</td>
-    <td><select class="sup-select" onchange="aPrincipal('${s.id}',this)"><option value="">— Unassigned —</option>${supOpts}</select></td>
-    <td><select class="sup-select" onchange="aCo('${s.id}',this)"><option value="">— None —</option>${supOpts}</select></td>
+    <td><select class="sup-select" onchange="aPrincipal('${s.id}',this)"><option value="">— Unassigned —</option>${supOptsFor(s,s.principalSupervisorId)}</select></td>
+    <td><select class="sup-select" onchange="aCo('${s.id}',this)"><option value="">— None —</option>${supOptsFor(s,s.coSupervisorId)}</select></td>
     <td class="text-xs">${lastAssignedCell(s)}</td>
     <td><div class="flex gap-8"><button class="btn btn-sm btn-ghost" onclick="showHistory('${s.id}','${esc(s.name).replace(/'/g,"\\'")}')" title="Who changed this student's allocation">${icon('i-history')}History</button>${s.principalSupervisorId?`<button class="btn btn-sm btn-danger" onclick="clearAlloc('${s.id}').then(()=>renderAllocations())">Clear</button>`:''}</div></td></tr>`;
   }).join('');
@@ -3177,14 +3508,14 @@ async function renderBySupervisor(refetch=true){
 
   // Build a per-supervisor map: principal + co students.
   const map={}; // supId -> {sup, principal:[], co:[]}
-  SUPS.forEach(sup=>{ map[sup.id]={sup, principal:[], co:[]}; });
+  SUPS.filter(sup=>supInSemester(sup,adminSemester)).forEach(sup=>{ map[sup.id]={sup, principal:[], co:[]}; });
   students.forEach(s=>{
     if(s.principalSupervisorId){
-      if(!map[s.principalSupervisorId]) map[s.principalSupervisorId]={sup:{id:s.principalSupervisorId,name:s.principalSupervisorName||'(removed supervisor)'},principal:[],co:[]};
+      if(!map[s.principalSupervisorId]) map[s.principalSupervisorId]={sup:SUPS.find(x=>x.id===s.principalSupervisorId)||{id:s.principalSupervisorId,name:s.principalSupervisorName||'(removed supervisor)'},principal:[],co:[]};
       map[s.principalSupervisorId].principal.push(s);
     }
     if(s.coSupervisorId){
-      if(!map[s.coSupervisorId]) map[s.coSupervisorId]={sup:{id:s.coSupervisorId,name:s.coSupervisorName||'(removed supervisor)'},principal:[],co:[]};
+      if(!map[s.coSupervisorId]) map[s.coSupervisorId]={sup:SUPS.find(x=>x.id===s.coSupervisorId)||{id:s.coSupervisorId,name:s.coSupervisorName||'(removed supervisor)'},principal:[],co:[]};
       map[s.coSupervisorId].co.push(s);
     }
   });
@@ -3457,6 +3788,945 @@ function populateExportDropdowns(){
   }
 }
 window.populateExportDropdowns=populateExportDropdowns;
+
+/* ══════════════════════════════════════════════════════════
+   PER-SEMESTER SUPERVISOR LISTS
+   Each supervisor profile may carry `semesters`:
+     • missing / null → on the list for EVERY semester (how all existing
+       accounts behave, so nothing changes until an admin edits the list)
+     • array of semester ids → only on the list for those semesters
+   A supervisor who is not on a semester's list is not offered in that
+   semester's dropdowns and cannot take on students in it.
+══════════════════════════════════════════════════════════ */
+function supInSemester(sup, semId){
+  if(!semId || !sup) return true;
+  if(!Array.isArray(sup.semesters)) return true;
+  return sup.semesters.includes(semId);
+}
+function semListLabel(sup){
+  if(!Array.isArray(sup.semesters)) return 'Every semester';
+  const names=sup.semesters.map(id=>SEMESTERS.find(s=>s.id===id)?.name).filter(Boolean);
+  return names.length ? names.join(', ') : 'No semester';
+}
+function renderSemChecks(hostId, value){
+  const h=el(hostId); if(!h) return;
+  const every=!Array.isArray(value);
+  h.innerHTML=`<label class="check-row"><input type="checkbox" data-sem-all ${every?'checked':''}/> <span><strong>Every semester</strong> <span class="opt">— including semesters added later</span></span></label>`+
+    (SEMESTERS.length ? `<div class="sem-list">${SEMESTERS.map(s=>`<label class="check-row"><input type="checkbox" data-sem="${s.id}" ${every||value.includes(s.id)?'checked':''} ${every?'disabled':''}/> <span>${esc(semesterLabel(s.id))}${s.isActive?' <span class="opt">(Active)</span>':''}</span></label>`).join('')}</div>` : '');
+  h.querySelector('[data-sem-all]').onchange=e=>h.querySelectorAll('[data-sem]').forEach(c=>{ c.disabled=e.target.checked; if(e.target.checked) c.checked=true; });
+}
+function readSemChecks(hostId){
+  const h=el(hostId);
+  if(!h || h.querySelector('[data-sem-all]')?.checked) return null;
+  return [...h.querySelectorAll('[data-sem]:checked')].map(c=>c.dataset.sem);
+}
+const defaultSemList=()=> adminSemester ? [adminSemester] : null;
+
+/* Supervisor workspace: tell a supervisor when they are not on this semester's list. */
+function updateSvSemNotice(){
+  const n=el('sv-sem-notice'); if(!n) return;
+  const off = PROFILE?.role==='supervisor' && svSemester && !supInSemester(PROFILE, svSemester);
+  n.classList.toggle('hidden', !off);
+  if(off) n.innerHTML=`You are not on the supervisor list for <strong>${esc(semesterLabel(svSemester))}</strong>. You can view students, but you cannot take any on this semester. Contact the Research Office if this is unexpected.`;
+}
+
+/* Admin → Supervisors tab: "Add supervisor" is locked while accounts must come
+   from an approved registration (Registrations → Account policy). */
+function requireReg(){ return SETTINGS.requireRegistration!==false; }
+function syncSupFormLock(){
+  const editing=!!el('sup-edit-id')?.value, lock=requireReg() && !editing;
+  el('sup-form-card')?.classList.toggle('hidden', lock);
+  el('sup-add-locked')?.classList.toggle('hidden', !lock);
+}
+function resetSupFormExtras(){ renderSemChecks('sup-sem-box', defaultSemList()); syncSupFormLock(); }
+function openSupervisorsTab(){ if(!el('sup-edit-id').value) resetSupFormExtras(); renderSupervisorsList(); }
+
+let supScope='semester', supTypeF='', supCampusF='';
+const SUP_TYPE_FILTERS=[['','All types'],['can-p','Can be principal (incl. both)'],['can-co','Can be co-supervisor (incl. both)'],['principal','Principal only'],['co','Co-supervisor only'],['both','Principal & co (both)']];
+function supTypeMatch(t,f){ return !f || t===f || (f==='can-p'&&(t==='principal'||t==='both')) || (f==='can-co'&&(t==='co'||t==='both')); }
+function renderSupListTools(){
+  const t=el('sup-list-tools'); if(!t) return;
+  const others=adminSemester?SEMESTERS.filter(s=>s.id!==adminSemester):[];
+  t.innerHTML=`${adminSemester?`<div class="campus-pills">
+      <button class="campus-pill ${supScope==='semester'?'active':''}" data-scope="semester">${esc(semesterLabel(adminSemester))} (${SUPS.filter(s=>supInSemester(s,adminSemester)).length})</button>
+      <button class="campus-pill ${supScope==='all'?'active':''}" data-scope="all">All supervisors (${SUPS.length})</button>
+    </div>`:''}
+    <select id="sup-f-type" title="Filter by supervisor type" style="width:auto;min-width:190px;height:34px">${SUP_TYPE_FILTERS.map(([v,l])=>`<option value="${v}" ${supTypeF===v?'selected':''}>${esc(l)}</option>`).join('')}</select>
+    <select id="sup-f-campus" title="Filter by campus / location" style="width:auto;min-width:170px;height:34px"><option value="">All campuses</option>${CAMPUSES.map(c=>`<option value="${c.id}" ${supCampusF===c.id?'selected':''}>${esc(campusLabel(c))}</option>`).join('')}</select>
+    <div class="spacer"></div>
+    ${others.length?`<select id="sup-copy-from" style="width:auto;min-width:190px;height:34px"><option value="">Copy list from…</option>${others.map(s=>`<option value="${s.id}">${esc(semesterLabel(s.id))}</option>`).join('')}</select>
+    <button class="btn btn-sm" id="sup-copy-btn">${icon('i-copy')}Add to this semester</button>`:''}`;
+  t.querySelectorAll('[data-scope]').forEach(b=>b.onclick=()=>{ supScope=b.dataset.scope; renderSupervisorsList(); });
+  el('sup-f-type').onchange=e=>{ supTypeF=e.target.value; renderSupervisorsList(); };
+  el('sup-f-campus').onchange=e=>{ supCampusF=e.target.value; renderSupervisorsList(); };
+  const cb=el('sup-copy-btn'); if(cb) cb.onclick=copySupSemesterList;
+}
+async function copySupSemesterList(){
+  const from=el('sup-copy-from')?.value;
+  if(!from){ toast('Choose the semester to copy from','info'); return; }
+  const add=SUPS.filter(s=>supInSemester(s,from) && !supInSemester(s,adminSemester));
+  if(!add.length){ toast('Everyone on that list is already on this semester\'s list','info'); return; }
+  if(!confirm(`Add ${add.length} supervisor(s) from "${semesterLabel(from)}" to the list for "${semesterLabel(adminSemester)}"?`)) return;
+  try{
+    const b=writeBatch(db);
+    add.forEach(s=>{ s.semesters=[...(s.semesters||[]),adminSemester]; b.update(doc(db,'users',s.id),{semesters:s.semesters}); });
+    await b.commit();
+    logAct('sup.semester.copy', semesterLabel(adminSemester), `${add.length} added from ${semesterLabel(from)}`);
+    renderSupervisorsList(); toast(`Added ${add.length} supervisor(s)`,'success');
+  }catch(e){ toast('Error: '+e.message,'error'); }
+}
+window.toggleSupSemester=async(id)=>{
+  const s=SUPS.find(x=>x.id===id); if(!s || !adminSemester) return;
+  const on=supInSemester(s,adminSemester);
+  let next;
+  if(on){
+    const load=STUDENTS.filter(st=>st.semester===adminSemester && (st.principalSupervisorId===id || st.coSupervisorId===id)).length;
+    if(!confirm(`Remove ${s.name} from the supervisor list for "${semesterLabel(adminSemester)}"?${load?`\n\nThey currently supervise ${load} student(s) in this semester. Those allocations stay as they are.`:''}`)) return;
+    next=(Array.isArray(s.semesters)?s.semesters:SEMESTERS.map(x=>x.id)).filter(x=>x!==adminSemester);
+  } else next=[...(s.semesters||[]),adminSemester];
+  try{
+    await updateDoc(doc(db,'users',id),{semesters:next});
+    s.semesters=next;
+    logAct(on?'sup.semester.remove':'sup.semester.add', s.name, semesterLabel(adminSemester), id);
+    renderSupervisorsList();
+    toast(on?'Removed from this semester\'s list':'Added to this semester\'s list','success');
+  }catch(e){ toast('Error: '+e.message,'error'); }
+};
+
+/* ══════════════════════════════════════════════════════════
+   SUPERVISOR REGISTRATION
+   Public form (#register) → `registrations` document. The form is then
+   routed through the offices named on the paper form:
+     submitted    Research Office checks documents and forwards
+     endorsement  School / Division endorses            (Section 6)
+     approval     Associate Dean Research / RSC decides (Section 7)
+     approved     an admin creates the sign-in account; office checklist
+     registered   account exists
+   plus: deferred (held by ADR / RSC), declined (rejected), closed.
+   Applicants never get an account before approval. They follow progress
+   with their reference code via `registrationStatus/{ref}`, a tiny public
+   document holding only the stage — the form itself is staff-only.
+══════════════════════════════════════════════════════════ */
+const REG_COL='registrations', REG_STATUS_COL='registrationStatus';
+const RESEARCH_OFFICE_EMAIL='research.office@cihe.edu.au';
+const REGISTER_URL=HUB_URL+'#register';
+const REG_OPTS={
+  discipline:['Information Technology (IT)','Business','Accounting'],
+  level:['Principal Supervisor','Associate Supervisor (Co-supervisor)','Industry Expert (Additional Member)','Both (Principal and Co-Supervisor) or Any'],
+  title:['Dr.','Prof','Assoc Prof','Mr','Ms'],
+  mode:['On-site (CIHE campus)','Remote (Online)','Hybrid (on-site+remote)'],
+  hdrCompleted:['0','1–2','3–5','6–10','10+'],
+  hdrCurrent:['0','1–2','3–5','5+'],
+  school:['School of IT','School of Business','School of Education'],
+  outcome:['Approved','Conditionally Approved','Deferred','Rejected','Other'],
+};
+const OUTCOME_STATUS={'Approved':'approved','Conditionally Approved':'approved','Deferred':'deferred','Rejected':'declined','Other':'deferred'};
+const LEVEL_TYPE={'Principal Supervisor':'principal','Associate Supervisor (Co-supervisor)':'co','Industry Expert (Additional Member)':'co','Both (Principal and Co-Supervisor) or Any':'both'};
+const STAGES={office:'Research Office',school:'School / Division',adr:'Associate Dean Research / RSC'};
+const REG_STATUS={
+  submitted:  {l:'With Research Office',         b:'badge-amber', stage:'office',  step:1, w:'Research Office'},
+  endorsement:{l:'Awaiting School endorsement',  b:'badge-blue',  stage:'school',  step:2, w:'School / Division'},
+  approval:   {l:'Awaiting ADR / RSC decision',  b:'badge-purple',stage:'adr',     step:3, w:'Associate Dean Research / RSC'},
+  deferred:   {l:'Deferred / on hold',           b:'badge-gray',  stage:'adr',     step:3, w:'Associate Dean Research / RSC'},
+  approved:   {l:'Approved · account pending',   b:'badge-green', stage:'account', step:4, w:'Administrator (create account)'},
+  registered: {l:'Registered',                   b:'badge-green', step:5, w:'—'},
+  declined:   {l:'Not approved',                 b:'badge-red',   step:3, bad:1, w:'—'},
+  closed:     {l:'Closed',                       b:'badge-gray',  step:1, bad:1, w:'—'},
+};
+const REG_STEPS=['Submitted','Research Office','School / Division endorsement','Associate Dean Research / RSC','Supervisor account'];
+const TRAIL={forward:'Forwarded for School / Division endorsement',close:'Closed by the Research Office',endorse:'Endorsed by the School / Division',return:'Returned to the Research Office',decide:'Decision recorded',checklist:'Office checklist updated',account:'Supervisor account created',reopen:'Reopened'};
+const DECLARATIONS=[
+  'I confirm that I am actively engaged in research and scholarly activities relevant to the discipline in which I seek to supervise.',
+  'I have read and understood the CIHE Australia relevant policies and procedures outlined in Section 4 and agree to supervise research candidates in accordance with these requirements.',
+  'I acknowledge that I may be removed from the CIHE Supervisor Register if I fail to meet the requirements of this registration or no longer satisfy the eligibility criteria.',
+  'I declare that the information provided in this form is true and accurate to the best of my knowledge, and I consent to CIHE Australia using this information for the purposes of supervisor registration.',
+  'I agree to promptly inform CIHE Australia of any changes to my circumstances that may affect my eligibility or capacity to supervise, including changes in employment, research activity, or any potential conflicts of interest.',
+  'I declare that I will disclose any actual, potential, or perceived conflicts of interest in my role as a research supervisor.',
+  'I understand that conflicts may include personal relationships, financial interests, or professional associations that could influence supervision.',
+  'I agree to promptly notify the Research Office of any conflicts and comply with institutional policies for their management.',
+];
+const COI_FROM=5; // declarations from this index on sit under "Conflict of Interest Declaration"
+const CHECKLIST=[['folder','Supervisor folder has been created on SharePoint with relevant documents'],['register','Supervisor has been added to Research Supervisory Panel Register'],['agreement','Supervisor has signed the Confidential Agreement']];
+
+const todayISO=()=>{ const d=new Date(); return `${d.getFullYear()}-${String(d.getMonth()+1).padStart(2,'0')}-${String(d.getDate()).padStart(2,'0')}`; };
+const dmy=iso=> /^\d{4}-\d{2}-\d{2}$/.test(iso||'') ? iso.split('-').reverse().join('/') : (iso||'');
+const safeUrl=u=> /^https?:\/\//i.test(String(u||'').trim()) ? String(u).trim() : '';
+const optsHTML=(list,sel)=>list.map(o=>`<option value="${esc(o)}" ${o===sel?'selected':''}>${esc(o)}</option>`).join('');
+const regName=r=>[r.title,r.firstName,r.lastName].filter(Boolean).join(' ');
+
+document.querySelectorAll('[data-register-url]').forEach(e=>e.textContent=REGISTER_URL);
+document.querySelectorAll('[data-register-link]').forEach(a=>a.href=REGISTER_URL);
+document.querySelectorAll('[data-office-mail]').forEach(a=>{ a.href='mailto:'+RESEARCH_OFFICE_EMAIL; a.textContent=RESEARCH_OFFICE_EMAIL; });
+
+function regStepsHTML(status){
+  const st=REG_STATUS[status]||REG_STATUS.submitted;
+  return `<div class="steps">${REG_STEPS.map((lbl,i)=>{
+    const cls = i<st.step ? 'done' : i===st.step ? (st.bad?'bad':'now') : '';
+    const sub = i<st.step ? 'Done' : i===st.step ? (st.bad ? st.l : status==='deferred' ? 'Deferred / on hold' : 'In progress') : 'To come';
+    return `<div class="step ${cls}">${esc(lbl)}<small>${esc(sub)}</small></div>`;
+  }).join('')}</div>`;
+}
+
+/* ── Public form ────────────────────────────────────────── */
+// [field, element id, required, max length]
+const RG_FIELDS=[
+  ['discipline','rg-discipline',1,60],['level','rg-level',1,80],['title','rg-title',1,20],
+  ['firstName','rg-first',1,60],['lastName','rg-last',1,60],['phone','rg-phone',1,40],['email','rg-email',1,120],
+  ['address','rg-address',1,300],['position','rg-position',1,120],['institution','rg-institution',1,160],
+  ['institutionAddress','rg-inst-address',0,300],['phd','rg-phd',0,300],['researchAreas','rg-areas',1,1000],
+  ['profileLink','rg-profile',0,300],['hdrCompleted','rg-hdr-done',1,10],['hdrCurrent','rg-hdr-now',1,10],['mode','rg-mode',1,60],
+  ['docCv','rg-doc-cv',0,500],['docPhd','rg-doc-phd',0,500],['docTranscripts','rg-doc-tr',0,500],['docOther','rg-doc-other',0,500],
+  ['signature','rg-signature',1,120],
+];
+let registerBound=false;
+function openRegisterPortal(){
+  showPage('page-register');
+  if(!window.location.hash.startsWith('#register')) window.location.hash='register';
+  if(!registerBound){
+    registerBound=true;
+    const fill=(id,list)=>{ el(id).innerHTML=`<option value="">— Select —</option>`+optsHTML(list); };
+    fill('rg-discipline',REG_OPTS.discipline); fill('rg-level',REG_OPTS.level); fill('rg-title',REG_OPTS.title);
+    fill('rg-hdr-done',REG_OPTS.hdrCompleted); fill('rg-hdr-now',REG_OPTS.hdrCurrent); fill('rg-mode',REG_OPTS.mode);
+    RG_FIELDS.forEach(([,id,,max])=>{ const e=el(id); if(e && e.tagName!=='SELECT') e.maxLength=max; });
+    el('rg-declarations').innerHTML=DECLARATIONS.map((t,i)=>
+      `${i===COI_FROM?'<div class="sub-head">Conflict of Interest Declaration</div>':''}<label class="check-row"><input type="checkbox" data-decl="${i}"/> <span>${esc(t)}</span></label>`).join('');
+    el('rg-submit-btn').onclick=submitRegistration;
+    el('rg-ref-btn').onclick=()=>checkRegStatus(el('rg-ref').value);
+    el('rg-ref').onkeydown=e=>{ if(e.key==='Enter') checkRegStatus(el('rg-ref').value); };
+    el('register-to-login-btn').onclick=()=>{
+      window.location.hash='';
+      if(ME) window.location.reload(); else showPage('page-login'); // signed-in staff go back to their workspace
+    };
+  }
+  if(ME) el('register-to-login-btn').innerHTML=`${icon('i-back')}Back to Supervision Hub`;
+  el('rg-date').value=dmy(todayISO());
+  if(!SIG['rg-sig']){ el('rg-sig-host').innerHTML=sigPadHTML('rg-sig'); initSigPad('rg-sig'); }
+  loadRegisterCampuses();
+  // #register/<reference> opens straight on that registration's status
+  const ref=decodeURIComponent(window.location.hash.split('/')[1]||'');
+  if(ref){ el('rg-ref').value=ref; checkRegStatus(ref); }
+}
+
+/* Campuses offered on the public form (campus names are readable without sign-in). */
+let RG_CAMPUSES=null;
+const campusLabel=c=>c.name+(c.location?` — ${c.location}`:'');
+async function loadRegisterCampuses(){
+  if(RG_CAMPUSES) return;
+  try{ const s=await getDocs(collection(db,'campuses')); RG_CAMPUSES=s.docs.map(d=>({id:d.id,...d.data()})).sort((a,b)=>String(a.name||'').localeCompare(String(b.name||''))); }
+  catch(e){ RG_CAMPUSES=[]; }
+  el('rg-campus-box').innerHTML = RG_CAMPUSES.length
+    ? `<div class="sem-list" style="border:none;margin:0;padding:0">${RG_CAMPUSES.map(c=>`<label class="check-row"><input type="checkbox" data-campus="${c.id}"/> <span>${esc(campusLabel(c))}</span></label>`).join('')}</div>`
+    : `<input type="text" id="rg-campus-text" maxlength="120" placeholder="e.g. Sydney (NSW), Canberra (ACT), Perth (WA)" style="margin:6px 0"/>`;
+}
+
+/* ── Signature pad (drawn with mouse, finger or stylus; saved as a small PNG) ── */
+const SIG={};
+function sigPadHTML(id){
+  return `<div class="sig-pad"><canvas id="${id}" width="600" height="180" aria-label="Signature box"></canvas>
+    <div class="sig-foot"><span class="text-xs text-muted">Sign in the box with your mouse, finger or stylus</span><button type="button" class="read-more-btn" data-sig-clear="${id}">Clear</button></div></div>`;
+}
+function initSigPad(id){
+  const c=el(id); if(!c) return;
+  const ctx=c.getContext('2d'); let down=false, ink=false;
+  ctx.lineWidth=2.6; ctx.lineCap='round'; ctx.lineJoin='round'; ctx.strokeStyle='#101a33';
+  const pos=e=>{ const r=c.getBoundingClientRect(); return [(e.clientX-r.left)*c.width/r.width,(e.clientY-r.top)*c.height/r.height]; };
+  c.onpointerdown=e=>{ e.preventDefault(); try{ c.setPointerCapture(e.pointerId); }catch{} down=true; const [x,y]=pos(e); ctx.beginPath(); ctx.moveTo(x,y); ctx.lineTo(x+.1,y+.1); ctx.stroke(); ink=true; };
+  c.onpointermove=e=>{ if(!down) return; const [x,y]=pos(e); ctx.lineTo(x,y); ctx.stroke(); };
+  c.onpointerup=c.onpointercancel=()=>{ down=false; };
+  const clear=()=>{ ctx.clearRect(0,0,c.width,c.height); ink=false; };
+  document.querySelector(`[data-sig-clear="${id}"]`).onclick=clear;
+  SIG[id]={ empty:()=>!ink, data:()=>c.toDataURL('image/png'), clear };
+}
+const SIG_MAX=90000; // characters; the rules allow 100,000
+const okSig=u=> typeof u==='string' && u.startsWith('data:image/png;base64,') ? u : '';
+/* Reads a pad. Returns the PNG data URL, or '' after telling the user what is wrong. */
+function readSig(id, say){
+  const s=SIG[id];
+  if(!s || s.empty()){ say('Please sign in the signature box.'); el(id)?.scrollIntoView({behavior:'smooth',block:'center'}); return ''; }
+  const d=s.data();
+  if(d.length>SIG_MAX){ say('That signature is too detailed to save. Press Clear and sign again more simply.'); return ''; }
+  return d;
+}
+
+function regFormError(msg, focusId){
+  const e=el('rg-error'); e.textContent=msg; e.classList.remove('hidden');
+  const f=focusId && el(focusId); if(f){ f.focus(); f.scrollIntoView({behavior:'smooth',block:'center'}); }
+}
+async function submitRegistration(){
+  el('rg-error').classList.add('hidden');
+  if(el('rg-website').value) return; // honeypot: only bots fill this hidden field
+  const data={};
+  for(const [key,id,required] of RG_FIELDS){
+    const v=el(id).value.trim();
+    if(required && !v){ regFormError('Please complete every field marked * — "'+(document.querySelector(`label[for="${id}"]`)?.textContent.replace(/\s*\*.*$/,'').trim()||key)+'" is missing.', id); return; }
+    data[key]=v;
+  }
+  const citizen=document.querySelector('input[name="rg-citizen"]:checked')?.value;
+  if(!citizen){ regFormError('Please answer "Australian citizen / PR?".'); document.querySelector('input[name="rg-citizen"]').focus(); return; }
+  if(!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(data.email)){ regFormError('Please enter a valid email address.','rg-email'); return; }
+  for(const [key,id] of [['docCv','rg-doc-cv'],['docPhd','rg-doc-phd'],['docTranscripts','rg-doc-tr'],['docOther','rg-doc-other']]){
+    if(data[key] && !safeUrl(data[key])){ regFormError('Document links must start with https:// or http://','' + id); return; }
+  }
+  const campusIds=[...document.querySelectorAll('#rg-campus-box [data-campus]:checked')].map(c=>c.dataset.campus);
+  const campusNames = campusIds.length ? campusIds.map(id=>RG_CAMPUSES.find(c=>c.id===id)).filter(Boolean).map(c=>campusLabel(c).slice(0,200))
+    : [el('rg-campus-text')?.value.trim()||''].filter(Boolean);
+  if(!campusNames.length){ regFormError('Please choose at least one preferred campus / location.'); el('rg-campus-box').scrollIntoView({behavior:'smooth',block:'center'}); return; }
+  const boxes=[...document.querySelectorAll('#rg-declarations [data-decl]')];
+  const missing=boxes.find(b=>!b.checked);
+  if(missing){ regFormError('Please tick every statement in the Supervisor Declaration.'); missing.focus(); missing.scrollIntoView({behavior:'smooth',block:'center'}); return; }
+
+  const signatureImg=readSig('rg-sig', regFormError); if(!signatureImg) return;
+  const btn=el('rg-submit-btn'); btn.disabled=true;
+  try{
+    const ref=doc(collection(db,REG_COL));
+    const b=writeBatch(db);
+    b.set(ref,{...data, citizen, campusIds, campusNames, signatureImg, declarations:true, signedOn:todayISO(), status:'submitted', submittedAt:serverTimestamp()});
+    b.set(doc(db,REG_STATUS_COL,ref.id),{status:'submitted', name:`${data.firstName} ${data.lastName}`.slice(0,80), at:serverTimestamp()});
+    await b.commit();
+    const docsSent=data.docCv && data.docPhd && data.docTranscripts;
+    const mail=`mailto:${RESEARCH_OFFICE_EMAIL}?subject=${encodeURIComponent('Supervisor registration documents – ref '+ref.id)}&body=${encodeURIComponent(`Dear Research Office,\n\nPlease find attached my supporting documents (CV, PhD certificate, transcripts) for my supervisor registration.\n\nReference: ${ref.id}\nName: ${regName(data)}\n\nKind regards,\n${data.firstName} ${data.lastName}`)}`;
+    hide('rg-form-wrap');
+    el('rg-done').innerHTML=`<div class="card" style="text-align:center;padding:34px 22px">
+        <span class="share-ic" style="margin:0 auto 12px;background:var(--green)">${icon('i-check')}</span>
+        <h2>Registration submitted</h2>
+        <p class="text-muted" style="margin:6px auto 16px;max-width:520px">Thank you, ${esc(data.firstName)}. Your form is now with the Research Office. Keep this reference code — you need it to check your status.</p>
+        <div><span class="ref-code" id="rg-done-ref">${esc(ref.id)}</span></div>
+        <div class="form-actions" style="justify-content:center;margin-top:14px">
+          <button class="btn" id="rg-done-copy">${icon('i-copy')}Copy reference</button>
+          <a class="btn ${docsSent?'':'btn-primary'}" href="${esc(mail)}">${icon('i-mail')}Email documents to the Research Office</a>
+        </div>
+        ${docsSent?'':`<div class="alert alert-warning" style="text-align:left;margin:18px auto 0;max-width:560px">You did not give a link for every document. Please email your CV, PhD certificate and transcripts to ${esc(RESEARCH_OFFICE_EMAIL)} quoting the reference above.</div>`}
+        ${regStepsHTML('submitted')}
+        <p class="text-sm text-muted" style="margin-top:10px">A sign-in account is created only after your registration is approved. You will be contacted at ${esc(data.email)}.</p>
+      </div>`;
+    show('rg-done');
+    el('rg-done-copy').onclick=()=>copyText(ref.id,'Reference copied');
+    el('rg-ref').value=ref.id;
+    window.scrollTo({top:0,behavior:'smooth'});
+  }catch(e){
+    regFormError(e.code==='permission-denied'
+      ? 'The form could not be submitted (the database refused it). Please email the Research Office at '+RESEARCH_OFFICE_EMAIL+'.'
+      : 'Could not submit: '+e.message);
+  }
+  btn.disabled=false;
+}
+async function checkRegStatus(refRaw){
+  const out=el('rg-ref-result'), ref=String(refRaw||'').trim();
+  if(!ref || ref.includes('/')){ out.innerHTML=`<div class="alert alert-info">Enter the reference code you were given when you submitted the form.</div>`; return; }
+  out.innerHTML=`<div class="text-sm text-muted">Checking…</div>`;
+  try{
+    const snap=await getDoc(doc(db,REG_STATUS_COL,ref));
+    if(!snap.exists()){ out.innerHTML=`<div class="alert alert-info">No registration found for <strong>${esc(ref)}</strong>. Check the code, or contact ${esc(RESEARCH_OFFICE_EMAIL)}.</div>`; return; }
+    const s=snap.data(), st=REG_STATUS[s.status]||REG_STATUS.submitted;
+    const msg={
+      submitted:'Your form is with the Research Office.',
+      endorsement:'Your form has been forwarded to the School / Division for endorsement.',
+      approval:'Your form has been endorsed and is with the Associate Dean Research / RSC for a decision.',
+      deferred:'A decision on your registration has been deferred. The Research Office will contact you.',
+      approved:'Your registration has been approved. Your Supervision Hub account is being set up and the details will be emailed to you.',
+      registered:'Your registration is complete and your Supervision Hub account has been created. Sign-in details were sent to your email address.',
+      declined:'Your registration was not approved. The Research Office will contact you with the details.',
+      closed:'This registration was closed by the Research Office. Please contact them for details.',
+    }[s.status]||'';
+    out.innerHTML=`<div style="margin-top:6px"><div class="flex items-center gap-8" style="flex-wrap:wrap"><span class="fw-600">${esc(s.name||'Registration')}</span><span class="badge ${st.b}">${esc(s.outcome && ['approved','registered'].includes(s.status) ? s.outcome : st.l)}</span><span class="text-xs text-muted">updated ${esc(fmtDate(s.at))}</span></div>
+      ${regStepsHTML(s.status)}<p class="text-sm" style="margin-top:8px">${esc(msg)}</p></div>`;
+  }catch(e){ out.innerHTML=`<div class="alert alert-danger">Could not check the status: ${esc(e.message)}</div>`; }
+}
+el('goto-register-link')?.addEventListener('click',e=>{ e.preventDefault(); openRegisterPortal(); });
+window.addEventListener('hashchange',()=>{ if(window.location.hash.startsWith('#register')) openRegisterPortal(); });
+
+/* ── Review queue (admin tab + review page share this) ───── */
+let REGS=[], OFFICERS=[], REG_HOST=null, REG_FILTER='mine', REG_LEVEL='', REG_CAMPUS='';
+/* Filter by the supervision level the applicant asked for. "Can be …" includes Both / Any. */
+const LEVEL_FILTERS=[['','All supervision levels'],['can-p','Can be Principal (incl. Both / Any)'],['can-a','Can be Associate (incl. Both / Any)'],['p','Principal only'],['a','Associate only'],['b','Both / Any'],['i','Industry Expert']];
+function levelMatch(level,f){
+  const L=REG_OPTS.level;
+  return !f || (f==='p'&&level===L[0]) || (f==='a'&&level===L[1]) || (f==='i'&&level===L[2]) || (f==='b'&&level===L[3])
+    || (f==='can-p'&&(level===L[0]||level===L[3])) || (f==='can-a'&&(level===L[1]||level===L[3]));
+}
+const regCampusText=r=>(r.campusNames||[]).join(', ');
+const isAdminUser=()=>PROFILE?.role==='admin';
+function myStages(){ return isAdminUser() ? ['office','school','adr'] : (PROFILE?.officeRoles||[]); }
+function regAwaitsMe(r){
+  const stage=REG_STATUS[r.status]?.stage; if(!stage) return false;
+  if(stage==='account') return isAdminUser();
+  if(!myStages().includes(stage)) return false;
+  if(stage==='school' && !isAdminUser() && PROFILE?.officeSchool && r.endorsement?.school && PROFILE.officeSchool!==r.endorsement.school) return false;
+  return true;
+}
+async function loadRegs(){
+  const snap=await getDocs(collection(db,REG_COL));
+  REGS=snap.docs.map(d=>({id:d.id,...d.data()})).sort((a,b)=>(tsDate(b.submittedAt)?.getTime()||0)-(tsDate(a.submittedAt)?.getTime()||0));
+}
+async function loadOfficers(){
+  const [o,a]=await Promise.all([
+    getDocs(query(collection(db,'users'),where('officeRoles','array-contains-any',['office','school','adr']))),
+    getDocs(query(collection(db,'users'),where('role','==','admin')))
+  ]);
+  OFFICERS=o.docs.map(d=>({id:d.id,...d.data()}));
+  ADMINS=a.docs.map(d=>({id:d.id,...d.data()})); ADMINS_LOADED=true;
+}
+/* People to email for a stage. Falls back to admins (who can act at every stage). */
+function officersFor(stage, school){
+  const list=OFFICERS.filter(o=>!o.disabled && o.email && (o.officeRoles||[]).includes(stage) && (stage!=='school' || !o.officeSchool || !school || o.officeSchool===school));
+  return list.length ? list : ADMINS.filter(a=>a.email);
+}
+function updateRegBadges(){
+  const n=REGS.filter(regAwaitsMe).length;
+  ['reg-nav-count','sv-reg-count'].forEach(id=>{ const e=el(id); if(e){ e.textContent=n; e.classList.toggle('hidden',!n); } });
+}
+const REG_RULES_HINT=`<div class="card"><div class="fw-600" style="margin-bottom:6px">The database doesn't allow supervisor registrations yet</div>
+  <div class="text-sm text-muted">Publish the updated <code class="chip-code">firestore.rules</code> file (Firebase Console → Firestore → Rules), then refresh. It adds the <code class="chip-code">registrations</code> and <code class="chip-code">registrationStatus</code> collections.</div></div>`;
+
+async function openRegQueue(hostId){
+  REG_HOST=hostId;
+  ['admin-reg-host','review-host'].forEach(id=>{ if(id!==hostId && el(id)) el(id).innerHTML=''; });
+  const host=el(hostId); if(!host) return;
+  host.innerHTML=`<div class="card" style="text-align:center;padding:36px"><div class="spinner"></div></div>`;
+  try{ await Promise.all([loadRegs(),loadOfficers()]); renderRegQueue(); }
+  catch(e){ host.innerHTML = e.code==='permission-denied' ? REG_RULES_HINT : `<div class="alert alert-danger">Could not load registrations: ${esc(e.message)}</div>`; }
+}
+function renderRegQueue(){
+  updateRegBadges();
+  const host=el(REG_HOST); if(!host) return;
+  const n=k=>REGS.filter(r=>r.status===k).length;
+  const mine=REGS.filter(regAwaitsMe).length;
+  const pills=[['mine',`Awaiting my action (${mine})`],['open','In progress'],['approved','Approved'],['registered','Registered'],['ended','Not approved / closed'],['all',`All (${REGS.length})`]];
+  const term=host.querySelector('[data-reg-search]')?.value||'';
+  host.innerHTML=`
+    <div class="stats-strip">
+      <div class="stat-card hl"><div class="stat-val c-accent">${mine}</div><div class="stat-lbl">Awaiting my action</div></div>
+      <div class="stat-card"><div class="stat-val c-amber">${n('submitted')}</div><div class="stat-lbl">With Research Office</div></div>
+      <div class="stat-card"><div class="stat-val">${n('endorsement')}</div><div class="stat-lbl">With School / Division</div></div>
+      <div class="stat-card"><div class="stat-val c-purple">${n('approval')+n('deferred')}</div><div class="stat-lbl">With ADR / RSC</div></div>
+      <div class="stat-card"><div class="stat-val c-green">${n('approved')}</div><div class="stat-lbl">Approved · account pending</div></div>
+      <div class="stat-card"><div class="stat-val">${n('registered')}</div><div class="stat-lbl">Registered</div></div>
+    </div>
+    <div class="card table-card">
+      <div class="table-toolbar">
+        <div class="campus-pills">${pills.map(([k,l])=>`<button class="campus-pill ${REG_FILTER===k?'active':''}" data-reg-filter="${k}">${esc(l)}</button>`).join('')}</div>
+        <div class="spacer"></div>
+        <select data-reg-level title="Filter by supervision level sought" style="width:auto;min-width:200px;height:34px">${LEVEL_FILTERS.map(([v,l])=>`<option value="${v}" ${REG_LEVEL===v?'selected':''}>${esc(l)}</option>`).join('')}</select>
+        <select data-reg-campus title="Filter by preferred campus / location" style="width:auto;min-width:170px;height:34px"><option value="">All campuses</option>${CAMPUSES.map(c=>`<option value="${c.id}" ${REG_CAMPUS===c.id?'selected':''}>${esc(campusLabel(c))}</option>`).join('')}</select>
+        <button class="btn btn-sm" data-reg-refresh>${icon('i-refresh')}Refresh</button>
+        <div class="search-wrap"><span class="search-icon">${icon('i-search')}</span><input type="text" class="search-input" data-reg-search placeholder="Search name, email, institution…" value="${esc(term)}"/></div>
+      </div>
+      <div class="tw"><table><thead><tr><th>Submitted</th><th>Applicant</th><th>Discipline · level · campus</th><th>Stage</th><th>Currently with</th><th></th></tr></thead><tbody data-reg-rows></tbody></table></div>
+    </div>`;
+  host.querySelectorAll('[data-reg-filter]').forEach(b=>b.onclick=()=>{ REG_FILTER=b.dataset.regFilter; renderRegQueue(); });
+  host.querySelector('[data-reg-refresh]').onclick=()=>openRegQueue(REG_HOST);
+  host.querySelector('[data-reg-search]').oninput=deb(renderRegRows,150);
+  host.querySelector('[data-reg-level]').onchange=e=>{ REG_LEVEL=e.target.value; renderRegRows(); };
+  host.querySelector('[data-reg-campus]').onchange=e=>{ REG_CAMPUS=e.target.value; renderRegRows(); };
+  renderRegRows();
+}
+function renderRegRows(){
+  const host=el(REG_HOST), body=host?.querySelector('[data-reg-rows]'); if(!body) return;
+  const term=(host.querySelector('[data-reg-search]')?.value||'').trim().toLowerCase();
+  const rows=REGS.filter(r=>{
+    if(REG_FILTER==='mine' && !regAwaitsMe(r)) return false;
+    if(REG_FILTER==='open' && !['submitted','endorsement','approval','deferred'].includes(r.status)) return false;
+    if(REG_FILTER==='approved' && r.status!=='approved') return false;
+    if(REG_FILTER==='registered' && r.status!=='registered') return false;
+    if(REG_FILTER==='ended' && !['declined','closed'].includes(r.status)) return false;
+    if(!levelMatch(r.level,REG_LEVEL)) return false;
+    if(REG_CAMPUS && !(r.campusIds||[]).includes(REG_CAMPUS)) return false;
+    if(term && !`${regName(r)} ${r.email} ${r.institution} ${r.discipline} ${regCampusText(r)} ${r.id}`.toLowerCase().includes(term)) return false;
+    return true;
+  });
+  if(!rows.length){
+    body.innerHTML=`<tr><td colspan="6" style="text-align:center;padding:36px;color:var(--text2)">${REG_FILTER==='mine'&&!term&&!REG_LEVEL&&!REG_CAMPUS?'Nothing is waiting on you right now. Use the filters above to see other registrations.':'No registrations match these filters.'}</td></tr>`;
+    return;
+  }
+  body.innerHTML=rows.map(r=>{
+    const st=REG_STATUS[r.status]||{l:r.status,b:'badge-gray',w:'—'};
+    const withWho = r.status==='endorsement' && r.endorsement?.school ? r.endorsement.school : st.w;
+    return `<tr>
+      <td class="text-xs text-muted" style="white-space:nowrap">${esc(fmtDate(r.submittedAt))}</td>
+      <td><div class="fw-600">${esc(regName(r))}</div><div class="text-xs text-muted">${esc(r.email)}${r.institution?' · '+esc(r.institution):''}</div></td>
+      <td class="text-sm">${esc(r.discipline)}<div class="text-xs text-muted">${esc(r.level)}</div>${regCampusText(r)?`<div class="text-xs" style="margin-top:2px">${icon('i-building','ic-sm')} ${esc(regCampusText(r))}</div>`:''}</td>
+      <td><span class="badge ${st.b}">${esc(st.l)}</span>${r.decision?.outcome?`<div class="text-xs text-muted" style="margin-top:3px">${esc(r.decision.outcome)}</div>`:''}</td>
+      <td class="text-sm">${esc(withWho)}</td>
+      <td><button class="btn btn-sm ${regAwaitsMe(r)?'btn-primary':''}" data-reg-open="${r.id}">${regAwaitsMe(r)?'Review':'Open'}</button></td>
+    </tr>`;
+  }).join('');
+  body.querySelectorAll('[data-reg-open]').forEach(b=>b.onclick=()=>openReg(b.dataset.regOpen));
+}
+
+/* ── One registration: full form + the action for its current stage ── */
+function kvHTML(label,val,cls=''){
+  const u=safeUrl(val);
+  const v = u ? `<a href="${esc(u)}" target="_blank" rel="noopener noreferrer">${esc(val)}</a>` : esc(val||'—');
+  return `<div class="${cls}"><div class="k">${esc(label)}</div><div style="overflow-wrap:anywhere;white-space:pre-wrap">${v}</div></div>`;
+}
+const sigKV=(label,u)=>`<div><div class="k">${esc(label)}</div>${okSig(u)?`<img class="sig-img" alt="Signature" src="${esc(okSig(u))}"/>`:'<div>—</div>'}</div>`;
+function regDetailHTML(r){
+  const st=REG_STATUS[r.status]||{l:r.status,b:'badge-gray'};
+  const e=r.endorsement||{}, d=r.decision||{}, ck=r.checklist||{}, docs=r.officeReview?.docs||{};
+  const sec=(t,inner)=>`<div class="reg-sec"><h4>${t}</h4>${inner}</div>`;
+  const docLine=(lbl,url,got)=>kvHTML(lbl, url || (got?'Received by the Research Office':'Not provided'));
+  return `
+    <div class="flex items-center gap-8" style="flex-wrap:wrap"><span class="badge ${st.b}">${esc(st.l)}</span><span class="text-xs text-muted">Ref <code>${esc(r.id)}</code> · submitted ${esc(fmtDate(r.submittedAt))}</span>
+      <div class="spacer"></div><button class="btn btn-sm btn-primary" data-ra="word">${icon('i-download')}Download Word file</button><button class="btn btn-sm" data-ra="mail-applicant">${icon('i-mail')}Email applicant</button></div>
+    ${regStepsHTML(r.status)}
+    <div id="reg-action">${regActionHTML(r)}</div>
+    ${sec('Section 1 · Registration type',`<div class="kv">${kvHTML('Master of Research discipline',r.discipline)}${kvHTML('Supervision level sought',r.level)}${kvHTML('Preferred campus / location',regCampusText(r),'wide')}</div>`)}
+    ${sec('Section 2 · Personal details',`<div class="kv">${kvHTML('Name',regName(r))}${kvHTML('Australian citizen / PR',r.citizen)}${kvHTML('Phone',r.phone)}${kvHTML('Email',r.email)}${kvHTML('Residential address',r.address,'wide')}</div>`)}
+    ${sec('Section 3 · Academic & professional profile',`<div class="kv">${kvHTML('Current position title',r.position)}${kvHTML('Employing institution',r.institution)}${kvHTML('Institution address',r.institutionAddress,'wide')}${kvHTML('PhD / doctoral qualification',r.phd,'wide')}${kvHTML('Research areas & specialisations',r.researchAreas,'wide')}${kvHTML('ORCID / Google Scholar',r.profileLink,'wide')}${kvHTML('HDR students supervised to completion',r.hdrCompleted)}${kvHTML('Current HDR students supervising',r.hdrCurrent)}${kvHTML('Supervision mode',r.mode)}</div>`)}
+    ${sec('Supporting documents',`<div class="kv">${docLine('CV',r.docCv,docs.cv)}${docLine('PhD certificate',r.docPhd,docs.phd)}${docLine('Transcripts',r.docTranscripts,docs.tr)}${r.docOther?kvHTML('Other documents',r.docOther):''}</div>`)}
+    ${sec('Section 5 · Supervisor declaration',`<div class="text-sm">${icon('i-check','ic-sm')} All ${DECLARATIONS.length} statements confirmed, including the Conflict of Interest Declaration.</div><div class="kv mt-8">${sigKV('Signature',r.signatureImg)}${kvHTML('Print full name',r.signature)}${kvHTML('Date',dmy(r.signedOn))}</div>`)}
+    ${sec('Section 6 · Faculty / School endorsement',`<div class="kv">${kvHTML('Forwarding School / Division',e.school)}${kvHTML('Endorsed by',e.by)}${kvHTML('Date of endorsement',dmy(e.date))}${sigKV('Signature',e.sig)}${e.note?kvHTML('Comment',e.note,'wide'):''}</div>`)}
+    ${sec('Section 7 · Approval by Associate Dean Research or RSC',`<div class="kv">${kvHTML('Name',d.name)}${kvHTML('Registration outcome',d.outcome)}${kvHTML('Date of decision',dmy(d.date))}${kvHTML('RSC decision / date',d.rsc)}${sigKV('Signature',d.sig)}${kvHTML('Comments / conditions',d.comments,'wide')}</div>`)}
+    ${sec('Checklist · office use only',CHECKLIST.map(([k,l])=>`<div class="text-sm" style="padding:3px 0;color:${ck[k]?'var(--text)':'var(--text3)'}">${ck[k]?'☑':'☐'} ${esc(l)}</div>`).join('')+(r.account?.uid?`<div class="text-sm" style="padding:3px 0">☑ Supervision Hub account created ${esc(fmtDate(r.account.at))}</div>`:''))}
+    ${(r.trail||[]).length?sec('History',[...r.trail].reverse().map(t=>`<div class="text-sm" style="padding:4px 0"><strong>${esc(TRAIL[t.act]||t.act)}</strong> <span class="text-muted">· ${esc(t.who||'')} · ${esc(fmtDate(t.at))}</span>${t.note?`<div class="text-muted" style="white-space:pre-wrap">${esc(t.note)}</div>`:''}</div>`).join('')):''}
+    ${isAdminUser()?`<div class="reg-sec flex gap-8" style="flex-wrap:wrap">${['declined','closed'].includes(r.status)?`<button class="btn btn-sm" data-ra="reopen">${icon('i-refresh')}Reopen (back to Research Office)</button>`:''}<div class="spacer"></div><button class="btn btn-sm btn-danger" data-ra="delete">${icon('i-trash')}Delete registration</button></div>`:''}`;
+}
+function regActionHTML(r){
+  const mine=myStages(), adm=isAdminUser(), st=r.status;
+  const box=(title,inner)=>`<div class="reg-act" style="margin-top:12px"><h4 class="sub-head" style="margin-top:0">${title}</h4>${inner}</div>`;
+  const waiting=who=>`<div class="alert alert-info" style="margin:12px 0 0">Waiting on <strong>${esc(who)}</strong>. No action is needed from you at this stage.</div>`;
+  let h='';
+  if(st==='submitted'){
+    if(!mine.includes('office')) return waiting('the Research Office');
+    const guess = r.endorsement?.school || (r.discipline==='Information Technology (IT)' ? 'School of IT' : ['Business','Accounting'].includes(r.discipline) ? 'School of Business' : '');
+    const docs=r.officeReview?.docs||{};
+    h=box('Research Office · check and forward',`
+      <p class="text-sm text-muted">Confirm the supporting documents, then send the form to the School / Division for endorsement.</p>
+      ${[['cv','CV received'],['phd','PhD certificate received'],['tr','Transcripts received']].map(([k,l])=>`<label class="check-row"><input type="checkbox" id="ra-doc-${k}" ${docs[k]?'checked':''}/> <span>${l}</span></label>`).join('')}
+      <div class="g2 mt-8"><div class="form-group"><label>Forwarding School / Division <span class="req">*</span></label><select id="ra-school"><option value="">— Select —</option>${optsHTML(REG_OPTS.school,guess)}</select></div></div>
+      <div class="form-group"><label>Note <span class="opt">(optional — required if you close the registration)</span></label><textarea id="ra-note" rows="2"></textarea></div>
+      <div class="form-actions"><button class="btn btn-primary" data-ra="forward">${icon('i-arrow')}Forward for endorsement</button><button class="btn btn-danger" data-ra="close">Close without progressing</button></div>`);
+  } else if(st==='endorsement'){
+    if(!regAwaitsMe(r)) return waiting(r.endorsement?.school||'the School / Division');
+    h=box(`${esc(r.endorsement?.school||'School / Division')} · endorsement (Section 6)`,`
+      <div class="g2"><div class="form-group"><label>Endorsed by (name) <span class="req">*</span></label><input type="text" id="ra-by" value="${esc(PROFILE?.name||'')}" maxlength="120"/></div>
+      <div class="form-group"><label>Date of endorsement <span class="req">*</span></label><input type="date" id="ra-date" value="${todayISO()}"/></div></div>
+      <div class="form-group"><label>Signature <span class="req">*</span> <span class="opt">(not needed to return the form)</span></label>${sigPadHTML('ra-sig')}</div>
+      <div class="form-group"><label>Comment <span class="opt">(optional — required if you return the form)</span></label><textarea id="ra-note" rows="2"></textarea></div>
+      <div class="form-actions"><button class="btn btn-primary" data-ra="endorse">${icon('i-check')}Endorse and send to Associate Dean Research / RSC</button><button class="btn" data-ra="return">${icon('i-back')}Return to Research Office</button></div>`);
+  } else if(st==='approval' || st==='deferred'){
+    if(!mine.includes('adr')) return waiting('the Associate Dean Research / RSC');
+    const d=r.decision||{};
+    h=box('Associate Dean Research / RSC · decision (Section 7)',`
+      <div class="g3"><div class="form-group"><label>Name <span class="req">*</span></label><input type="text" id="ra-by" value="${esc(d.name||PROFILE?.name||'')}" maxlength="120"/></div>
+      <div class="form-group"><label>Registration outcome <span class="req">*</span></label><select id="ra-outcome"><option value="">— Select —</option>${optsHTML(REG_OPTS.outcome,'')}</select></div>
+      <div class="form-group"><label>Date of decision <span class="req">*</span></label><input type="date" id="ra-date" value="${todayISO()}"/></div></div>
+      <div class="form-group"><label>Comments / conditions</label><textarea id="ra-note" rows="3">${esc(d.comments||'')}</textarea></div>
+      <div class="form-group"><label>RSC decision / date <span class="opt">(if it went to the RSC)</span></label><input type="text" id="ra-rsc" value="${esc(d.rsc||'')}" maxlength="160"/></div>
+      <div class="form-group"><label>Signature <span class="req">*</span></label>${sigPadHTML('ra-sig')}</div>
+      <p class="hint" style="margin:-4px 0 12px">Approved and Conditionally Approved allow the supervisor account to be created. Deferred and Other keep the form with you. Rejected ends the registration.</p>
+      <div class="form-actions"><button class="btn btn-primary" data-ra="decide">${icon('i-shield')}Record decision</button></div>`);
+  } else if(st==='approved' || st==='registered'){
+    if(st==='approved'){
+      if(adm){
+        h+=box('Create the supervisor account',`
+          ${r.decision?.outcome==='Conditionally Approved'?`<div class="alert alert-warning">Conditionally approved${r.decision.comments?': '+esc(r.decision.comments):''}</div>`:''}
+          <div class="g2">
+            <div class="form-group"><label>Display name</label><input type="text" id="ra-name" value="${esc(regName(r))}" maxlength="120"/></div>
+            <div class="form-group"><label>Sign-in email</label><input type="email" id="ra-email" value="${esc(r.email)}"/></div>
+            <div class="form-group"><label>Temporary password</label><div class="flex gap-8"><input type="text" id="ra-pass" placeholder="Min. 6 characters" autocomplete="off"/><button type="button" class="btn" data-ra="genpass">Generate</button></div></div>
+            <div class="form-group"><label>Campus</label><select id="ra-campus"><option value="">— Select Campus —</option>${CAMPUSES.map(c=>`<option value="${c.id}">${esc(c.name)}</option>`).join('')}</select></div>
+            <div class="form-group"><label>Supervisor type <span class="opt">(applied for: ${esc(r.level)})</span></label><select id="ra-type">
+              ${[['both','Both (Principal & Co-Supervisor)'],['principal','Principal Supervisor Only'],['co','Co-Supervisor Only']].map(([v,l])=>`<option value="${v}" ${LEVEL_TYPE[r.level]===v?'selected':''}>${l}</option>`).join('')}</select></div>
+          </div>
+          <label>On the supervisor list for</label><div class="sem-box mb-16" id="ra-sem-box"></div>
+          <div class="form-actions"><button class="btn btn-primary" data-ra="account">${icon('i-userplus')}Create supervisor account</button></div>`);
+      } else h+=waiting('an administrator to create the supervisor account');
+    }
+    if(adm || mine.includes('office')){
+      const ck=r.checklist||{};
+      h+=box('Office checklist',`${CHECKLIST.map(([k,l])=>`<label class="check-row"><input type="checkbox" id="ra-ck-${k}" ${ck[k]?'checked':''}/> <span>${esc(l)}</span></label>`).join('')}
+        <div class="form-actions mt-8"><button class="btn" data-ra="checklist">Save checklist</button></div>`);
+    }
+  }
+  return h;
+}
+function openReg(id){
+  const r=REGS.find(x=>x.id===id); if(!r) return;
+  el('reg-modal-title').textContent=regName(r);
+  el('reg-modal-body').innerHTML=regDetailHTML(r);
+  el('reg-modal').classList.remove('hidden');
+  if(el('ra-sem-box')) renderSemChecks('ra-sem-box', defaultSemList());
+  delete SIG['ra-sig']; if(el('ra-sig')) initSigPad('ra-sig');
+  const pc=(r.campusIds||[]).find(id=>CAMPUSES.some(c=>c.id===id)); if(pc && el('ra-campus')) el('ra-campus').value=pc; // applicant's first preferred campus
+  el('reg-modal-body').querySelectorAll('[data-ra]').forEach(b=>b.onclick=()=>regAct(r,b.dataset.ra,b));
+}
+const closeReg=()=>el('reg-modal').classList.add('hidden');
+el('reg-close-btn').addEventListener('click',closeReg);
+el('reg-modal').addEventListener('click',e=>{ if(e.target===el('reg-modal')) closeReg(); });
+document.addEventListener('keydown',e=>{ if(e.key==='Escape') closeReg(); });
+
+/* Write the change to the form and mirror the stage to the public status doc. */
+async function regSave(r, patch, act, note, logDet){
+  const entry={at:Timestamp.now(), uid:ME.uid, who:String(PROFILE?.name||ME.email||'').slice(0,60), act, note:String(note||'').slice(0,400)};
+  const b=writeBatch(db);
+  b.update(doc(db,REG_COL,r.id),{...patch, updatedAt:serverTimestamp(), trail:arrayUnion(entry)});
+  const pub={status:patch.status||r.status, name:`${r.firstName} ${r.lastName}`.slice(0,80), at:serverTimestamp()};
+  if(patch.decision?.outcome) pub.outcome=patch.decision.outcome;
+  b.set(doc(db,REG_STATUS_COL,r.id),pub,{merge:true});
+  await b.commit();
+  logAct('reg.'+act, regName(r), logDet||note||'', r.id);
+  await loadRegs(); renderRegQueue();
+}
+/* Pre-filled email for the next office (opens the user's own mail app). */
+function openRouteEmail(targets, label, subject, body){
+  EMAIL_KIND='route';
+  EMAIL_TARGETS=(targets||[]).filter(t=>t && t.email);
+  if(!EMAIL_TARGETS.length){ toast('Saved. Nobody with an email address is set for the next stage — add officers under Registrations.','info',6000); return; }
+  el('email-target-label').textContent=label;
+  el('email-tpl-row')?.classList.add('hidden');
+  el('email-subject').value=subject; el('email-body').value=body;
+  renderEmailRecipients();
+  el('email-modal').classList.remove('hidden');
+}
+function routeBody(r, lead){
+  return `Hello,\n\n${lead}\n\nApplicant: ${regName(r)}\nInstitution: ${r.institution||'—'}\nDiscipline: ${r.discipline}\nSupervision level sought: ${r.level}\nReference: ${r.id}\n\nSign in to Supervision Hub and open Registrations to review it:\n${HUB_URL}\n\nBest regards,\n${myDisplayName()}`;
+}
+async function regAct(r, act, btn){
+  const v=id=>el(id)?.value.trim()||'';
+  const fail=m=>toast(m,'error');
+  const name=regName(r);
+  try{
+    if(act==='mail-applicant'){
+      const lead={
+        submitted:'Thank you for your supervisor registration. It is with the Research Office.',
+        endorsement:'Your supervisor registration has been forwarded to the School / Division for endorsement.',
+        approval:'Your supervisor registration has been endorsed and is with the Associate Dean Research / RSC for a decision.',
+        deferred:'A decision on your supervisor registration has been deferred.',
+        approved:`Your supervisor registration has been ${r.decision?.outcome==='Conditionally Approved'?'conditionally approved':'approved'}. Your Supervision Hub account is being set up and the sign-in details will follow.`,
+        registered:'Your supervisor registration is complete and your Supervision Hub account has been created.',
+        declined:'We are writing about the outcome of your supervisor registration.',
+        closed:'We are writing about your supervisor registration.',
+      }[r.status]||'';
+      closeReg();
+      openRouteEmail([{name,email:r.email}], name, `Your CIHE supervisor registration (ref ${r.id})`,
+        `Dear ${studentFirstName({name})},\n\n${lead}\n\nYou can check the status at any time:\n${REGISTER_URL}/${r.id}\n\nBest regards,\n${myDisplayName()}`);
+      return;
+    }
+    if(act==='word'){ downloadRegDocx(r); return; }
+    if(act==='genpass'){
+      const a='ABCDEFGHJKLMNPQRSTUVWXYZabcdefghijkmnpqrstuvwxyz23456789', n=crypto.getRandomValues(new Uint32Array(12));
+      el('ra-pass').value=[...n].map(x=>a[x%a.length]).join(''); return;
+    }
+    if(act==='delete'){
+      if(!confirm(`Delete the registration of ${name}?\n\nThe form and its review history are removed permanently.${r.account?.uid?' The supervisor account that was created from it is NOT deleted.':''}`)) return;
+      const b=writeBatch(db); b.delete(doc(db,REG_COL,r.id)); b.delete(doc(db,REG_STATUS_COL,r.id)); await b.commit();
+      logAct('reg.delete', name, r.email, r.id);
+      closeReg(); await loadRegs(); renderRegQueue(); toast('Registration deleted','info'); return;
+    }
+    if(btn) btn.disabled=true;
+    if(act==='forward' || act==='close'){
+      const docs={cv:el('ra-doc-cv').checked, phd:el('ra-doc-phd').checked, tr:el('ra-doc-tr').checked};
+      const note=v('ra-note');
+      if(act==='close'){
+        if(!note){ fail('Add a note saying why the registration is being closed.'); return; }
+        if(!confirm(`Close the registration of ${name} without progressing it?`)) return;
+        await regSave(r,{status:'closed',officeReview:{docs,by:ME.uid}},'close',note);
+        closeReg(); toast('Registration closed','info'); return;
+      }
+      const school=v('ra-school');
+      if(!school){ fail('Choose the forwarding School / Division.'); return; }
+      await regSave(r,{status:'endorsement',officeReview:{docs,by:ME.uid},endorsement:{school}},'forward',note,school);
+      closeReg(); toast(`Forwarded to ${school}`,'success');
+      openRouteEmail(officersFor('school',school), school, `Supervisor registration for endorsement – ${name}`,
+        routeBody(r,`A supervisor registration has been forwarded to ${school} for endorsement (Section 6).${note?'\n\nNote from the Research Office: '+note:''}`));
+    }
+    else if(act==='endorse' || act==='return'){
+      const note=v('ra-note');
+      if(act==='return'){
+        if(!note){ fail('Add a comment saying why the form is being returned.'); return; }
+        await regSave(r,{status:'submitted'},'return',note);
+        closeReg(); toast('Returned to the Research Office','info');
+        openRouteEmail(officersFor('office'), 'Research Office', `Supervisor registration returned – ${name}`,
+          routeBody(r,`${r.endorsement?.school||'The School / Division'} has returned this supervisor registration to the Research Office.\n\nComment: ${note}`));
+        return;
+      }
+      const by=v('ra-by'), date=v('ra-date');
+      if(!by || !date){ fail('Enter who endorsed the form and the date of endorsement.'); return; }
+      const sig=readSig('ra-sig',fail); if(!sig) return;
+      await regSave(r,{status:'approval',endorsement:{...(r.endorsement||{}),by,date,note,sig,uid:ME.uid}},'endorse',note,`${r.endorsement?.school||''} · ${by}`);
+      closeReg(); toast('Endorsed and sent to the Associate Dean Research / RSC','success');
+      openRouteEmail(officersFor('adr'), 'Associate Dean Research / RSC', `Supervisor registration for approval – ${name}`,
+        routeBody(r,`A supervisor registration has been endorsed by ${r.endorsement?.school||'the School / Division'} (${by}) and is ready for your decision (Section 7).${note?'\n\nComment: '+note:''}`));
+    }
+    else if(act==='decide'){
+      const by=v('ra-by'), outcome=v('ra-outcome'), date=v('ra-date'), comments=v('ra-note'), rsc=v('ra-rsc');
+      if(!by || !outcome || !date){ fail('Enter your name, the registration outcome and the date of decision.'); return; }
+      if(['Conditionally Approved','Rejected','Other'].includes(outcome) && !comments){ fail(`Add the ${outcome==='Conditionally Approved'?'conditions':'reason'} under Comments / conditions.`); return; }
+      const sig=readSig('ra-sig',fail); if(!sig) return;
+      const status=OUTCOME_STATUS[outcome];
+      if(status==='declined' && !confirm(`Record "${outcome}" for ${name}? This ends the registration.`)) return;
+      await regSave(r,{status,decision:{name:by,outcome,date,comments,rsc,sig,uid:ME.uid}},'decide',[outcome,comments].filter(Boolean).join(' — '),outcome);
+      closeReg(); toast(`Decision recorded: ${outcome}`,'success');
+      if(status==='approved' && isAdminUser()){ openReg(r.id); return; } // admin can go straight on to the account
+      openRouteEmail(status==='approved'?ADMINS.filter(a=>a.email):officersFor('office'), status==='approved'?'Administrators':'Research Office', `Supervisor registration ${outcome.toLowerCase()} – ${name}`,
+        routeBody(r, status==='approved'
+          ? `This supervisor registration has been ${outcome.toLowerCase()} by ${by}. Please create the Supervision Hub account and complete the office checklist.${comments?'\n\nComments / conditions: '+comments:''}`
+          : `The Associate Dean Research / RSC (${by}) has recorded the outcome "${outcome}" for this supervisor registration.${comments?'\n\nComments: '+comments:''}`));
+    }
+    else if(act==='checklist'){
+      const ck={}; CHECKLIST.forEach(([k])=>ck[k]=el('ra-ck-'+k).checked);
+      await regSave(r,{checklist:ck},'checklist',CHECKLIST.filter(([k])=>ck[k]).map(([,l])=>l).join('; ')||'No items ticked',`${Object.values(ck).filter(Boolean).length} of ${CHECKLIST.length} done`);
+      toast('Checklist saved','success'); openReg(r.id);
+    }
+    else if(act==='reopen'){
+      if(!confirm(`Reopen the registration of ${name} and send it back to the Research Office?`)) return;
+      await regSave(r,{status:'submitted'},'reopen','');
+      toast('Reopened','success'); openReg(r.id);
+    }
+    else if(act==='account'){
+      if(!['approved'].includes(r.status) || !r.decision?.outcome){ fail('An account can only be created for an approved registration.'); return; }
+      const dn=v('ra-name'), email=v('ra-email'), pass=el('ra-pass').value, campus=v('ra-campus'), type=v('ra-type'), semesters=readSemChecks('ra-sem-box');
+      if(!dn || !email){ fail('Display name and sign-in email are required.'); return; }
+      if(pass.length<6){ fail('Set a temporary password of at least 6 characters.'); return; }
+      if(type!=='co' && !campus){ fail('Choose a campus — principal supervisors can only take students from their own campus.'); return; }
+      if(Array.isArray(semesters) && !semesters.length && !confirm('No semester is ticked, so this supervisor will not appear in any semester\'s list yet. Continue?')) return;
+      const pApp=provisionApp(), pAuth=getAuth(pApp);
+      let cred;
+      try{ cred=await createUserWithEmailAndPassword(pAuth,email,pass); }
+      catch(e){ fail(String(e.code||'').includes('email-already-in-use') ? 'A sign-in account already exists for that email address.' : 'Could not create the account: '+String(e.message||'').replace('Firebase:','').trim()); return; }
+      const profile={name:dn,email,altEmail:'',campus,supervisorType:type,role:'supervisor',semesters,registrationId:r.id};
+      try{ await setDoc(doc(getFirestore(pApp),'users',cred.user.uid),profile); }
+      catch(err){ await setDoc(doc(db,'users',cred.user.uid),profile); }
+      finally{ await signOut(pAuth).catch(()=>{}); }
+      const campusName=CAMPUSES.find(c=>c.id===campus)?.name||'—';
+      logAct('sup.add', dn, `${email} · ${campusName} · ${type} · from registration`, cred.user.uid);
+      await regSave(r,{status:'registered',account:{uid:cred.user.uid,at:Timestamp.now(),by:ME.uid}},'account',`${email} · ${campusName} · ${type}`,email);
+      const snap=await getDocs(query(collection(db,'users'),where('role','==','supervisor'))); SUPS=snap.docs.map(d=>({id:d.id,...d.data()}));
+      renderSupervisorsList(); renderPrefDropdown(); renderOfficers();
+      closeReg(); toast(`${dn} can now sign in`,'success');
+      if(confirm(`${dn} can now sign in.\n\nOpen an email to send them the Supervision Hub link? (Send the temporary password separately.)`)) openEmailComposer([{name:dn,email}], dn, 'invite');
+    }
+  }catch(e){
+    toast(e.code==='permission-denied' ? 'The database refused this change — your role may not cover this stage, or the form has already moved on. Refresh and try again.' : 'Error: '+e.message,'error',6000);
+  }finally{ if(btn) btn.disabled=false; }
+}
+
+/* ── Review page: officers, and supervisors who hold an office role ── */
+async function mountReview(){
+  if(svUnsub){ svUnsub(); svUnsub=null; }
+  try{ await loadShared(); }catch(e){ console.warn('loadShared partial fail:',e); }
+  showPage('page-review');
+  setTxt('rv-name-display', PROFILE.name||PROFILE.email);
+  el('rv-avatar').textContent=ini(PROFILE.name||PROFILE.email);
+  el('logout-btn-rv').onclick=doLogout;
+  const isSup=PROFILE.role==='supervisor';
+  el('rv-back-btn').classList.toggle('hidden',!isSup);
+  el('rv-back-btn').onclick=()=>mountSupervisor();
+  const stages=myStages();
+  setTxt('rv-roles', stages.length ? 'You review for: '+stages.map(s=>STAGES[s]).join(' · ')+(PROFILE.officeSchool?` (${PROFILE.officeSchool})`:'') : 'No review stage is assigned to this account yet. Ask an administrator.');
+  await openRegQueue('review-host');
+}
+/* Supervisor workspace: a "Registrations" button for supervisors who also review. */
+function syncSvReviewButton(){
+  const b=el('reg-review-btn'); if(!b) return;
+  const on=PROFILE?.role==='supervisor' && (PROFILE.officeRoles||[]).length>0;
+  b.classList.toggle('hidden',!on);
+  if(!on) return;
+  b.onclick=()=>mountReview();
+  loadRegs().then(updateRegBadges).catch(()=>{});
+}
+
+/* ── Admin → Registrations tab: officers + account policy ── */
+function initRegistrationsTab(){
+  el('of-school').innerHTML=`<option value="">Any school / division</option>`+optsHTML(REG_OPTS.school);
+  el('of-user').onchange=()=>fillOfficerForm(el('of-user').value);
+  el('of-clear-btn').onclick=()=>fillOfficerForm('');
+  el('of-save-btn').onclick=saveOfficer;
+  const cb=el('set-require-reg');
+  cb.checked=requireReg();
+  cb.onchange=async()=>{
+    try{
+      await setDoc(doc(db,'settings','global'),{requireRegistration:cb.checked},{merge:true});
+      SETTINGS.requireRegistration=cb.checked;
+      logAct('settings.edit','Account policy', cb.checked?'Accounts only from approved registrations':'Manual "Add supervisor" allowed');
+      syncSupFormLock(); toast('Account policy saved','success');
+    }catch(e){ cb.checked=!cb.checked; toast('Error: '+e.message,'error'); }
+  };
+  loadRegs().then(updateRegBadges).catch(()=>{});
+}
+async function openRegistrationsTab(){ await openRegQueue('admin-reg-host'); renderOfficers(); }
+function renderOfficers(){
+  const list=el('officers-list'); if(!list) return;
+  const sel=el('of-user'), cur=sel.value;
+  const pool=[...SUPS, ...OFFICERS.filter(o=>o.role==='officer')].sort((a,b)=>String(a.name||'').localeCompare(String(b.name||'')));
+  sel.innerHTML=`<option value="">— New review-only account —</option>`+pool.map(u=>`<option value="${u.id}">${esc(u.name||u.email)} · ${u.role==='officer'?'review-only account':'supervisor'}</option>`).join('');
+  sel.value=pool.some(u=>u.id===cur)?cur:'';
+  const rows=OFFICERS.filter(o=>o.role!=='admin');
+  list.innerHTML = rows.length ? `<div class="tw"><table><thead><tr><th>Officer</th><th>Stages</th><th></th></tr></thead><tbody>${rows.map(o=>`<tr style="${o.disabled?'opacity:.6':''}">
+      <td><div class="fw-600">${esc(o.name||'—')}</div><div class="text-xs text-muted">${esc(o.email||'')} · ${o.role==='officer'?'review-only account':'supervisor'}${o.disabled?' · disabled':''}</div></td>
+      <td>${(o.officeRoles||[]).map(k=>`<span class="badge badge-blue" style="margin:1px 2px 1px 0">${esc(STAGES[k]||k)}</span>`).join('')}${o.officeSchool?`<div class="text-xs text-muted">${esc(o.officeSchool)}</div>`:''}</td>
+      <td><div class="flex gap-8"><button class="btn btn-sm" onclick="editOfficer('${o.id}')">Edit</button><button class="btn btn-sm btn-danger" onclick="removeOfficer('${o.id}')">Remove</button></div></td></tr>`).join('')}</tbody></table></div>`
+    : `<div class="alert alert-warning" style="margin:0">No officers yet, so every stage currently falls to the administrators.</div>`;
+}
+function fillOfficerForm(uid){
+  const u=uid ? ([...OFFICERS,...SUPS].find(x=>x.id===uid)) : null;
+  el('of-user').value=u?uid:'';
+  el('of-new-fields').classList.toggle('hidden',!!u);
+  ['office','school','adr'].forEach(k=>el('of-r-'+k).checked=!!u && (u.officeRoles||[]).includes(k));
+  el('of-school').value=u?.officeSchool||'';
+  if(!u) ['of-name','of-email','of-pass'].forEach(id=>el(id).value='');
+}
+window.editOfficer=uid=>{ fillOfficerForm(uid); el('of-user').scrollIntoView({behavior:'smooth',block:'center'}); };
+window.removeOfficer=async uid=>{
+  const o=OFFICERS.find(x=>x.id===uid); if(!o) return;
+  if(!confirm(`Remove ${o.name||o.email} from registration review?${o.role==='officer'?'\n\nThis is a review-only account, so it will also be disabled.':''}`)) return;
+  try{
+    await updateDoc(doc(db,'users',uid), o.role==='officer' ? {officeRoles:[],disabled:true} : {officeRoles:[]});
+    logAct('officer.remove', o.name||o.email, (o.officeRoles||[]).map(k=>STAGES[k]).join(', '), uid);
+    await loadOfficers(); renderOfficers(); toast('Removed','info');
+  }catch(e){ toast('Error: '+e.message,'error'); }
+};
+async function saveOfficer(){
+  const uid=el('of-user').value, roles=['office','school','adr'].filter(k=>el('of-r-'+k).checked), school=el('of-school').value;
+  if(!roles.length){ toast('Tick at least one stage','error'); return; }
+  const btn=el('of-save-btn'); btn.disabled=true;
+  try{
+    let name;
+    if(uid){
+      const u=[...OFFICERS,...SUPS].find(x=>x.id===uid); name=u?.name||u?.email;
+      await updateDoc(doc(db,'users',uid), u?.role==='officer' ? {officeRoles:roles,officeSchool:school,disabled:false} : {officeRoles:roles,officeSchool:school});
+      logAct('officer.set', name, roles.map(k=>STAGES[k]).join(', ')+(school?` · ${school}`:''), uid);
+    } else {
+      name=el('of-name').value.trim(); const email=el('of-email').value.trim(), pass=el('of-pass').value;
+      if(!name || !email){ toast('Name and email are required for a new account','error'); return; }
+      if(pass.length<6){ toast('Password must be at least 6 characters','error'); return; }
+      const pApp=provisionApp(), pAuth=getAuth(pApp);
+      const cred=await createUserWithEmailAndPassword(pAuth,email,pass);
+      const profile={name,email,role:'officer',officeRoles:roles,officeSchool:school};
+      try{ await setDoc(doc(getFirestore(pApp),'users',cred.user.uid),profile); }
+      catch(err){ await setDoc(doc(db,'users',cred.user.uid),profile); }
+      finally{ await signOut(pAuth).catch(()=>{}); }
+      logAct('officer.set', name, `${email} · ${roles.map(k=>STAGES[k]).join(', ')}${school?` · ${school}`:''}`, cred.user.uid);
+    }
+    await loadOfficers(); fillOfficerForm(''); renderOfficers(); renderRegQueue();
+    toast(`${name} saved`,'success');
+  }catch(e){ toast('Error: '+String(e.message||'').replace('Firebase:','').trim(),'error'); }
+  finally{ btn.disabled=false; }
+}
+
+/* ══════════════════════════════════════════════════════════
+   WORD (.docx) EXPORT
+   Builds the completed registration form as a real Word document, in the
+   browser, with no external library: a .docx is a zip of XML parts, written
+   here uncompressed. Each party's drawn signature is embedded as a picture.
+══════════════════════════════════════════════════════════ */
+const CRC_TABLE=(()=>{ const t=new Uint32Array(256); for(let n=0;n<256;n++){ let c=n; for(let k=0;k<8;k++) c=c&1?0xEDB88320^(c>>>1):c>>>1; t[n]=c>>>0; } return t; })();
+function crc32(u8){ let c=0xFFFFFFFF; for(let i=0;i<u8.length;i++) c=CRC_TABLE[(c^u8[i])&0xFF]^(c>>>8); return (c^0xFFFFFFFF)>>>0; }
+function zipStore(files, type){ // files: [{name, data:Uint8Array}]
+  const enc=new TextEncoder(), parts=[], central=[]; let off=0;
+  const d=new Date(), time=(d.getHours()<<11)|(d.getMinutes()<<5)|(d.getSeconds()>>1), date=((d.getFullYear()-1980)<<9)|((d.getMonth()+1)<<5)|d.getDate();
+  for(const f of files){
+    const name=enc.encode(f.name), crc=crc32(f.data), n=f.data.length;
+    const lh=new DataView(new ArrayBuffer(30));
+    lh.setUint32(0,0x04034b50,true); lh.setUint16(4,20,true); lh.setUint16(6,0x0800,true); lh.setUint16(10,time,true); lh.setUint16(12,date,true);
+    lh.setUint32(14,crc,true); lh.setUint32(18,n,true); lh.setUint32(22,n,true); lh.setUint16(26,name.length,true);
+    parts.push(new Uint8Array(lh.buffer),name,f.data);
+    const ch=new DataView(new ArrayBuffer(46));
+    ch.setUint32(0,0x02014b50,true); ch.setUint16(4,20,true); ch.setUint16(6,20,true); ch.setUint16(8,0x0800,true); ch.setUint16(12,time,true); ch.setUint16(14,date,true);
+    ch.setUint32(16,crc,true); ch.setUint32(20,n,true); ch.setUint32(24,n,true); ch.setUint16(28,name.length,true); ch.setUint32(42,off,true);
+    central.push(new Uint8Array(ch.buffer),name);
+    off+=30+name.length+n;
+  }
+  const cdSize=central.reduce((a,p)=>a+p.length,0), end=new DataView(new ArrayBuffer(22));
+  end.setUint32(0,0x06054b50,true); end.setUint16(8,files.length,true); end.setUint16(10,files.length,true); end.setUint32(12,cdSize,true); end.setUint32(16,off,true);
+  return new Blob([...parts,...central,new Uint8Array(end.buffer)],{type});
+}
+const xesc=s=>String(s??'').replace(/[\u0000-\u0008\u000B\u000C\u000E-\u001F￾￿]/g,'').replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;');
+function wRun(text,o={}){
+  const rpr=`<w:rPr>${o.b?'<w:b/>':''}${o.i?'<w:i/>':''}${o.color?`<w:color w:val="${o.color}"/>`:''}<w:sz w:val="${o.sz||20}"/></w:rPr>`;
+  return String(text??'').split('\n').map((ln,i)=>`<w:r>${rpr}${i?'<w:br/>':''}<w:t xml:space="preserve">${xesc(ln)}</w:t></w:r>`).join('');
+}
+const wP=(inner,o={})=>`<w:p><w:pPr>${o.keep?'<w:keepNext/>':''}<w:spacing w:before="${o.before??40}" w:after="${o.after??40}"/>${o.align?`<w:jc w:val="${o.align}"/>`:''}</w:pPr>${inner}</w:p>`;
+const W_COLS=[3100,6538];
+function wCell(inner,w,o={}){
+  return `<w:tc><w:tcPr><w:tcW w:w="${w}" w:type="dxa"/>${o.span?`<w:gridSpan w:val="${o.span}"/>`:''}${o.fill?`<w:shd w:val="clear" w:color="auto" w:fill="${o.fill}"/>`:''}</w:tcPr>${inner}</w:tc>`;
+}
+/* rows: {head:'Section title'} | {full:xml} | [label, value]  (value: plain text, or {xml} for ready-made paragraphs) */
+function wTable(rows){
+  const body=rows.map(r=>{
+    if(r.head) return `<w:tr><w:trPr><w:cantSplit/></w:trPr>${wCell(wP(wRun(r.head,{b:1,color:'FFFFFF',sz:21}),{keep:1}),W_COLS[0]+W_COLS[1],{span:2,fill:'1F3864'})}</w:tr>`;
+    if(r.full) return `<w:tr>${wCell(r.full,W_COLS[0]+W_COLS[1],{span:2})}</w:tr>`;
+    const [label,val]=r;
+    return `<w:tr><w:trPr><w:cantSplit/></w:trPr>${wCell(wP(wRun(label,{b:1})),W_COLS[0],{fill:'F2F2F2'})}${wCell(val&&val.xml ? val.xml : wP(wRun(val||'—')),W_COLS[1])}</w:tr>`;
+  }).join('');
+  return `<w:tbl><w:tblPr><w:tblW w:w="${W_COLS[0]+W_COLS[1]}" w:type="dxa"/><w:tblBorders>${['top','left','bottom','right','insideH','insideV'].map(s=>`<w:${s} w:val="single" w:sz="4" w:space="0" w:color="8C8C8C"/>`).join('')}</w:tblBorders><w:tblLayout w:type="fixed"/><w:tblCellMar><w:left w:w="110" w:type="dxa"/><w:right w:w="110" w:type="dxa"/></w:tblCellMar></w:tblPr><w:tblGrid><w:gridCol w:w="${W_COLS[0]}"/><w:gridCol w:w="${W_COLS[1]}"/></w:tblGrid>${body}</w:tbl>${wP('',{before:0,after:120})}`;
+}
+function wImage(rid,n){
+  const cx=1828800, cy=548640; // 2.0 × 0.6 inch
+  return `<w:r><w:drawing><wp:inline distT="0" distB="0" distL="0" distR="0"><wp:extent cx="${cx}" cy="${cy}"/><wp:docPr id="${n}" name="Signature ${n}"/><a:graphic xmlns:a="http://schemas.openxmlformats.org/drawingml/2006/main"><a:graphicData uri="http://schemas.openxmlformats.org/drawingml/2006/picture"><pic:pic xmlns:pic="http://schemas.openxmlformats.org/drawingml/2006/picture"><pic:nvPicPr><pic:cNvPr id="${n}" name="signature${n}.png"/><pic:cNvPicPr/></pic:nvPicPr><pic:blipFill><a:blip r:embed="${rid}"/><a:stretch><a:fillRect/></a:stretch></pic:blipFill><pic:spPr><a:xfrm><a:off x="0" y="0"/><a:ext cx="${cx}" cy="${cy}"/></a:xfrm><a:prstGeom prst="rect"><a:avLst/></a:prstGeom></pic:spPr></pic:pic></a:graphicData></a:graphic></wp:inline></w:drawing></w:r>`;
+}
+function b64Bytes(dataUrl){ const bin=atob(dataUrl.split(',')[1]||''); const u=new Uint8Array(bin.length); for(let i=0;i<bin.length;i++) u[i]=bin.charCodeAt(i); return u; }
+
+function buildRegDocx(r){
+  const enc=new TextEncoder(), media=[];
+  const e=r.endorsement||{}, d=r.decision||{}, ck=r.checklist||{}, docs=r.officeReview?.docs||{};
+  const st=REG_STATUS[r.status]||{l:r.status};
+  // A signature cell: the drawn signature if there is one, then who signed and when.
+  const sigCell=(img,name,dateTxt,note)=>{
+    let xml='';
+    if(okSig(img)){ media.push(b64Bytes(img)); xml+=wP(wImage('rIdSig'+media.length, media.length)); }
+    xml+=wP(wRun(name ? `${okSig(img)?'Signed':'Signed electronically (typed name)'}: ${name}${dateTxt?' · '+dateTxt:''}` : 'Not yet signed',{i:1,color:'555555',sz:18}));
+    if(note) xml+=wP(wRun(note,{i:1,color:'555555',sz:16}));
+    return {xml};
+  };
+  const tick=on=>on?'☑':'☐';
+  const docLine=(url,got)=> url || (got ? 'Received by the Research Office' : 'Not provided');
+  const policies=[...document.querySelectorAll('#page-register .policy-list li')].map(li=>li.textContent.trim()).filter(Boolean);
+  const acct=uid=>{ const n=uid && personName(uid); return n && n!=='you' ? n : (uid===PROFILE?.uid ? (PROFILE.name||PROFILE.email) : ''); };
+  const eAcct=acct(e.uid), dAcct=acct(d.uid);
+
+  let body='';
+  body+=wP(wRun('CIHE Australia · Master of Research',{b:1,color:'1F3864',sz:20}),{align:'center',after:0});
+  body+=wP(wRun('Supervisor Registration Form',{b:1,sz:36}),{align:'center',before:0,after:60});
+  body+=wP(wRun(`Reference ${r.id}  ·  Submitted ${fmtDate(r.submittedAt)}  ·  Status: ${st.l}`,{color:'555555',sz:18}),{align:'center',after:160});
+  body+=wTable([{head:'SECTION 1: Registration Type'},['Master of Research Discipline',r.discipline],['Supervision Level Sought',r.level],['Preferred Campus / Location',regCampusText(r)]]);
+  body+=wTable([{head:'SECTION 2: Personal Details'},['Title',r.title],['First Name',r.firstName],['Last Name',r.lastName],['Australian Citizen / PR?',r.citizen],['Phone Number',r.phone],['Email Address',r.email],['Residential Address',r.address]]);
+  body+=wTable([{head:'SECTION 3: Academic & Professional Profile'},['Current Position Title',r.position],['Employing Institution',r.institution],['Institution Address',r.institutionAddress],['PhD / Doctoral Qualification Details',r.phd],['Research Areas & Specializations',r.researchAreas],['ORCID iD / Google Scholar Profile',r.profileLink],['HDR Students Supervised to Completion',r.hdrCompleted],['Current HDR Students Supervising',r.hdrCurrent],['Supervision Mode',r.mode]]);
+  body+=wTable([{head:'Supporting Documents'},['CV',docLine(r.docCv,docs.cv)],['PhD certificate',docLine(r.docPhd,docs.phd)],['Transcripts',docLine(r.docTranscripts,docs.tr)],...(r.docOther?[['Other documents',r.docOther]]:[])]);
+  body+=wTable([{head:'SECTION 4: Relevant Policies'},{full:wP(wRun('As a supervisor at CIHE Australia, you are required to read and comply with the following:'))+policies.map(t=>wP(wRun('•  '+t),{before:10,after:10})).join('')}]);
+  body+=wTable([{head:'SECTION 5: Supervisor Declaration'},
+    {full:DECLARATIONS.map((t,i)=>(i===COI_FROM?wP(wRun('Conflict of Interest Declaration',{b:1}),{before:100}):'')+wP(wRun(`${tick(r.declarations===true)}  ${t}`),{before:30,after:30})).join('')},
+    ['Signature',sigCell(r.signatureImg,r.signature,dmy(r.signedOn),'Signed by the applicant on the online registration form.')],
+    ['Print Full Name',r.signature],['Date',dmy(r.signedOn)]]);
+  body+=wP(wRun('OFFICE USE ONLY',{b:1,sz:24}),{before:160,after:80,keep:1});
+  body+=wTable([{head:'SECTION 6: Faculty / School Endorsement'},['Forwarding School / Division',e.school],['Endorsed By (Name)',e.by],['Date of Endorsement',dmy(e.date)],
+    ['Signature',sigCell(e.sig,e.by,dmy(e.date),eAcct?`Recorded in Supervision Hub by the signed-in account of ${eAcct}.`:'')],...(e.note?[['Comment',e.note]]:[])]);
+  body+=wTable([{head:'SECTION 7: Approval by Associate Dean Research or RSC'},['Name',d.name],['Registration Outcome',d.outcome],['Date of Decision',dmy(d.date)],['Comments / Conditions',d.comments],
+    ['Signature',sigCell(d.sig,d.name,dmy(d.date),dAcct?`Recorded in Supervision Hub by the signed-in account of ${dAcct}.`:'')],['RSC decision / date',d.rsc]]);
+  body+=wTable([{head:'Checklist – Office Use Only'},{full:CHECKLIST.map(([k,l])=>wP(wRun(`${tick(ck[k])}  ${l}`),{before:30,after:30})).join('')+(r.account?.uid?wP(wRun(`☑  Supervision Hub account created ${fmtDate(r.account.at)}`),{before:30,after:30}):'')}]);
+  if((r.trail||[]).length) body+=wTable([{head:'Electronic Record'},{full:r.trail.map(t=>wP(wRun(`${fmtDate(t.at)}  ·  ${TRAIL[t.act]||t.act}  ·  ${t.who||''}${t.note?'\n'+t.note:''}`,{sz:18}),{before:30,after:30})).join('')}]);
+  body+=wP(wRun(`Generated from Supervision Hub on ${fmtDate(new Date())} by ${PROFILE?.name||ME?.email||''}. Signatures were captured electronically at each step.`,{i:1,color:'777777',sz:16}),{before:120});
+
+  const NS='xmlns:w="http://schemas.openxmlformats.org/wordprocessingml/2006/main" xmlns:r="http://schemas.openxmlformats.org/officeDocument/2006/relationships" xmlns:wp="http://schemas.openxmlformats.org/drawingml/2006/wordprocessingDrawing"';
+  const X='<?xml version="1.0" encoding="UTF-8" standalone="yes"?>\n';
+  const documentXml=`${X}<w:document ${NS}><w:body>${body}<w:sectPr><w:pgSz w:w="11906" w:h="16838"/><w:pgMar w:top="1021" w:right="1134" w:bottom="1021" w:left="1134" w:header="567" w:footer="567" w:gutter="0"/></w:sectPr></w:body></w:document>`;
+  const stylesXml=`${X}<w:styles xmlns:w="http://schemas.openxmlformats.org/wordprocessingml/2006/main"><w:docDefaults><w:rPrDefault><w:rPr><w:rFonts w:ascii="Calibri" w:hAnsi="Calibri" w:eastAsia="Calibri" w:cs="Calibri"/><w:sz w:val="20"/><w:szCs w:val="20"/><w:lang w:val="en-AU"/></w:rPr></w:rPrDefault><w:pPrDefault><w:pPr><w:spacing w:after="0" w:line="252" w:lineRule="auto"/></w:pPr></w:pPrDefault></w:docDefaults><w:style w:type="paragraph" w:default="1" w:styleId="Normal"><w:name w:val="Normal"/></w:style></w:styles>`;
+  const relsXml=`${X}<Relationships xmlns="http://schemas.openxmlformats.org/package/2006/relationships"><Relationship Id="rId1" Type="http://schemas.openxmlformats.org/officeDocument/2006/relationships/officeDocument" Target="word/document.xml"/></Relationships>`;
+  const docRelsXml=`${X}<Relationships xmlns="http://schemas.openxmlformats.org/package/2006/relationships"><Relationship Id="rIdStyles" Type="http://schemas.openxmlformats.org/officeDocument/2006/relationships/styles" Target="styles.xml"/>${media.map((m,i)=>`<Relationship Id="rIdSig${i+1}" Type="http://schemas.openxmlformats.org/officeDocument/2006/relationships/image" Target="media/signature${i+1}.png"/>`).join('')}</Relationships>`;
+  const typesXml=`${X}<Types xmlns="http://schemas.openxmlformats.org/package/2006/content-types"><Default Extension="rels" ContentType="application/vnd.openxmlformats-package.relationships+xml"/><Default Extension="xml" ContentType="application/xml"/><Default Extension="png" ContentType="image/png"/><Override PartName="/word/document.xml" ContentType="application/vnd.openxmlformats-officedocument.wordprocessingml.document.main+xml"/><Override PartName="/word/styles.xml" ContentType="application/vnd.openxmlformats-officedocument.wordprocessingml.styles+xml"/></Types>`;
+  return zipStore([
+    {name:'[Content_Types].xml',data:enc.encode(typesXml)},{name:'_rels/.rels',data:enc.encode(relsXml)},
+    {name:'word/document.xml',data:enc.encode(documentXml)},{name:'word/_rels/document.xml.rels',data:enc.encode(docRelsXml)},
+    {name:'word/styles.xml',data:enc.encode(stylesXml)},
+    ...media.map((m,i)=>({name:`word/media/signature${i+1}.png`,data:m})),
+  ],'application/vnd.openxmlformats-officedocument.wordprocessingml.document');
+}
+function downloadRegDocx(r){
+  try{
+    const blob=buildRegDocx(r);
+    const a=document.createElement('a');
+    a.href=URL.createObjectURL(blob);
+    a.download=`CIHE_Supervisor_Registration_${safeFile(r.lastName)}_${safeFile(r.firstName)}_${r.id}.docx`;
+    document.body.appendChild(a); a.click(); a.remove();
+    setTimeout(()=>URL.revokeObjectURL(a.href),4000);
+    const missing=[!okSig(r.signatureImg)&&'applicant', ['approval','deferred','approved','registered','declined'].includes(r.status)&&!okSig(r.endorsement?.sig)&&'School / Division', ['approved','registered','declined','deferred'].includes(r.status)&&!okSig(r.decision?.sig)&&'Associate Dean Research / RSC'].filter(Boolean);
+    const open=!['registered','declined','closed'].includes(r.status);
+    toast(open ? 'Word file downloaded. This registration is still in progress — download it again once it is complete for the final copy.'
+      : missing.length ? `Word file downloaded. No drawn signature on record for: ${missing.join(', ')} (typed name shown instead).` : 'Word file downloaded', open||missing.length?'warning':'success', 6000);
+  }catch(err){ toast('Could not build the Word file: '+err.message,'error'); }
+}
+const safeFile=s=>String(s||'').normalize('NFKD').replace(/[^A-Za-z0-9]+/g,'').slice(0,40)||'x';
 
 </script>
 </body>
