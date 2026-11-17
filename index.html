@@ -443,6 +443,16 @@ tr.row-mine td:first-child{box-shadow:inset 3px 0 0 var(--primary)}
 .doc-opt input{margin-top:3px;accent-color:var(--primary)}
 .howto{margin:6px 0 8px 18px;display:grid;gap:3px}
 @media(max-width:860px){ .doc-choice{grid-template-columns:1fr} }
+.disc-it{background:rgba(56,189,248,.12);color:#7dd3fc;border-color:rgba(56,189,248,.3)}
+.disc-business{background:rgba(251,146,60,.12);color:#fdba74;border-color:rgba(251,146,60,.3)}
+:root[data-theme="light"] .disc-it{background:#f0f9ff;color:#0369a1;border-color:#bae6fd}
+:root[data-theme="light"] .disc-business{background:#fff7ed;color:#c2410c;border-color:#fed7aa}
+.ctx-picker.disc-picker{min-width:150px;background-image:url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' width='16' height='16' viewBox='0 0 24 24' fill='none' stroke='%238b93ff' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'><path d='m12 2 10 5-10 5L2 7l10-5z'/><path d='m2 17 10 5 10-5M2 12l10 5 10-5'/></svg>"),url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' width='12' height='12' viewBox='0 0 12 12'><path fill='none' stroke='%238894ad' stroke-width='1.6' d='M3 4.5l3 3 3-3'/></svg>")}
+.g4{display:grid;grid-template-columns:repeat(4,1fr);gap:0 14px}
+@media(max-width:1100px){ .g4{grid-template-columns:1fr 1fr} }
+@media(max-width:860px){ .g4{grid-template-columns:1fr} .ctx-picker.disc-picker{min-width:0;max-width:130px} }
+.disc-sm{font-size:10.5px;padding:0 7px;line-height:1.55;margin-left:3px;vertical-align:1px}
+@media(min-width:861px){ .ctx-picker.disc-picker{max-width:170px} #admin-semester-picker{min-width:240px} }
 /* ───────────── Supervisor registration ───────────── */
 .reg-wrap{max-width:880px;margin:0 auto;padding:44px 16px 24px}
 .reg-wrap .card{margin-bottom:16px}
@@ -831,6 +841,7 @@ tr.row-mine td:first-child{box-shadow:inset 3px 0 0 var(--primary)}
 
       <div class="card table-card">
         <div class="table-toolbar">
+          <div id="sv-disc-pills" class="campus-pills"></div>
           <div id="sv-campus-pills" class="campus-pills"></div>
           <div class="spacer"></div>
           <span class="live-pill">Live</span>
@@ -877,6 +888,7 @@ tr.row-mine td:first-child{box-shadow:inset 3px 0 0 var(--primary)}
     </div>
     <div class="navbar-right">
       <select id="admin-semester-picker" class="ctx-picker" title="Active semester"></select>
+      <select id="admin-discipline-picker" class="ctx-picker disc-picker" title="Discipline: Business or IT"></select>
       <button class="btn btn-sm" id="goto-sv-btn" title="See what supervisors see"><svg class="ic"><use href="#i-eye"/></svg><span class="btn-lbl-md">Supervisor view</span></button>
       <span class="nav-sep nav-hide-md"></span>
       <button class="icon-btn theme-toggle" title="Switch light / dark" aria-label="Switch light or dark theme"><svg class="ic i-moon"><use href="#i-moon"/></svg><svg class="ic i-sun"><use href="#i-sun"/></svg></button>
@@ -1018,6 +1030,7 @@ tr.row-mine td:first-child{box-shadow:inset 3px 0 0 var(--primary)}
               </select>
             </div>
           </div>
+          <div class="form-group"><label>Discipline(s) this supervisor covers</label><div id="sup-disc-box"></div></div>
           <div class="form-group"><label>On the supervisor list for</label><div class="sem-box" id="sup-sem-box"></div></div>
           <input type="hidden" id="sup-edit-id"/>
           <div class="form-actions">
@@ -1134,8 +1147,9 @@ tr.row-mine td:first-child{box-shadow:inset 3px 0 0 var(--primary)}
             <div class="form-group"><label>Student ID</label><input type="text" id="s-id" placeholder="cihe260061"/></div>
             <div class="form-group"><label>Student email</label><input type="email" id="s-email" placeholder="student@email.com"/></div>
           </div>
-          <div class="g3">
+          <div class="g4">
             <div class="form-group"><label>Personal email <span class="opt">(optional)</span></label><input type="email" id="s-personal-email" placeholder="personal@email.com"/></div>
+            <div class="form-group"><label>Discipline</label><select id="s-discipline"><option value="">— Select —</option><option value="business">Business</option><option value="it">Information Technology (IT)</option></select></div>
             <div class="form-group"><label>Campus</label><select id="s-campus"><option value="">— Select Campus —</option></select></div>
             <div class="form-group"><label>Semester</label><select id="s-semester"><option value="">— Active Semester —</option></select></div>
           </div>
@@ -1153,7 +1167,7 @@ tr.row-mine td:first-child{box-shadow:inset 3px 0 0 var(--primary)}
         </div>
         <div class="card mb-16">
           <div class="card-header"><h3><svg class="ic"><use href="#i-upload"/></svg>Bulk import via CSV</h3></div>
-          <p class="text-sm text-muted mb-8" style="margin-top:-8px">Columns: <code class="chip-code">SL. No, Student Name, ID, Email, Personal Email, Proposal Title, Summary, Link, Student's Preferences, Campus, Semester</code> <span class="text-xs">(Personal Email &amp; Semester are optional — Semester defaults to the active semester)</span></p>
+          <p class="text-sm text-muted mb-8" style="margin-top:-8px">Columns: <code class="chip-code">SL. No, Student Name, ID, Email, Personal Email, Proposal Title, Summary, Link, Student's Preferences, Campus, Discipline, Semester</code> <span class="text-xs">(Discipline is <strong>Business</strong> or <strong>IT</strong> — if blank, the discipline selected at the top is used. Personal Email &amp; Semester are optional — Semester defaults to the active semester.)</span></p>
           <div id="csv-drop-zone" class="drop-zone mt-8"><div class="dz-ic"><svg class="ic ic-lg"><use href="#i-file"/></svg></div><div class="fw-600" style="color:var(--text)">Drop a CSV file here or click to browse</div><div class="text-xs" style="margin-top:2px">You'll see a preview before anything is imported</div></div>
           <input type="file" id="csv-input" accept=".csv" style="display:none"/>
           <div id="csv-preview" class="hidden mt-16"></div>
@@ -1299,7 +1313,7 @@ tr.row-mine td:first-child{box-shadow:inset 3px 0 0 var(--primary)}
         <div class="page-head"><div>
           <span class="eyebrow">System</span>
           <h2>Settings</h2>
-          <p>How allocation works, supervision limits, activity-log retention and admin access.</p>
+          <p>How allocation works, supervision limits, disciplines, activity-log retention and admin access.</p>
         </div></div>
         <div class="grid-2">
           <div class="card">
@@ -1340,6 +1354,15 @@ tr.row-mine td:first-child{box-shadow:inset 3px 0 0 var(--primary)}
               </div>
             </div>
             <button class="btn btn-primary" id="settings-log-save-btn">Save retention</button>
+          </div>
+
+          <div class="card">
+            <div class="card-header"><h3><svg class="ic"><use href="#i-layers"/></svg>Set discipline for students</h3></div>
+            <p class="card-sub">Students added before disciplines existed have none, so any supervisor can be chosen for them. Give them Business or IT here, or edit students one by one.</p>
+            <div id="disc-backfill-count" class="alert alert-info mb-16">Checking…</div>
+            <label class="check-row"><input type="checkbox" id="disc-backfill-sem" checked/> <span>Only the semester selected at the top of the page</span></label>
+            <div class="form-group mt-8"><label>Set them to</label><select id="disc-backfill-target"></select></div>
+            <button class="btn btn-primary" id="disc-backfill-btn">Set discipline</button>
           </div>
 
           <div class="card">
@@ -2537,7 +2560,9 @@ async function mountSupervisor(){
   setTxt('sv-eyebrow', isAdm ? 'Supervisor view · previewing as admin' : 'Supervisor workspace');
   setTxt('sv-greeting', `${greet}, ${isAdm ? (p.name||'Admin') : (studentFirstName({name:p.name||p.email}))}`);
   const roleTxt = {principal:'Principal supervisor', co:'Co-supervisor', both:'Principal & co-supervisor'}[p.supervisorType] || (isAdm?'Admin':'Supervisor');
-  setTxt('sv-sub', `${roleTxt} · ${cn}${svSemester?` · ${semesterLabel(svSemester)}`:''}`);
+  const myDisc=isAdm?null:supDisc(p);
+  setTxt('sv-sub', `${roleTxt} · ${cn}${myDisc?' · '+myDisc.map(discLabel).join(' & '):''}${svSemester?` · ${semesterLabel(svSemester)}`:''}`);
+  buildSVDiscPills();
   const mEl=el('alloc-mode-badge');
   if(SETTINGS.allocationMode==='fcfs'){ mEl.style.display='none'; mEl.textContent=''; }
   else{ mEl.style.display=''; mEl.className='badge badge-blue nav-hide-md'; mEl.textContent='Multi-supervisor mode'; }
@@ -2589,9 +2614,9 @@ async function mountSupervisor(){
     if(isCoOnly){
       banner.innerHTML = `As a <strong>Co-Supervisor</strong>, you may only assign <strong>yourself</strong> in the Co-Supervisor column. Principal Supervisor allocations and assignments for other Co-Supervisors cannot be modified through this system.`;
     } else if(p.supervisorType==='both'){
-      banner.innerHTML = `You may act as a <strong>Principal Supervisor</strong> for students at <strong>your own campus</strong>, and as a <strong>Co-Supervisor</strong> for students at <strong>any campus</strong>. Use the campus tabs to browse students across campuses.`;
+      banner.innerHTML = `You may act as a <strong>Principal Supervisor</strong> for students at <strong>your own campus</strong>, and as a <strong>Co-Supervisor</strong> for students at <strong>any campus</strong>${supDisc(p)?`, in <strong>${supDisc(p).map(discLong).join(' and ')}</strong>`:''}. Use the campus tabs to browse students across campuses.`;
     } else {
-      banner.innerHTML = `Select your name in the <strong>Principal Supervisor</strong> column to claim a student. Principal supervisors can only be assigned to students of their own campus.`;
+      banner.innerHTML = `Select your name in the <strong>Principal Supervisor</strong> column to claim a student. Principal supervisors can only be assigned to students of their own campus${supDisc(p)?` and discipline (<strong>${supDisc(p).map(discLong).join(' and ')}</strong>)`:''}.`;
     }
   }
 
@@ -2736,7 +2761,7 @@ function renderSVTable(students, filtered){
   tbody.innerHTML=students.map(s=>{
     const isAlloc=!!s.principalSupervisorId, isMine=s.principalSupervisorId===myUid;
     // Not on this semester's supervisor list → may only manage students they already hold.
-    const offList=!isAdmin && !supInSemester(PROFILE,s.semester) && !isMine && s.coSupervisorId!==myUid;
+    const offList=!isAdmin && (!supInSemester(PROFILE,s.semester) || !supTeaches(PROFILE,s.discipline)) && !isMine && s.coSupervisorId!==myUid;
     const locked=isAlloc&&!isAdmin&&SETTINGS.allocationMode==='fcfs'&&!isMine;
     const statusBadge=isAlloc?(isMine?`<span class="badge badge-blue">My Student</span>`:`<span class="badge badge-amber">Allocated</span>`):`<span class="badge badge-green">Available</span>`;
 
@@ -2750,6 +2775,7 @@ function renderSVTable(students, filtered){
         if(sup.disabled) return false;
         // Only supervisors on this semester's list (the current holder stays visible).
         if(!supInSemester(sup,s.semester) && s.principalSupervisorId!==sup.id) return false;
+        if(!supTeaches(sup,s.discipline) && s.principalSupervisorId!==sup.id) return false;
         if(isAdmin || s.principalSupervisorId===sup.id) return true; // the current holder is always shown
         // Must be principal or both type
         if(sup.supervisorType==='co') return false;
@@ -2812,6 +2838,7 @@ function renderSVTable(students, filtered){
       const eligibleCo = SUPS.filter(sup=>{
         if(sup.disabled) return false;
         if(!supInSemester(sup,s.semester) && s.coSupervisorId!==sup.id) return false;
+        if(!supTeaches(sup,s.discipline) && s.coSupervisorId!==sup.id) return false;
         if(isAdmin) return true;
         // 'both' supervisors are valid co-supervisors regardless of campus.
         if(sup.supervisorType==='both') return true;
@@ -2850,7 +2877,7 @@ function renderSVTable(students, filtered){
     const mineRow = !isAdmin && (isMine || s.coSupervisorId===myUid);
     return `<tr data-sid="${s.id}" class="${mineRow?'row-mine':''}">
       <td class="col-n text-xs text-muted">${s.slNo||''}</td>
-      <td><div class="stu-name">${esc(s.name)}</div><div class="stu-meta">${esc(s.studentId)}${s.campusName?` · ${esc(s.campusName)}`:''}</div>${mail}${pref}</td>
+      <td><div class="stu-name">${esc(s.name)}</div><div class="stu-meta">${esc(s.studentId)}${s.campusName?` · ${esc(s.campusName)}`:''} ${discBadge(s.discipline,'disc-sm')}</div>${mail}${pref}</td>
       <td><div class="prop-title">${esc(s.proposalTitle||'No title')}</div>${propExtra}</td>
       <td class="col-lbl" data-label="Status">${statusBadge}${deallocBtn}</td>
       <td class="col-lbl" data-label="Principal supervisor">${principalCell}</td>
@@ -3068,12 +3095,13 @@ async function mountAdmin(){
   document.querySelector('.sidebar-item[data-tab="tab-overview"]')?.classList.add('active');
   el('tab-overview')?.classList.add('active');
 
-  initSemestersTab(); initCampusesTab(); initSupervisorsTab(); initStudentsTab(); initSettingsTab(); initRegistrationsTab(); renderOverview();
+  initSemestersTab(); initCampusesTab(); initSupervisorsTab(); initStudentsTab(); initSettingsTab(); initRegistrationsTab(); initAdminDisciplinePicker(); initDiscBackfill(); renderOverview();
 }
 
 /* Helpers used across admin tabs */
 function scopedStudentsForAdmin(){
-  return adminSemester ? STUDENTS.filter(s=>s.semester===adminSemester) : STUDENTS;
+  const l = adminSemester ? STUDENTS.filter(s=>s.semester===adminSemester) : STUDENTS;
+  return adminDiscipline==='all' ? l : l.filter(s=>s.discipline===adminDiscipline);
 }
 function refreshAdminSemesterPicker(){
   const picker = el('admin-semester-picker');
@@ -3098,7 +3126,7 @@ function refreshAdminSemesterPicker(){
     renderStudentsList(scopedStudentsForAdmin());
     if(el('tab-allocations').classList.contains('active')) renderAllocations();
     if(el('tab-by-supervisor').classList.contains('active')) renderBySupervisor();
-    openSupervisorsTab(); renderSemestersList(); syncSemEyebrows();
+    openSupervisorsTab(); renderSemestersList(); syncSemEyebrows(); refreshDiscBackfill();
     if(el('tab-overview').classList.contains('active')) renderOverview();
     toast('Switched to '+semesterLabel(adminSemester),'info',2000);
   };
@@ -3290,16 +3318,18 @@ function initSupervisorsTab(){
     if(!name||!email){ toast('Name and email required','error'); return; }
     if(!editId && requireReg()){ toast('New supervisor accounts are created from approved registrations (Registrations tab).','error'); return; }
     const semesters=readSemChecks('sup-sem-box'); // null = every semester
+    const disciplines=readDiscChecks('sup-disc');
+    if(!disciplines.length){ toast('Tick the discipline(s) this supervisor covers — Business, IT or both','error'); return; }
     const campusNm=id=>CAMPUSES.find(c=>c.id===id)?.name||'—';
     let createdNew=null;
     try{
       if(editId){
         const before=SUPS.find(x=>x.id===editId);
-        await updateDoc(doc(db,'users',editId),{name,campus,supervisorType:type,altEmail,semesters});
+        await updateDoc(doc(db,'users',editId),{name,campus,supervisorType:type,altEmail,semesters,disciplines});
         logAct('sup.edit', name, describeChanges(
-          {...before, campus:campusNm(before?.campus), supervisorType:before?.supervisorType||'both', semList:semListLabel(before||{})},
-          {name, altEmail, campus:campusNm(campus), supervisorType:type, semList:semListLabel({semesters})},
-          [['name','Name',1],['campus','Campus',1],['supervisorType','Type',1],['altEmail','Alternative email'],['semList','Semesters',1]]), editId);
+          {...before, campus:campusNm(before?.campus), supervisorType:before?.supervisorType||'both', semList:semListLabel(before||{}), discList:(supDisc(before)||[]).map(discLabel).join(' & ')||'not set'},
+          {name, altEmail, campus:campusNm(campus), supervisorType:type, semList:semListLabel({semesters}), discList:disciplines.map(discLabel).join(' & ')},
+          [['name','Name',1],['campus','Campus',1],['supervisorType','Type',1],['altEmail','Alternative email'],['semList','Semesters',1],['discList','Discipline',1]]), editId);
       }
       else{
         if(!pass){ toast('Password required for new supervisor','error'); return; }
@@ -3307,7 +3337,7 @@ function initSupervisorsTab(){
         // then write the profile as the new user (same permissions as before).
         const pApp=provisionApp(), pAuth=getAuth(pApp);
         const cred=await createUserWithEmailAndPassword(pAuth,email,pass);
-        const profile={name,email,altEmail,campus,supervisorType:type,role:'supervisor',semesters};
+        const profile={name,email,altEmail,campus,supervisorType:type,role:'supervisor',semesters,disciplines};
         try{
           await setDoc(doc(getFirestore(pApp),'users',cred.user.uid),profile);
         }catch(err){
@@ -3335,11 +3365,11 @@ function renderSupervisorsList(){
   const scoped = supScope==='semester' && !!adminSemester;
   const inScope = scoped ? SUPS.filter(s=>supInSemester(s,adminSemester)) : SUPS;
   if(supCampusF && !CAMPUSES.some(c=>c.id===supCampusF)) supCampusF='';
-  const list = inScope.filter(s=>supTypeMatch(s.supervisorType||'both',supTypeF) && (!supCampusF || s.campus===supCampusF));
+  const list = inScope.filter(s=>supTypeMatch(s.supervisorType||'both',supTypeF) && (!supCampusF || s.campus===supCampusF) && (adminDiscipline==='all' || supTeaches(s,adminDiscipline)));
   if(inScope.length && !list.length){ e.innerHTML=`<div class="text-muted text-sm" style="padding:12px">No supervisors match these filters.</div>`; return; }
   if(!list.length){ e.innerHTML=`<div class="text-muted text-sm" style="padding:12px">Nobody is on the supervisor list for <strong>${esc(semesterLabel(adminSemester))}</strong> yet. Switch to <em>All supervisors</em> to add people, or copy the list from another semester.</div>`; return; }
   const typeLbl={co:'Co-supervisor',principal:'Principal',both:'Principal & co'};
-  e.innerHTML=`<div class="tw"><table><thead><tr><th>Supervisor</th><th>Campus</th><th>Type</th><th>Semesters</th><th>Status</th><th>Actions</th></tr></thead><tbody>${list.map(s=>{
+  e.innerHTML=`<div class="tw"><table><thead><tr><th>Supervisor</th><th>Campus</th><th>Type &amp; discipline</th><th>Semesters</th><th>Status</th><th>Actions</th></tr></thead><tbody>${list.map(s=>{
     const cn=CAMPUSES.find(c=>c.id===s.campus)?.name||s.campus||'—';
     const statusBadge=s.disabled?`<span class="badge badge-red badge-dot">Disabled</span>`:`<span class="badge badge-green badge-dot">Enabled</span>`;
     const toggleBtn=s.disabled
@@ -3355,7 +3385,7 @@ function renderSupervisorsList(){
     return `<tr style="${s.disabled?'opacity:.6':''}">
     <td><div class="flex items-center gap-12"><div class="avatar" style="width:32px;height:32px">${esc(ini(s.name))}</div><div style="min-width:0"><div class="fw-600">${esc(s.name)}</div><div class="text-xs text-muted">${esc(s.email)}${s.altEmail?` · alt: ${esc(s.altEmail)}`:''}</div></div></div></td>
     <td><span class="badge badge-gray">${esc(cn)}</span></td>
-    <td><span class="badge ${t==='co'?'badge-purple':t==='principal'?'badge-blue':'badge-green'}">${esc(typeLbl[t]||t)}</span></td>
+    <td><span class="badge ${t==='co'?'badge-purple':t==='principal'?'badge-blue':'badge-green'}">${esc(typeLbl[t]||t)}</span><div style="margin-top:4px">${supDiscBadges(s)}</div></td>
     <td>${semBadge}${adminSemester&&!onList?`<div class="text-xs text-muted" style="margin-top:3px">Not listed this semester</div>`:''}</td>
     <td>${statusBadge}</td>
     <td><div class="flex gap-8" style="flex-wrap:wrap">
@@ -3373,7 +3403,7 @@ window.editSup=(id)=>{
   el('sup-name').value=s.name||''; el('sup-email').value=s.email||''; el('sup-email').disabled=true; el('sup-alt-email').value=s.altEmail||''; el('sup-password').value='';
   el('sup-campus').value=s.campus||''; el('sup-type').value=s.supervisorType||'both'; el('sup-edit-id').value=id;
   el('sup-form-title').textContent='Edit Supervisor'; el('sup-save-btn').textContent='Update Supervisor'; show('sup-cancel-btn');
-  renderSemChecks('sup-sem-box', Array.isArray(s.semesters)?s.semesters:null); syncSupFormLock();
+  renderSemChecks('sup-sem-box', Array.isArray(s.semesters)?s.semesters:null); el('sup-disc-box').innerHTML=discChecksHTML('sup-disc', supDisc(s)||[]); syncSupFormLock();
   el('sup-form-card').scrollIntoView({behavior:'smooth',block:'start'});
 };
 window.inviteSup=(id)=>{
@@ -3406,7 +3436,9 @@ function initStudentsTab(){
     if(!semester){ toast('Please create a Semester first (Semesters tab)','error'); return; }
     const semesterName = SEMESTERS.find(s=>s.id===semester)?.name || '';
     const editId=el('s-edit-id').value;
-    const data={ slNo:parseInt(el('s-slno').value)||0, name, studentId:el('s-id').value.trim(), email:el('s-email').value.trim(), personalEmail:el('s-personal-email').value.trim(), campus, campusName, semester, semesterName, proposalTitle:el('s-title').value.trim(), proposalSummary:el('s-summary').value.trim(), proposalLink:el('s-link').value.trim(), studentPreference:el('s-pref').value };
+    const discipline=el('s-discipline').value;
+    if(!discipline){ toast('Choose the student\'s discipline: Business or IT','error'); return; }
+    const data={ discipline, slNo:parseInt(el('s-slno').value)||0, name, studentId:el('s-id').value.trim(), email:el('s-email').value.trim(), personalEmail:el('s-personal-email').value.trim(), campus, campusName, semester, semesterName, proposalTitle:el('s-title').value.trim(), proposalSummary:el('s-summary').value.trim(), proposalLink:el('s-link').value.trim(), studentPreference:el('s-pref').value };
     if(!editId) data.active = true; // new students are active by default
     try{
       if(editId){
@@ -3416,7 +3448,7 @@ function initStudentsTab(){
           {...b, campusName:b.campusName||CAMPUSES.find(c=>c.id===b.campus)?.name||'', semesterName:b.semesterName||SEMESTERS.find(x=>x.id===b.semester)?.name||''},
           data,
           [['name','Name',1],['studentId','ID',1],['slNo','Sl. no',1],['email','Email'],['personalEmail','Personal email'],
-           ['campusName','Campus',1],['semesterName','Semester',1],['proposalTitle','Proposal title'],['proposalSummary','Summary'],
+           ['campusName','Campus',1],['discipline','Discipline',1],['semesterName','Semester',1],['proposalTitle','Proposal title'],['proposalSummary','Summary'],
            ['proposalLink','Proposal link'],['studentPreference','Preference',1]]);
         if(changes) logAct('student.edit', name, changes, editId);
       } else {
@@ -3441,7 +3473,7 @@ function renderStudentsList(students){
     e.innerHTML=`<div class="text-muted text-sm" style="padding:12px">No students yet${ctx}.</div>`;
     return;
   }
-  e.innerHTML=`<div class="tw"><table><thead><tr><th>#</th><th>Student</th><th>ID</th><th>Email</th><th>Campus</th><th>Semester</th><th>Status</th><th>Proposal Title</th><th>Principal</th><th>Co-Sup</th><th>Preference</th><th>Link</th><th>Actions</th></tr></thead><tbody>${students.map(s=>{
+  e.innerHTML=`<div class="tw"><table><thead><tr><th>#</th><th>Student</th><th>ID</th><th>Email</th><th>Campus</th><th>Discipline</th><th>Semester</th><th>Status</th><th>Proposal Title</th><th>Principal</th><th>Co-Sup</th><th>Preference</th><th>Link</th><th>Actions</th></tr></thead><tbody>${students.map(s=>{
     const cn=CAMPUSES.find(c=>c.id===s.campus)?.name||'—';
     const sn=s.semesterName || SEMESTERS.find(x=>x.id===s.semester)?.name || '—';
     const isInactive = s.active===false;
@@ -3452,6 +3484,7 @@ function renderStudentsList(students){
     return `<tr style="${isInactive?'opacity:.6':''}"><td class="text-xs text-muted">${s.slNo||''}</td><td class="fw-600">${esc(s.name)}</td><td class="text-xs text-muted">${esc(s.studentId)}</td>
     <td class="text-xs">${s.email?`<a href="mailto:${esc(s.email)}">${esc(s.email)}</a>`:'<span class="text-muted">—</span>'}${s.personalEmail?`<div class="text-xs"><a href="mailto:${esc(s.personalEmail)}">${esc(s.personalEmail)}</a> <span class="text-muted">(personal)</span></div>`:''}</td>
     <td><span class="badge badge-gray">${esc(cn)}</span></td>
+    <td>${s.discipline?discBadge(s.discipline):'<span class="badge badge-amber">Not set</span>'}</td>
     <td><span class="badge badge-purple">${esc(sn)}</span></td>
     <td>${statusBadge}</td>
     <td class="pc text-sm" title="${esc(s.proposalTitle)}">${esc(s.proposalTitle||'—')}</td>
@@ -3462,7 +3495,7 @@ function renderStudentsList(students){
     <td><div class="flex gap-8"><button class="btn btn-sm" onclick="editStudent('${s.id}')">${icon('i-edit')}Edit</button>${toggleBtn}${s.principalSupervisorId?`<button class="btn btn-sm" onclick="clearAlloc('${s.id}')">Clear</button>`:''}<button class="btn btn-sm btn-ghost" onclick="showHistory('${s.id}','${esc(s.name).replace(/'/g,"\\'")}')" title="Change history">${icon('i-history')}</button><button class="btn btn-sm btn-danger" onclick="delStudent('${s.id}')" title="Delete">${icon('i-trash')}</button></div></td></tr>`;
   }).join('')}</tbody></table></div>`;
 }
-window.editStudent=id=>{ const s=STUDENTS.find(x=>x.id===id); if(!s) return; el('s-slno').value=s.slNo||''; el('s-name').value=s.name||''; el('s-id').value=s.studentId||''; el('s-email').value=s.email||''; el('s-personal-email').value=s.personalEmail||''; el('s-campus').value=s.campus||''; el('s-semester').value=s.semester||''; el('s-title').value=s.proposalTitle||''; el('s-summary').value=s.proposalSummary||''; el('s-link').value=s.proposalLink||''; el('s-pref').value=s.studentPreference||''; el('s-edit-id').value=id; el('student-form-title').textContent='Edit Student'; el('student-save-btn').textContent='Update Student'; show('student-cancel-btn'); el('student-form-title').scrollIntoView({behavior:'smooth'}); };
+window.editStudent=id=>{ const s=STUDENTS.find(x=>x.id===id); if(!s) return; el('s-slno').value=s.slNo||''; el('s-name').value=s.name||''; el('s-id').value=s.studentId||''; el('s-email').value=s.email||''; el('s-personal-email').value=s.personalEmail||''; el('s-campus').value=s.campus||''; el('s-discipline').value=s.discipline||''; el('s-semester').value=s.semester||''; el('s-title').value=s.proposalTitle||''; el('s-summary').value=s.proposalSummary||''; el('s-link').value=s.proposalLink||''; el('s-pref').value=s.studentPreference||''; el('s-edit-id').value=id; el('student-form-title').textContent='Edit Student'; el('student-save-btn').textContent='Update Student'; show('student-cancel-btn'); el('student-form-title').scrollIntoView({behavior:'smooth'}); };
 window.delStudent=async id=>{ const s=STUDENTS.find(x=>x.id===id); if(!confirm(`Delete ${s?.name}?`)) return; try{ await deleteDoc(doc(db,'students',id)); logAct('student.delete', s?.name, [s?.studentId, s?.campusName].filter(Boolean).join(' · '), id); STUDENTS=STUDENTS.filter(x=>x.id!==id); renderStudentsList(scopedStudentsForAdmin()); toast('Deleted','info'); }catch(e){ toast('Error: '+e.message,'error'); } };
 window.toggleStudentActive=async(id,activate)=>{
   const s=STUDENTS.find(x=>x.id===id);
@@ -3498,6 +3531,7 @@ async function handleCSV(file){
       proposalLink:row['Link']||row['link']||row['Proposal Link']||'',
       studentPreference:row["Student's Preferences"]||row['Preference']||row['preference']||'',
       campusName:row['Campus']||row['campus']||'',
+      discipline: normDiscipline(row['Discipline']||row['discipline']||row['Program']||row['Programme']||row['Course']||'') || (adminDiscipline!=='all'?adminDiscipline:''),
       campus:CAMPUSES.find(c=>c.name.toLowerCase()===(row['Campus']||row['campus']||'').toLowerCase())?.id||'',
       semester: matchedSem?.id || fallbackSemester,
       semesterName: matchedSem?.name || fallbackSemName,
@@ -3506,10 +3540,11 @@ async function handleCSV(file){
   }).filter(s=>s.name);
   if(!students.length){ toast('No valid rows','error'); return; }
   const pv=el('csv-preview');
-  pv.innerHTML=`<div class="alert alert-info">Found <strong>${students.length}</strong> students. Will import into semester: <strong>${esc(fallbackSemName)}</strong> (unless a row's <em>Semester</em> column matches another semester by name).
+  const noDiscN=students.filter(s=>!s.discipline).length;
+  pv.innerHTML=`${noDiscN?`<div class="alert alert-warning"><strong>${noDiscN}</strong> row(s) have no recognisable discipline (Business / IT). Add a Discipline column, or choose a discipline at the top of the page before importing.</div>`:''}<div class="alert alert-info">Found <strong>${students.length}</strong> students. Will import into semester: <strong>${esc(fallbackSemName)}</strong> (unless a row's <em>Semester</em> column matches another semester by name).
     <button class="btn btn-sm btn-primary" id="confirm-csv" style="margin-left:8px">Import All</button>
     <button class="btn btn-sm" id="cancel-csv" style="margin-left:6px">Cancel</button></div>
-  <div class="tw mt-8"><table><thead><tr><th>#</th><th>Name</th><th>ID</th><th>Campus</th><th>Semester</th><th>Proposal</th></tr></thead><tbody>${students.slice(0,8).map(s=>`<tr><td>${s.slNo}</td><td>${esc(s.name)}</td><td>${esc(s.studentId)}</td><td>${esc(s.campusName||'—')}</td><td>${esc(s.semesterName||'—')}</td><td class="pc">${esc(s.proposalTitle)}</td></tr>`).join('')}${students.length>8?`<tr><td colspan="6" class="text-muted text-xs" style="text-align:center">…and ${students.length-8} more</td></tr>`:''}</tbody></table></div>`;
+  <div class="tw mt-8"><table><thead><tr><th>#</th><th>Name</th><th>ID</th><th>Campus</th><th>Discipline</th><th>Semester</th><th>Proposal</th></tr></thead><tbody>${students.slice(0,8).map(s=>`<tr><td>${s.slNo}</td><td>${esc(s.name)}</td><td>${esc(s.studentId)}</td><td>${esc(s.campusName||'—')}</td><td>${s.discipline?discBadge(s.discipline):'<span class="badge badge-amber">Not set</span>'}</td><td>${esc(s.semesterName||'—')}</td><td class="pc">${esc(s.proposalTitle)}</td></tr>`).join('')}${students.length>8?`<tr><td colspan="7" class="text-muted text-xs" style="text-align:center">…and ${students.length-8} more</td></tr>`:''}</tbody></table></div>`;
   show('csv-preview');
   el('confirm-csv').onclick=async()=>{ try{ const batch=writeBatch(db); students.forEach(s=>{const r=doc(collection(db,'students'));batch.set(r,{...s,createdAt:serverTimestamp()});}); await batch.commit(); logAct('student.import', `${students.length} students`, `From ${file.name||'CSV'} into ${fallbackSemName}`); const snap=await getDocs(query(collection(db,'students'),orderBy('slNo'))); STUDENTS=snap.docs.map(d=>({id:d.id,...d.data()})); renderStudentsList(scopedStudentsForAdmin()); hide('csv-preview'); toast(`Imported ${students.length} students`,'success'); }catch(e){ toast('Import error: '+e.message,'error'); } };
   el('cancel-csv').onclick=()=>hide('csv-preview');
@@ -3533,13 +3568,13 @@ async function renderAllocations(){
   // Update context strip
   const semTxt = adminSemester ? semesterLabel(adminSemester) : 'All semesters';
   const campusTxt = adminAllocCampus==='all' ? 'All campuses' : (CAMPUSES.find(c=>c.id===adminAllocCampus)?.name||'Unknown');
-  setTxt('alloc-context-text', `Showing allocations for: ${semTxt}  ·  ${campusTxt}`);
+  setTxt('alloc-context-text', `Showing allocations for: ${semTxt}${discCtx()}  ·  ${campusTxt}`);
 
   const snap=await getDocs(query(collection(db,'students'),orderBy('slNo')));
   let students=snap.docs.map(d=>({id:d.id,...d.data()}));
   // Suspended (inactive) students are excluded from the allocation system entirely.
   students = students.filter(s=>s.active!==false);
-  if(adminSemester) students = students.filter(s=>s.semester===adminSemester);
+  if(adminSemester) students = students.filter(s=>s.semester===adminSemester); if(adminDiscipline!=='all') students=students.filter(s=>s.discipline===adminDiscipline);
   if(adminAllocCampus!=='all') students = students.filter(s=>s.campus===adminAllocCampus);
 
   setTxt('a-total',students.length); setTxt('a-alloc',students.filter(s=>s.principalSupervisorId).length); setTxt('a-pending',students.filter(s=>!s.principalSupervisorId).length);
@@ -3551,13 +3586,18 @@ async function renderAllocations(){
   }
 
   // Only supervisors on the student's semester list (whoever holds the student now stays selectable).
-  const supOptsFor=(st,cur)=>SUPS.filter(x=>supInSemester(x,st.semester)||x.id===cur).map(x=>`<option value="${x.id}" data-name="${esc(x.name)}">${esc(x.name)}</option>`).join('');
+  const opt=x=>`<option value="${x.id}" data-name="${esc(x.name)}">${esc(x.name)}</option>`;
+  const supOptsFor=(st,cur)=>{
+    const l=SUPS.filter(x=>supInSemester(x,st.semester)||x.id===cur);
+    const ok=l.filter(x=>supTeaches(x,st.discipline)||x.id===cur), other=l.filter(x=>!ok.includes(x));
+    return ok.map(opt).join('')+(other.length?`<optgroup label="Other discipline (admin override)">${other.map(opt).join('')}</optgroup>`:'');
+  };
   el('alloc-tbody').innerHTML=students.map(s=>{
     const cn=CAMPUSES.find(c=>c.id===s.campus)?.name||'—';
     const sn=s.semesterName || SEMESTERS.find(x=>x.id===s.semester)?.name || '—';
     return `<tr><td class="text-xs text-muted">${s.slNo||''}</td>
     <td><div class="fw-600">${esc(s.name)}</div><div class="text-xs text-muted">${esc(s.studentId)}</div></td>
-    <td><span class="badge badge-gray">${esc(cn)}</span><br><span class="badge badge-purple" style="margin-top:4px">${esc(sn)}</span></td>
+    <td><span class="badge badge-gray">${esc(cn)}</span>${s.discipline?' '+discBadge(s.discipline):' <span class="badge badge-amber">No discipline</span>'}<br><span class="badge badge-purple" style="margin-top:4px">${esc(sn)}</span></td>
     <td><div class="pc text-sm">${esc(s.proposalTitle||'—')}</div>${s.proposalSummary?`<span class="text-xs text-muted">Has summary</span>`:''}</td>
     <td><select class="sup-select" onchange="aPrincipal('${s.id}',this)"><option value="">— Unassigned —</option>${supOptsFor(s,s.principalSupervisorId)}</select></td>
     <td><select class="sup-select" onchange="aCo('${s.id}',this)"><option value="">— None —</option>${supOptsFor(s,s.coSupervisorId)}</select></td>
@@ -3616,7 +3656,7 @@ async function renderBySupervisor(refetch=true){
   buildBySupCampusPills();
   const semTxt = adminSemester ? semesterLabel(adminSemester) : 'All semesters';
   const campusTxt = bysupCampus==='all' ? 'All campuses' : (CAMPUSES.find(c=>c.id===bysupCampus)?.name||'Unknown');
-  setTxt('bysup-context-text', `Showing supervisor selections for: ${semTxt}  ·  ${campusTxt}`);
+  setTxt('bysup-context-text', `Showing supervisor selections for: ${semTxt}${discCtx()}  ·  ${campusTxt}`);
 
   // Refresh students so counts are current (skipped on search-only re-renders).
   if(refetch){
@@ -3627,12 +3667,12 @@ async function renderBySupervisor(refetch=true){
   }
 
   let students=STUDENTS.filter(s=>s.active!==false);
-  if(adminSemester) students=students.filter(s=>s.semester===adminSemester);
+  if(adminSemester) students=students.filter(s=>s.semester===adminSemester); if(adminDiscipline!=='all') students=students.filter(s=>s.discipline===adminDiscipline);
   if(bysupCampus!=='all') students=students.filter(s=>s.campus===bysupCampus);
 
   // Build a per-supervisor map: principal + co students.
   const map={}; // supId -> {sup, principal:[], co:[]}
-  SUPS.filter(sup=>supInSemester(sup,adminSemester)).forEach(sup=>{ map[sup.id]={sup, principal:[], co:[]}; });
+  SUPS.filter(sup=>supInSemester(sup,adminSemester) && (adminDiscipline==='all' || supTeaches(sup,adminDiscipline))).forEach(sup=>{ map[sup.id]={sup, principal:[], co:[]}; });
   students.forEach(s=>{
     if(s.principalSupervisorId){
       if(!map[s.principalSupervisorId]) map[s.principalSupervisorId]={sup:SUPS.find(x=>x.id===s.principalSupervisorId)||{id:s.principalSupervisorId,name:s.principalSupervisorName||'(removed supervisor)'},principal:[],co:[]};
@@ -3693,7 +3733,7 @@ async function renderBySupervisor(refetch=true){
     return `<div class="card mb-16">
       <div class="card-header" style="cursor:pointer" onclick="toggleBysup('${r.sup.id}')">
         <div class="flex items-center gap-12" style="flex-wrap:wrap">
-          <h3 style="margin:0">${esc(r.sup.name||'(unknown)')}${cn?` <span class="text-xs text-muted">· ${esc(cn)}</span>`:''}</h3>
+          <h3 style="margin:0">${esc(r.sup.name||'(unknown)')}${cn?` <span class="text-xs text-muted">· ${esc(cn)}</span>`:''}</h3> ${supDiscBadges(r.sup)}
           <span class="badge ${tot?'badge-green':'badge-gray'}">${tot} student${tot===1?'':'s'} total</span>
           ${pBadge} ${cBadge} ${fullTag}
         </div>
@@ -3835,27 +3875,27 @@ async function exportCSV(){
   const snap=await getDocs(query(collection(db,'students'),orderBy('slNo')));
   let docs = snap.docs.map(d=>({id:d.id,...d.data()}));
   docs = docs.filter(s=>s.active!==false); // skip suspended students
-  if(adminSemester) docs = docs.filter(s=>s.semester===adminSemester);
+  if(adminSemester) docs = docs.filter(s=>s.semester===adminSemester); if(adminDiscipline!=='all') docs=docs.filter(s=>s.discipline===adminDiscipline);
   if(adminAllocCampus!=='all') docs = docs.filter(s=>s.campus===adminAllocCampus);
   if(!docs.length){ toast('Nothing to export for this filter','error'); return; }
-  const rows=[['Sl.No','Student Name','Student ID','Student Email','Personal Email','Campus','Semester','Proposal Title','Proposal Summary','Principal Supervisor','Co-Supervisor','Student Preference','Allocated At','Proposal Link','Comment']];
+  const rows=[['Sl.No','Student Name','Student ID','Student Email','Personal Email','Campus','Discipline','Semester','Proposal Title','Proposal Summary','Principal Supervisor','Co-Supervisor','Student Preference','Allocated At','Proposal Link','Comment']];
   docs.forEach(s=>{
     const cn=CAMPUSES.find(c=>c.id===s.campus)?.name||s.campus||'';
     const sn=s.semesterName||SEMESTERS.find(x=>x.id===s.semester)?.name||'';
-    rows.push([s.slNo||'',csvCell(s.name),csvCell(s.studentId),csvCell(s.email),csvCell(s.personalEmail),csvCell(cn),csvCell(sn),csvCell(s.proposalTitle),csvCell(s.proposalSummary),csvCell(s.principalSupervisorName),csvCell(s.coSupervisorName),csvCell(s.studentPreference),csvCell(fmtDate(s.allocatedAt)),csvCell(s.proposalLink),csvCell(s.comment)]);
+    rows.push([s.slNo||'',csvCell(s.name),csvCell(s.studentId),csvCell(s.email),csvCell(s.personalEmail),csvCell(cn),csvCell(discLabel(s.discipline)),csvCell(sn),csvCell(s.proposalTitle),csvCell(s.proposalSummary),csvCell(s.principalSupervisorName),csvCell(s.coSupervisorName),csvCell(s.studentPreference),csvCell(fmtDate(s.allocatedAt)),csvCell(s.proposalLink),csvCell(s.comment)]);
   });
   const semTag = adminSemester ? '_'+safeName(semesterLabel(adminSemester)) : '';
   const campTag = adminAllocCampus==='all' ? '' : '_'+safeName(CAMPUSES.find(c=>c.id===adminAllocCampus)?.name);
-  downloadCSV(rows,`allocations${semTag}${campTag}.csv`);
+  downloadCSV(rows,`allocations${semTag}${adminDiscipline!=='all'?'_'+adminDiscipline:''}${campTag}.csv`);
   toast(`Exported ${docs.length} student(s)`,'success');
 }
 
 // Slim export: Student Name, ID, Title, Principal Supervisor, Co-Supervisor
 function buildSlimRows(students){
-  const rows=[['Student Name','Student ID','Student Email','Personal Email','Semester','Proposal Title','Principal Supervisor','Co-Supervisor']];
+  const rows=[['Student Name','Student ID','Student Email','Personal Email','Discipline','Semester','Proposal Title','Principal Supervisor','Co-Supervisor']];
   students.forEach(s=>{
     const sn=s.semesterName||SEMESTERS.find(x=>x.id===s.semester)?.name||'';
-    rows.push([csvCell(s.name),csvCell(s.studentId),csvCell(s.email),csvCell(s.personalEmail),csvCell(sn),csvCell(s.proposalTitle),csvCell(s.principalSupervisorName),csvCell(s.coSupervisorName)]);
+    rows.push([csvCell(s.name),csvCell(s.studentId),csvCell(s.email),csvCell(s.personalEmail),csvCell(discLabel(s.discipline)),csvCell(sn),csvCell(s.proposalTitle),csvCell(s.principalSupervisorName),csvCell(s.coSupervisorName)]);
   });
   return rows;
 }
@@ -3867,7 +3907,7 @@ async function exportByCampus(){
   const campus=CAMPUSES.find(c=>c.id===campusId);
   const snap=await getDocs(query(collection(db,'students'),orderBy('slNo')));
   let students=snap.docs.map(d=>d.data()).filter(s=>s.campus===campusId&&s.active!==false);
-  if(adminSemester) students = students.filter(s=>s.semester===adminSemester);
+  if(adminSemester) students = students.filter(s=>s.semester===adminSemester); if(adminDiscipline!=='all') students=students.filter(s=>s.discipline===adminDiscipline);
   if(!students.length){ toast('No students for this campus in the selected semester','error'); return; }
   const semTag = adminSemester ? '_'+safeName(semesterLabel(adminSemester)) : '';
   downloadCSV(buildSlimRows(students),`allocations_campus_${safeName(campus?.name)}${semTag}.csv`);
@@ -3880,7 +3920,7 @@ async function exportBySupervisor(){
   const sup=SUPS.find(x=>x.id===supId);
   const snap=await getDocs(query(collection(db,'students'),orderBy('slNo')));
   let students=snap.docs.map(d=>d.data()).filter(s=>s.principalSupervisorId===supId&&s.active!==false);
-  if(adminSemester) students = students.filter(s=>s.semester===adminSemester);
+  if(adminSemester) students = students.filter(s=>s.semester===adminSemester); if(adminDiscipline!=='all') students=students.filter(s=>s.discipline===adminDiscipline);
   if(!students.length){ toast('No students for this principal supervisor in the selected semester','error'); return; }
   const semTag = adminSemester ? '_'+safeName(semesterLabel(adminSemester)) : '';
   downloadCSV(buildSlimRows(students),`allocations_supervisor_${safeName(sup?.name)}${semTag}.csv`);
@@ -3893,7 +3933,7 @@ async function exportByCoSupervisor(){
   const sup=SUPS.find(x=>x.id===supId);
   const snap=await getDocs(query(collection(db,'students'),orderBy('slNo')));
   let students=snap.docs.map(d=>d.data()).filter(s=>s.coSupervisorId===supId&&s.active!==false);
-  if(adminSemester) students = students.filter(s=>s.semester===adminSemester);
+  if(adminSemester) students = students.filter(s=>s.semester===adminSemester); if(adminDiscipline!=='all') students=students.filter(s=>s.discipline===adminDiscipline);
   if(!students.length){ toast('No students for this co-supervisor in the selected semester','error'); return; }
   const semTag = adminSemester ? '_'+safeName(semesterLabel(adminSemester)) : '';
   // buildSlimRows already includes both Principal Supervisor and Co-Supervisor columns.
@@ -3962,7 +4002,7 @@ function syncSupFormLock(){
   el('sup-form-card')?.classList.toggle('hidden', lock);
   el('sup-add-locked')?.classList.toggle('hidden', !lock);
 }
-function resetSupFormExtras(){ renderSemChecks('sup-sem-box', defaultSemList()); syncSupFormLock(); }
+function resetSupFormExtras(){ renderSemChecks('sup-sem-box', defaultSemList()); el('sup-disc-box').innerHTML=discChecksHTML('sup-disc', adminDiscipline!=='all'?[adminDiscipline]:[]); syncSupFormLock(); }
 function openSupervisorsTab(){ if(!el('sup-edit-id').value) resetSupFormExtras(); renderSupervisorsList(); }
 
 let supScope='semester', supTypeF='', supCampusF='';
@@ -4035,7 +4075,7 @@ const REG_COL='registrations', REG_STATUS_COL='registrationStatus';
 const RESEARCH_OFFICE_EMAIL='research.office@cihe.edu.au';
 const REGISTER_URL=APP_URL+'#register';
 const REG_OPTS={
-  discipline:['Information Technology (IT)','Business','Accounting'],
+  discipline:['Business','Information Technology (IT)','Both Business and IT'],
   level:['Principal Supervisor','Associate Supervisor (Co-supervisor)','Industry Expert (Additional Member)','Both (Principal and Co-Supervisor) or Any'],
   title:['Dr.','Prof','Assoc Prof','Mr','Ms'],
   mode:['On-site (CIHE campus)','Remote (Online)','Hybrid (on-site+remote)'],
@@ -4274,7 +4314,7 @@ el('goto-register-link')?.addEventListener('click',e=>{ e.preventDefault(); open
 window.addEventListener('hashchange',()=>{ if(window.location.hash.startsWith('#register')) openRegisterPortal(); });
 
 /* ── Review queue (admin tab + review page share this) ───── */
-let REGS=[], OFFICERS=[], REG_HOST=null, REG_FILTER='mine', REG_LEVEL='', REG_CAMPUS='';
+let REGS=[], OFFICERS=[], REG_HOST=null, REG_FILTER='mine', REG_LEVEL='', REG_CAMPUS='', REG_DISC=null;
 /* Filter by the supervision level the applicant asked for. "Can be …" includes Both / Any. */
 const LEVEL_FILTERS=[['','All supervision levels'],['can-p','Can be Principal (incl. Both / Any)'],['can-a','Can be Associate (incl. Both / Any)'],['p','Principal only'],['a','Associate only'],['b','Both / Any'],['i','Industry Expert']];
 function levelMatch(level,f){
@@ -4283,6 +4323,7 @@ function levelMatch(level,f){
     || (f==='can-p'&&(level===L[0]||level===L[3])) || (f==='can-a'&&(level===L[1]||level===L[3]));
 }
 const regCampusText=r=>(r.campusNames||[]).join(', ');
+const regDiscF=()=> REG_DISC!==null ? REG_DISC : (isAdminUser() && typeof adminDiscipline!=='undefined' && adminDiscipline!=='all' ? adminDiscipline : '');
 const isAdminUser=()=>PROFILE?.role==='admin';
 function myStages(){ return isAdminUser() ? ['office','school','adr'] : (PROFILE?.officeRoles||[]); }
 function regAwaitsMe(r){
@@ -4344,6 +4385,7 @@ function renderRegQueue(){
       <div class="table-toolbar">
         <div class="campus-pills">${pills.map(([k,l])=>`<button class="campus-pill ${REG_FILTER===k?'active':''}" data-reg-filter="${k}">${esc(l)}</button>`).join('')}</div>
         <div class="spacer"></div>
+        <select data-reg-disc title="Filter by discipline" style="width:auto;min-width:150px;height:34px"><option value="">All disciplines</option>${DISCIPLINES.map(d=>`<option value="${d.id}" ${regDiscF()===d.id?'selected':''}>${esc(d.short)}</option>`).join('')}</select>
         <select data-reg-level title="Filter by supervision level sought" style="width:auto;min-width:200px;height:34px">${LEVEL_FILTERS.map(([v,l])=>`<option value="${v}" ${REG_LEVEL===v?'selected':''}>${esc(l)}</option>`).join('')}</select>
         <select data-reg-campus title="Filter by preferred campus / location" style="width:auto;min-width:170px;height:34px"><option value="">All campuses</option>${CAMPUSES.map(c=>`<option value="${c.id}" ${REG_CAMPUS===c.id?'selected':''}>${esc(campusLabel(c))}</option>`).join('')}</select>
         <button class="btn btn-sm" data-reg-refresh>${icon('i-refresh')}Refresh</button>
@@ -4354,6 +4396,7 @@ function renderRegQueue(){
   host.querySelectorAll('[data-reg-filter]').forEach(b=>b.onclick=()=>{ REG_FILTER=b.dataset.regFilter; renderRegQueue(); });
   host.querySelector('[data-reg-refresh]').onclick=()=>openRegQueue(REG_HOST);
   host.querySelector('[data-reg-search]').oninput=deb(renderRegRows,150);
+  host.querySelector('[data-reg-disc]').onchange=e=>{ REG_DISC=e.target.value; renderRegRows(); };
   host.querySelector('[data-reg-level]').onchange=e=>{ REG_LEVEL=e.target.value; renderRegRows(); };
   host.querySelector('[data-reg-campus]').onchange=e=>{ REG_CAMPUS=e.target.value; renderRegRows(); };
   renderRegRows();
@@ -4368,12 +4411,13 @@ function renderRegRows(){
     if(REG_FILTER==='registered' && r.status!=='registered') return false;
     if(REG_FILTER==='ended' && !['declined','closed'].includes(r.status)) return false;
     if(!levelMatch(r.level,REG_LEVEL)) return false;
+    if(regDiscF() && !regDisciplines(r.discipline).includes(regDiscF())) return false;
     if(REG_CAMPUS && !(r.campusIds||[]).includes(REG_CAMPUS)) return false;
     if(term && !`${regName(r)} ${r.email} ${r.institution} ${r.discipline} ${regCampusText(r)} ${r.id}`.toLowerCase().includes(term)) return false;
     return true;
   });
   if(!rows.length){
-    body.innerHTML=`<tr><td colspan="6" style="text-align:center;padding:36px;color:var(--text2)">${REG_FILTER==='mine'&&!term&&!REG_LEVEL&&!REG_CAMPUS?'Nothing is waiting on you right now. Use the filters above to see other registrations.':'No registrations match these filters.'}</td></tr>`;
+    body.innerHTML=`<tr><td colspan="6" style="text-align:center;padding:36px;color:var(--text2)">${REG_FILTER==='mine'&&!term&&!REG_LEVEL&&!REG_CAMPUS&&!regDiscF()?'Nothing is waiting on you right now. Use the filters above to see other registrations.':'No registrations match these filters.'}</td></tr>`;
     return;
   }
   body.innerHTML=rows.map(r=>{
@@ -4428,7 +4472,8 @@ function regActionHTML(r){
   let h='';
   if(st==='submitted'){
     if(!mine.includes('office')) return waiting('the Research Office');
-    const guess = r.endorsement?.school || (r.discipline==='Information Technology (IT)' ? 'School of IT' : ['Business','Accounting'].includes(r.discipline) ? 'School of Business' : '');
+    const rd=regDisciplines(r.discipline);
+    const guess = r.endorsement?.school || (rd.length===1 ? (rd[0]==='it'?'School of IT':'School of Business') : '');
     const docs=r.officeReview?.docs||{};
     h=box('Research Office · check and forward',`
       <p class="text-sm text-muted">Confirm the supporting documents, then send the form to the School / Division for endorsement.${r.docMethod==='email'?' <strong>The applicant chose to email the documents</strong> — check your inbox for the reference <code>'+esc(r.id)+'</code>.':' Open each link to check it works without signing in.'}</p>
@@ -4469,6 +4514,7 @@ function regActionHTML(r){
             <div class="form-group"><label>Supervisor type <span class="opt">(applied for: ${esc(r.level)})</span></label><select id="ra-type">
               ${[['both','Both (Principal & Co-Supervisor)'],['principal','Principal Supervisor Only'],['co','Co-Supervisor Only']].map(([v,l])=>`<option value="${v}" ${LEVEL_TYPE[r.level]===v?'selected':''}>${l}</option>`).join('')}</select></div>
           </div>
+          <label>Discipline(s) this supervisor covers <span class="req">*</span> <span class="opt">(applied for: ${esc(r.discipline)})</span></label><div class="mb-8">${discChecksHTML('ra-disc', regDisciplines(r.discipline))}</div>
           <label>On the supervisor list for</label><div class="sem-box mb-16" id="ra-sem-box"></div>
           <div class="form-actions"><button class="btn btn-primary" data-ra="account">${icon('i-userplus')}Create supervisor account</button></div>`);
       } else h+=waiting('an administrator to create the supervisor account');
@@ -4619,18 +4665,20 @@ async function regAct(r, act, btn){
       const dn=v('ra-name'), email=v('ra-email'), pass=el('ra-pass').value, campus=v('ra-campus'), type=v('ra-type'), semesters=readSemChecks('ra-sem-box');
       if(!dn || !email){ fail('Display name and sign-in email are required.'); return; }
       if(pass.length<6){ fail('Set a temporary password of at least 6 characters.'); return; }
+      const disciplines=readDiscChecks('ra-disc');
+      if(!disciplines.length){ fail('Tick the discipline(s) this supervisor covers — Business, IT or both.'); return; }
       if(type!=='co' && !campus){ fail('Choose a campus — principal supervisors can only take students from their own campus.'); return; }
       if(Array.isArray(semesters) && !semesters.length && !confirm('No semester is ticked, so this supervisor will not appear in any semester\'s list yet. Continue?')) return;
       const pApp=provisionApp(), pAuth=getAuth(pApp);
       let cred;
       try{ cred=await createUserWithEmailAndPassword(pAuth,email,pass); }
       catch(e){ fail(String(e.code||'').includes('email-already-in-use') ? 'A sign-in account already exists for that email address.' : 'Could not create the account: '+String(e.message||'').replace('Firebase:','').trim()); return; }
-      const profile={name:dn,email,altEmail:'',campus,supervisorType:type,role:'supervisor',semesters,registrationId:r.id};
+      const profile={name:dn,email,altEmail:'',campus,supervisorType:type,role:'supervisor',semesters,disciplines,registrationId:r.id};
       try{ await setDoc(doc(getFirestore(pApp),'users',cred.user.uid),profile); }
       catch(err){ await setDoc(doc(db,'users',cred.user.uid),profile); }
       finally{ await signOut(pAuth).catch(()=>{}); }
       const campusName=CAMPUSES.find(c=>c.id===campus)?.name||'—';
-      logAct('sup.add', dn, `${email} · ${campusName} · ${type} · from registration`, cred.user.uid);
+      logAct('sup.add', dn, `${email} · ${campusName} · ${type} · ${disciplines.map(discLabel).join(' & ')} · from registration`, cred.user.uid);
       await regSave(r,{status:'registered',account:{uid:cred.user.uid,at:Timestamp.now(),by:ME.uid}},'account',`${email} · ${campusName} · ${type}`,email);
       const snap=await getDocs(query(collection(db,'users'),where('role','==','supervisor'))); SUPS=snap.docs.map(d=>({id:d.id,...d.data()}));
       renderSupervisorsList(); renderPrefDropdown(); renderOfficers();
@@ -4932,7 +4980,7 @@ function staffRoleBadges(u){
   const r=userRole(u), t=u.supervisorType||'both';
   const typeLbl={co:'Co-supervisor',principal:'Principal',both:'Principal & co'};
   let h = r==='admin' ? `<span class="badge badge-blue">${icon('i-shield','ic-sm')}Administrator</span>`
-        : r==='supervisor' ? `<span class="badge badge-green">Supervisor · ${esc(typeLbl[t]||t)}</span>`
+        : r==='supervisor' ? `<span class="badge badge-green">Supervisor · ${esc(typeLbl[t]||t)}</span> ${supDiscBadges(u)}`
         : r==='officer' ? `<span class="badge badge-purple">Review-only officer</span>`
         : `<span class="badge badge-gray">${esc(r)}</span>`;
   (u.officeRoles||[]).forEach(k=>h+=` <span class="badge badge-gray" title="Registration review stage">${esc(STAGES[k]||k)}</span>`);
@@ -5072,12 +5120,12 @@ document.addEventListener('click',e=>{
   e.preventDefault(); gotoAdminTab(a.dataset.gotoTab);
 });
 function syncSemEyebrows(){
-  document.querySelectorAll('[data-sem-eyebrow]').forEach(e=>e.textContent='Per semester · '+(adminSemester?semesterLabel(adminSemester):'all semesters'));
+  document.querySelectorAll('[data-sem-eyebrow]').forEach(e=>e.textContent='Per semester · '+(adminSemester?semesterLabel(adminSemester):'all semesters')+(typeof discCtx==='function'?discCtx():''));
 }
 async function renderOverview(){
   const host=el('overview-host'); if(!host || !PROFILE) return;
   syncSemEyebrows();
-  setTxt('ov-sem', 'Overview · '+(adminSemester?semesterLabel(adminSemester):'All semesters'));
+  setTxt('ov-sem', 'Overview · '+(adminSemester?semesterLabel(adminSemester):'All semesters')+discCtx());
   const hr=new Date().getHours();
   setTxt('ov-greet', `${hr<12?'Good morning':hr<18?'Good afternoon':'Good evening'}, ${studentFirstName({name:PROFILE.name||PROFILE.email})}`);
 
@@ -5085,7 +5133,9 @@ async function renderOverview(){
   const total=studs.length, pA=studs.filter(s=>s.principalSupervisorId).length, cA=studs.filter(s=>s.coSupervisorId).length;
   const needCo=studs.filter(s=>s.principalSupervisorId && !s.coSupervisorId).length;
   const maxP=SETTINGS.maxPrincipal||6, maxC=SETTINGS.maxCo||6;
-  const listed=SUPS.filter(s=>!s.disabled && supInSemester(s,adminSemester));
+  const listed=SUPS.filter(s=>!s.disabled && supInSemester(s,adminSemester) && (adminDiscipline==='all' || supTeaches(s,adminDiscipline)));
+  const semStuds=(adminSemester?STUDENTS.filter(s=>s.semester===adminSemester):STUDENTS).filter(s=>s.active!==false);
+  const noDisc=semStuds.filter(s=>!s.discipline).length, supNoDisc=SUPS.filter(s=>!s.disabled && !supDisc(s)).length;
   const pc={}, cc={};
   studs.forEach(s=>{ if(s.principalSupervisorId) pc[s.principalSupervisorId]=(pc[s.principalSupervisorId]||0)+1; if(s.coSupervisorId) cc[s.coSupervisorId]=(cc[s.coSupervisorId]||0)+1; });
   const atLimit=listed.filter(s=>(pc[s.id]||0)>=maxP || (cc[s.id]||0)>=maxC).length;
@@ -5108,6 +5158,8 @@ async function renderOverview(){
   item(needCo,'amber',`Student${needCo===1?'':'s'} still needing a co-supervisor`,'They have a principal supervisor but no co-supervisor yet.','tab-allocations','Allocations');
   if(SUPS.length && !listed.length) att.push(`<div class="att-row"><span class="att-n t-red">0</span><div><div class="att-t">Nobody is on this semester's supervisor list</div><div class="att-s">Add supervisors to the list, or copy it from another semester.</div></div><button class="btn btn-sm" data-goto-tab="tab-supervisors">Supervisors${icon('i-arrow')}</button></div>`);
   item(atLimit,'red',`Supervisor${atLimit===1?'':'s'} at their limit`,`Principal limit ${maxP}, co-supervisor limit ${maxC} per semester.`,'tab-by-supervisor','By supervisor');
+  item(noDisc,'red',`Student${noDisc===1?'':'s'} without a discipline`,'Set Business or IT so only matching supervisors are offered. Settings has a quick fix.','tab-settings','Fix in Settings');
+  item(supNoDisc,'amber',`Supervisor${supNoDisc===1?'':'s'} without a discipline`,'Until set, they are offered for both Business and IT students.','tab-supervisors','Supervisors');
   item(orphans,'red',`Student${orphans===1?'':'s'} without a semester`,'They do not appear in any semester view until assigned.','tab-settings','Fix in Settings');
 
   const campusRows=[...CAMPUSES.map(c=>({c,l:studs.filter(s=>s.campus===c.id)})), {c:{name:'No campus'},l:studs.filter(s=>!s.campus || !CAMPUSES.some(c=>c.id===s.campus))}]
@@ -5127,7 +5179,13 @@ async function renderOverview(){
         <div class="att-list">${att.length?att.join(''):`<div class="all-clear"><span class="att-n t-green">${icon('i-check')}</span><div><div class="att-t" style="color:var(--text)">All clear</div><div class="att-s">Every active student has both supervisors and nothing is waiting on you.</div></div></div>`}</div>
       </div>
       <div class="card">
-        <div class="card-header" style="margin-bottom:10px"><h3>${icon('i-building')}By campus</h3><button class="card-link" data-goto-tab="tab-allocations">Open allocations</button></div>
+        <div class="card-header" style="margin-bottom:10px"><h3>${icon('i-layers')}By discipline</h3></div>
+        <div class="tw mb-16"><table><thead><tr><th>Discipline</th><th>Students</th><th>Principal</th><th>Co-supervisor</th><th>Supervisors listed</th><th style="min-width:110px">Progress</th></tr></thead><tbody>${[...DISCIPLINES.map(d=>({d,l:semStuds.filter(s=>s.discipline===d.id)})),{d:{id:'',short:'Not set'},l:semStuds.filter(s=>!s.discipline)}].filter(x=>x.d.id||x.l.length).map(({d,l})=>{
+          const p=l.filter(s=>s.principalSupervisorId).length, co=l.filter(s=>s.coSupervisorId).length;
+          const sl=d.id?SUPS.filter(x=>!x.disabled && supInSemester(x,adminSemester) && supTeaches(x,d.id)).length:'—';
+          return `<tr><td>${d.id?discBadge(d.id):'<span class="badge badge-amber">Not set</span>'}</td><td>${l.length}</td><td>${p} / ${l.length}</td><td>${co} / ${l.length}</td><td>${sl}</td><td><div class="mini-bar" title="${pct(p,l.length)}% have a principal supervisor"><span style="width:${pct(p,l.length)}%"></span></div></td></tr>`;
+        }).join('')}</tbody></table></div>
+        <div class="card-header" style="margin-bottom:10px"><h3>${icon('i-building')}By campus${adminDiscipline!=='all'?` <span class="text-xs text-muted">· ${esc(discLabel(adminDiscipline))}</span>`:''}</h3><button class="card-link" data-goto-tab="tab-allocations">Open allocations</button></div>
         ${campusRows.length?`<div class="tw"><table><thead><tr><th>Campus</th><th>Students</th><th>Principal</th><th>Co-supervisor</th><th style="min-width:110px">Progress</th></tr></thead><tbody>${campusRows.map(({c,l})=>{
           const p=l.filter(s=>s.principalSupervisorId).length, co=l.filter(s=>s.coSupervisorId).length;
           return `<tr><td style="white-space:nowrap"><div class="fw-600">${esc(c.name)}</div>${c.location?`<div class="text-xs text-muted">${esc(c.location)}</div>`:''}</td><td>${l.length}</td><td>${p} / ${l.length}</td><td>${co} / ${l.length}</td><td><div class="mini-bar" title="${pct(p,l.length)}% have a principal supervisor"><span style="width:${pct(p,l.length)}%"></span></div></td></tr>`;
@@ -5151,6 +5209,7 @@ let svFilter='all';
 function svScoped(){
   let l=(svSemester ? STUDENTS.filter(s=>s.semester===svSemester) : STUDENTS).filter(s=>s.active!==false);
   if(svCampus!=='all') l=l.filter(s=>s.campus===svCampus);
+  if(svDisc!=='all') l=l.filter(s=>s.discipline===svDisc);
   return l;
 }
 const SV_FILTERS=[
@@ -5179,6 +5238,105 @@ window.svViewSummary=id=>{
   el('modal-summary-body').textContent=s.proposalSummary||'No summary available.';
   el('summary-modal').classList.remove('hidden');
 };
+
+/* ══════════════════════════════════════════════════════════
+   DISCIPLINES — Business and IT
+   Students carry `discipline` ('business' | 'it'). Supervisors carry
+   `disciplines` (array). A supervisor with no disciplines set (older
+   accounts) is treated as able to supervise both until an admin sets it.
+   Supervisors are only offered for students in a discipline they cover.
+══════════════════════════════════════════════════════════ */
+const DISCIPLINES=[{id:'business',label:'Business',short:'Business'},{id:'it',label:'Information Technology (IT)',short:'IT'}];
+const discLabel=id=>DISCIPLINES.find(d=>d.id===id)?.short||'';
+const discLong=id=>DISCIPLINES.find(d=>d.id===id)?.label||'';
+function normDiscipline(t){
+  const s=String(t||'').trim().toLowerCase();
+  if(!s) return '';
+  if(s==='it'||s.includes('information tech')||s.includes('computing')||s.includes('computer')||/(^|[^a-z])it([^a-z]|$)/.test(s)) return 'it';
+  if(s.includes('business')||s.includes('accounting')||s.includes('management')||s.includes('mba')) return 'business';
+  return '';
+}
+/* Registration-form answer → discipline ids. */
+function regDisciplines(t){
+  const s=String(t||'').toLowerCase();
+  if(s.includes('both')) return ['business','it'];
+  const d=normDiscipline(t); return d?[d]:[];
+}
+const supDisc=sup=>Array.isArray(sup?.disciplines)&&sup.disciplines.length ? sup.disciplines : null;
+const supTeaches=(sup,disc)=>!disc || !supDisc(sup) || supDisc(sup).includes(disc);
+function discBadge(id,cls=''){ return id?`<span class="badge disc-${id} ${cls}">${esc(discLabel(id))}</span>`:''; }
+function supDiscBadges(sup){
+  const d=supDisc(sup);
+  return d ? d.map(x=>discBadge(x)).join(' ') : `<span class="badge badge-amber" title="Set the discipline(s) this supervisor covers">Discipline not set</span>`;
+}
+/* Checkbox pair used in the supervisor form and the account-from-registration form. */
+function discChecksHTML(prefix, value){
+  return DISCIPLINES.map(d=>`<label class="check-row" style="margin-right:18px;display:inline-flex"><input type="checkbox" id="${prefix}-${d.id}" ${value&&value.includes(d.id)?'checked':''}/> <span>${esc(d.label)}</span></label>`).join('');
+}
+const readDiscChecks=prefix=>DISCIPLINES.filter(d=>el(`${prefix}-${d.id}`)?.checked).map(d=>d.id);
+
+/* ── Admin: one discipline filter for the whole console (next to the semester) ── */
+let adminDiscipline='all';
+try{ const v=localStorage.getItem('as-disc'); if(v==='business'||v==='it') adminDiscipline=v; }catch{}
+function initAdminDisciplinePicker(){
+  const p=el('admin-discipline-picker'); if(!p) return;
+  p.innerHTML=`<option value="all">All disciplines</option>`+DISCIPLINES.map(d=>`<option value="${d.id}">${esc(d.short)}</option>`).join('');
+  p.value=adminDiscipline;
+  p.onchange=()=>{
+    adminDiscipline=p.value;
+    try{ localStorage.setItem('as-disc',adminDiscipline); }catch{}
+    renderStudentsList(scopedStudentsForAdmin());
+    if(el('tab-allocations').classList.contains('active')) renderAllocations();
+    if(el('tab-by-supervisor').classList.contains('active')) renderBySupervisor();
+    renderSupervisorsList(); syncSemEyebrows(); refreshDiscBackfill();
+    if(el('s-discipline') && !el('s-edit-id').value && adminDiscipline!=='all') el('s-discipline').value=adminDiscipline;
+    if(el('tab-overview').classList.contains('active')) renderOverview();
+    toast(adminDiscipline==='all'?'Showing all disciplines':'Showing '+discLabel(adminDiscipline)+' only','info',2000);
+  };
+}
+const discCtx=()=>adminDiscipline==='all'?'':' · '+discLabel(adminDiscipline);
+
+/* ── Settings: give a discipline to students who have none ── */
+function refreshDiscBackfill(){
+  const c=el('disc-backfill-count'); if(!c) return;
+  const pool=el('disc-backfill-sem')?.checked && adminSemester ? STUDENTS.filter(s=>s.semester===adminSemester) : STUDENTS;
+  const n=pool.filter(s=>!s.discipline).length;
+  c.className='alert mb-16 '+(n?'alert-warning':'alert-success');
+  c.innerHTML = n ? `<strong>${n}</strong> student(s) ${el('disc-backfill-sem')?.checked&&adminSemester?`in ${esc(semesterLabel(adminSemester))} `:''}have no discipline. Until they do, any supervisor can be chosen for them.` : 'Every student has a discipline.';
+  el('disc-backfill-btn').disabled=!n;
+}
+function initDiscBackfill(){
+  if(!el('disc-backfill-btn')) return;
+  el('disc-backfill-target').innerHTML=DISCIPLINES.map(d=>`<option value="${d.id}">${esc(d.label)}</option>`).join('');
+  el('disc-backfill-sem').onchange=refreshDiscBackfill;
+  el('disc-backfill-btn').onclick=async()=>{
+    const target=el('disc-backfill-target').value;
+    const pool=el('disc-backfill-sem').checked && adminSemester ? STUDENTS.filter(s=>s.semester===adminSemester) : STUDENTS;
+    const list=pool.filter(s=>!s.discipline);
+    if(!list.length) return;
+    if(!confirm(`Set the discipline of ${list.length} student(s) to ${discLong(target)}?`)) return;
+    try{
+      for(let i=0;i<list.length;i+=400){ const b=writeBatch(db); list.slice(i,i+400).forEach(s=>b.update(doc(db,'students',s.id),{discipline:target})); await b.commit(); }
+      list.forEach(s=>s.discipline=target);
+      logAct('student.backfill', `${list.length} students`, `Discipline: ${discLabel(target)}`);
+      refreshDiscBackfill(); renderStudentsList(scopedStudentsForAdmin());
+      toast(`${list.length} student(s) set to ${discLabel(target)}`,'success');
+    }catch(e){ toast('Error: '+e.message,'error'); }
+  };
+  refreshDiscBackfill();
+}
+
+/* ── Supervisor workspace: discipline tabs ── */
+let svDisc='all';
+function buildSVDiscPills(){
+  const box=el('sv-disc-pills'); if(!box) return;
+  const mine=PROFILE?.role==='admin' ? null : supDisc(PROFILE);
+  if(mine && mine.length===1){ svDisc=mine[0]; box.innerHTML=`<span class="badge disc-${mine[0]}" style="font-size:12.5px;padding:4px 12px">${esc(discLong(mine[0]))}</span>`; return; }
+  const opts=[['all','All disciplines'],...DISCIPLINES.map(d=>[d.id,d.short])];
+  if(!opts.some(o=>o[0]===svDisc)) svDisc='all';
+  box.innerHTML=opts.map(([k,l])=>`<button class="campus-pill ${svDisc===k?'active':''}" data-svdisc="${k}">${esc(l)}</button>`).join('');
+  box.querySelectorAll('[data-svdisc]').forEach(b=>b.onclick=()=>{ svDisc=b.dataset.svdisc; buildSVDiscPills(); svRefresh(); });
+}
 
 </script>
 </body>
