@@ -453,6 +453,10 @@ tr.row-mine td:first-child{box-shadow:inset 3px 0 0 var(--primary)}
 @media(max-width:860px){ .g4{grid-template-columns:1fr} .ctx-picker.disc-picker{min-width:0;max-width:130px} }
 .disc-sm{font-size:10.5px;padding:0 7px;line-height:1.55;margin-left:3px;vertical-align:1px}
 @media(min-width:861px){ .ctx-picker.disc-picker{max-width:170px} #admin-semester-picker{min-width:240px} }
+.assign-bar{display:flex;align-items:center;gap:10px;flex-wrap:wrap;margin-top:12px;padding:9px 12px;background:var(--bg3);border:1px solid var(--border);border-radius:10px}
+.assign-bar label{display:inline-flex;align-items:center;gap:6px;margin:0;font-size:12.5px;color:var(--text)}
+.assign-bar select{width:auto;min-width:260px;height:32px;font-size:12.5px}
+.step.skip{border-style:dashed;color:var(--text3);background:transparent}
 /* ───────────── Supervisor registration ───────────── */
 .reg-wrap{max-width:880px;margin:0 auto;padding:44px 16px 24px}
 .reg-wrap .card{margin-bottom:16px}
@@ -756,7 +760,7 @@ tr.row-mine td:first-child{box-shadow:inset 3px 0 0 var(--primary)}
           <input type="email" id="login-email" placeholder="you@university.edu" autocomplete="email"/>
         </div>
         <div class="form-group">
-          <label for="login-password">Password</label>
+          <div class="flex items-center justify-between"><label for="login-password">Password</label><button type="button" class="read-more-btn" id="forgot-btn" style="margin:0 0 6px">Forgot password?</button></div>
           <input type="password" id="login-password" placeholder="••••••••" autocomplete="current-password"/>
         </div>
         <button class="btn btn-primary login-submit" id="login-btn">Sign in</button>
@@ -901,19 +905,20 @@ tr.row-mine td:first-child{box-shadow:inset 3px 0 0 var(--primary)}
     <aside class="sidebar" id="admin-sidebar">
       <div class="sidebar-section">Workspace</div>
       <div class="sidebar-item active" data-tab="tab-overview"><svg class="ic"><use href="#i-sliders"/></svg>Overview</div>
-      <div class="sidebar-section">Setup</div>
-      <div class="sidebar-item" data-tab="tab-semesters"><svg class="ic"><use href="#i-cal"/></svg>Semesters</div>
-      <div class="sidebar-item" data-tab="tab-campuses"><svg class="ic"><use href="#i-building"/></svg>Campuses</div>
-      <div class="sidebar-item" data-tab="tab-supervisors"><svg class="ic"><use href="#i-users"/></svg>Supervisors</div>
-      <div class="sidebar-item" data-tab="tab-staff"><svg class="ic"><use href="#i-shield"/></svg>Staff</div>
+      <div class="sidebar-section">Supervisors</div>
       <div class="sidebar-item" data-tab="tab-registrations"><svg class="ic"><use href="#i-userplus"/></svg>Registrations<span class="nav-count hidden" id="reg-nav-count"></span></div>
-      <div class="sidebar-section">Per semester</div>
+      <div class="sidebar-item" data-tab="tab-pool"><svg class="ic"><use href="#i-users"/></svg>Supervisor pool</div>
+      <div class="sidebar-item" data-tab="tab-supervisors"><svg class="ic"><use href="#i-user"/></svg>Supervisor accounts</div>
+      <div class="sidebar-section">Students &amp; allocation</div>
       <div class="sidebar-item" data-tab="tab-students"><svg class="ic"><use href="#i-cap"/></svg>Students</div>
       <div class="sidebar-item" data-tab="tab-allocations"><svg class="ic"><use href="#i-clip"/></svg>Allocations</div>
       <div class="sidebar-item" data-tab="tab-by-supervisor"><svg class="ic"><use href="#i-layers"/></svg>By supervisor</div>
-      <div class="sidebar-section">System</div>
+      <div class="sidebar-section">Settings</div>
+      <div class="sidebar-item" data-tab="tab-semesters"><svg class="ic"><use href="#i-cal"/></svg>Semesters</div>
+      <div class="sidebar-item" data-tab="tab-campuses"><svg class="ic"><use href="#i-building"/></svg>Campuses</div>
+      <div class="sidebar-item" data-tab="tab-staff"><svg class="ic"><use href="#i-shield"/></svg>Staff &amp; access</div>
+      <div class="sidebar-item" data-tab="tab-settings"><svg class="ic"><use href="#i-gear"/></svg>General settings</div>
       <div class="sidebar-item" data-tab="tab-activity"><svg class="ic"><use href="#i-history"/></svg>Activity log</div>
-      <div class="sidebar-item" data-tab="tab-settings"><svg class="ic"><use href="#i-gear"/></svg>Settings</div>
       <div class="sidebar-foot">
         <div class="side-share">
           <div class="ss-t"><svg class="ic ic-sm"><use href="#i-link"/></svg>Assign Supervisor link</div>
@@ -944,7 +949,7 @@ tr.row-mine td:first-child{box-shadow:inset 3px 0 0 var(--primary)}
       <!-- SEMESTERS -->
       <div id="tab-semesters" class="tab-panel">
         <div class="page-head"><div>
-          <span class="eyebrow">Setup</span>
+          <span class="eyebrow">Settings</span>
           <h2>Semesters</h2>
           <p>Semesters scope <strong>students, allocations and the supervisor list</strong>; campuses are reused across every semester. The <strong>Active</strong> semester is everyone's default working context.</p>
         </div></div>
@@ -967,7 +972,7 @@ tr.row-mine td:first-child{box-shadow:inset 3px 0 0 var(--primary)}
       <!-- CAMPUSES -->
       <div id="tab-campuses" class="tab-panel">
         <div class="page-head"><div>
-          <span class="eyebrow">Setup</span>
+          <span class="eyebrow">Settings</span>
           <h2>Campuses</h2>
           <p>Principal supervisors can only take students from their own campus. Co-supervisors can work across campuses.</p>
         </div></div>
@@ -991,9 +996,9 @@ tr.row-mine td:first-child{box-shadow:inset 3px 0 0 var(--primary)}
       <!-- SUPERVISORS -->
       <div id="tab-supervisors" class="tab-panel">
         <div class="page-head"><div>
-          <span class="eyebrow">Setup</span>
-          <h2>Supervisors</h2>
-          <p>Set each supervisor's campus, role and the semesters they are listed for, and send them the link to sign in. New accounts come from approved registrations.</p>
+          <span class="eyebrow">Supervisors</span>
+          <h2>Supervisor accounts</h2>
+          <p>Supervisors who can sign in. Accounts are created when someone is <strong>invited from the <a href="#" data-goto-tab="tab-pool">supervisor pool</a></strong>; the pool also manages who is on each semester's list. Here you can edit a supervisor's campus, type, disciplines and semesters, or disable an account.</p>
         </div></div>
 
         <div class="card share-card mb-16">
@@ -1013,7 +1018,7 @@ tr.row-mine td:first-child{box-shadow:inset 3px 0 0 var(--primary)}
           <button class="btn btn-primary" id="invite-all-btn"><svg class="ic"><use href="#i-send"/></svg>Email the link to supervisors</button>
         </div>
 
-        <div class="alert alert-info mb-16 hidden" id="sup-add-locked">New supervisor accounts are created from <strong>approved registration forms</strong>. Open <a href="#" id="sup-goto-reg">Registrations</a> to review forms and create accounts. To add someone manually, turn the rule off under Registrations → Account policy.</div>
+        <div class="alert alert-info mb-16 hidden" id="sup-add-locked">New supervisor accounts are created by <strong>inviting someone from the <a href="#" data-goto-tab="tab-pool">supervisor pool</a></strong> (approved registrations join it automatically; supervisors approved earlier can be imported). See also <a href="#" id="sup-goto-reg">Registrations</a>. To add someone manually, turn the rule off under Registrations → Account policy.</div>
         <div class="card mb-16" id="sup-form-card">
           <div class="card-header"><h3 id="sup-form-title">Add supervisor</h3></div>
           <div class="g2">
@@ -1047,7 +1052,7 @@ tr.row-mine td:first-child{box-shadow:inset 3px 0 0 var(--primary)}
       <!-- STAFF (every account) -->
       <div id="tab-staff" class="tab-panel">
         <div class="page-head"><div>
-          <span class="eyebrow">Setup</span>
+          <span class="eyebrow">Settings</span>
           <h2>Staff</h2>
           <p>Every account that can sign in: <strong>administrators</strong>, <strong>supervisors</strong> and <strong>review-only officers</strong> (Research Office, School / Division, Associate Dean Research / RSC). Change roles, enable or disable accounts, and add administrators here.</p>
         </div></div>
@@ -1065,12 +1070,36 @@ tr.row-mine td:first-child{box-shadow:inset 3px 0 0 var(--primary)}
         </div>
       </div>
 
+      <!-- SUPERVISOR POOL -->
+      <div id="tab-pool" class="tab-panel">
+        <div class="page-head"><div>
+          <span class="eyebrow">Supervisors</span>
+          <h2>Supervisor pool</h2>
+          <p>Everyone approved to supervise: approved registrations join automatically, and supervisors approved before this system can be imported or added. For each semester the <strong>Associate Dean Research</strong> or an administrator <strong>selects</strong> who will supervise, then an administrator <strong>invites</strong> them. A sign-in account is created only on invitation.</p>
+        </div></div>
+        <div id="admin-pool-host"></div>
+        <div class="grid-2 mt-16" id="pool-admin-tools">
+          <div class="card">
+            <div class="card-header"><h3><svg class="ic"><use href="#i-upload"/></svg>Import existing supervisors</h3><button class="btn btn-sm" id="pool-template-btn"><svg class="ic"><use href="#i-download"/></svg>CSV template</button></div>
+            <p class="card-sub">For supervisors approved before registrations were kept here. Columns: <code class="chip-code">Title, First Name, Last Name, Email, Phone, Discipline, Supervision Level, Campus, Institution, Position, Research Areas, Notes</code>. Discipline is <em>Business</em>, <em>IT</em> or <em>Both</em>; Supervision Level is <em>Principal</em>, <em>Associate</em>, <em>Both</em> or <em>Industry</em>; separate several campuses with <code>;</code>. Anyone already in the pool (same email) is skipped.</p>
+            <div id="pool-drop" class="drop-zone"><div class="dz-ic"><svg class="ic ic-lg"><use href="#i-file"/></svg></div><div class="fw-600" style="color:var(--text)">Drop a CSV file here or click to browse</div><div class="text-xs" style="margin-top:2px">You'll see a preview before anything is imported</div></div>
+            <input type="file" id="pool-csv" accept=".csv" style="display:none"/>
+            <div id="pool-import-preview" class="mt-16 hidden"></div>
+          </div>
+          <div class="card">
+            <div class="card-header"><h3><svg class="ic"><use href="#i-userplus"/></svg>Add a supervisor</h3></div>
+            <p class="card-sub">Add one person who was approved outside this system.</p>
+            <button class="btn btn-primary" id="pool-add-btn"><svg class="ic"><use href="#i-userplus"/></svg>Add to the pool</button>
+          </div>
+        </div>
+      </div>
+
       <!-- REGISTRATIONS -->
       <div id="tab-registrations" class="tab-panel">
         <div class="page-head"><div>
-          <span class="eyebrow">Setup</span>
+          <span class="eyebrow">Supervisors</span>
           <h2>Supervisor registrations</h2>
-          <p>Prospective supervisors fill in the registration form. Each form moves from the <strong>Research Office</strong> to the <strong>School / Division</strong> for endorsement, then to the <strong>Associate Dean Research / RSC</strong> for a decision. A sign-in account is created only after approval.</p>
+          <p>Prospective supervisors fill in the registration form. Each form goes to the <strong>Course Coordinator / Research Officer</strong> of its school, then — only where an admin requires it — the <strong>Head of School</strong> for endorsement, then the <strong>Associate Dean Research / RSC</strong> for a decision. Approved supervisors join the <a href="#" data-goto-tab="tab-pool">supervisor pool</a>; a sign-in account is created only when they are invited for a semester. Open a form to <strong>assign</strong> it to a specific person.</p>
         </div></div>
 
         <div class="card share-card mb-16">
@@ -1107,12 +1136,13 @@ tr.row-mine td:first-child{box-shadow:inset 3px 0 0 var(--primary)}
               <div class="form-group"><label>Password</label><input type="password" id="of-pass" placeholder="Min. 6 characters" autocomplete="new-password"/></div>
             </div>
             <label>Stages this person handles</label>
-            <label class="check-row"><input type="checkbox" id="of-r-office"/> <span><strong>Research Office</strong> — checks documents, forwards the form, keeps the office checklist</span></label>
-            <label class="check-row"><input type="checkbox" id="of-r-school"/> <span><strong>School / Division</strong> — endorses the form (Section 6)</span></label>
+            <label class="check-row"><input type="checkbox" id="of-r-office"/> <span><strong>Course Coordinator / Research Officer</strong> — checks documents, forwards the form, keeps the office checklist</span></label>
+            <label class="check-row"><input type="checkbox" id="of-r-school"/> <span><strong>Head of School / Division</strong> — endorses the form (Section 6), only for schools where endorsement is required</span></label>
             <label class="check-row"><input type="checkbox" id="of-r-adr"/> <span><strong>Associate Dean Research / RSC</strong> — records the registration outcome (Section 7)</span></label>
             <div class="form-group mt-8">
-              <label>School / Division <span class="opt">(only limits which endorsements they see)</span></label>
+              <label>School / Division</label>
               <select id="of-school"><option value="">Any school / division</option></select>
+              <p class="hint">Limits the <strong>Course Coordinator / Research Officer</strong> and <strong>Head of School</strong> stages to that school's forms (e.g. the Business course coordinator only gets Business forms). Leave it as <em>Any</em> for someone who handles every school, such as the Associate Dean Research.</p>
             </div>
             <div class="form-actions">
               <button class="btn btn-primary" id="of-save-btn">Save officer</button>
@@ -1122,8 +1152,11 @@ tr.row-mine td:first-child{box-shadow:inset 3px 0 0 var(--primary)}
           </div>
 
           <div class="card">
-            <div class="card-header"><h3><svg class="ic"><use href="#i-userplus"/></svg>Account policy</h3></div>
-            <label class="check-row"><input type="checkbox" id="set-require-reg"/> <span><strong>Only create supervisor accounts from approved registrations</strong><br><span class="text-muted text-sm">When on, the manual "Add supervisor" form is hidden. New accounts are created from the <em>Approved</em> queue above. Existing supervisors are not affected.</span></span></label>
+            <div class="card-header"><h3><svg class="ic"><use href="#i-layers"/></svg>Head of School endorsement</h3></div>
+            <p class="card-sub">Optional, per school. When ticked, that school's forms go from the Course Coordinator / Research Officer to the <strong>Head of School</strong> for endorsement before the Associate Dean Research. When not ticked, they go <strong>straight to the Associate Dean Research / RSC</strong>.</p>
+            <div id="hos-settings" class="mb-16"></div>
+            <div class="card-header" style="border-top:1px solid var(--border);padding-top:16px"><h3><svg class="ic"><use href="#i-userplus"/></svg>Account policy</h3></div>
+            <label class="check-row"><input type="checkbox" id="set-require-reg"/> <span><strong>Only create supervisor accounts through the supervisor pool</strong><br><span class="text-muted text-sm">When on, the manual "Add supervisor" form is hidden. Accounts are created when someone in the pool is invited for a semester. Existing supervisors are not affected.</span></span></label>
             <div class="alert alert-info mt-16" style="font-size:12.5px">This app has no mail server, so nothing is emailed automatically. After each step you are offered a pre-filled email to the next office, and each officer sees their queue when they sign in.</div>
           </div>
         </div>
@@ -1260,7 +1293,7 @@ tr.row-mine td:first-child{box-shadow:inset 3px 0 0 var(--primary)}
       <div id="tab-activity" class="tab-panel">
         <div class="page-head">
           <div>
-            <span class="eyebrow">System</span>
+            <span class="eyebrow">Settings</span>
             <h2>Activity log</h2>
             <p>Who assigned a supervisor or changed a record, and when. Only changes are recorded — no sign-ins or page views — and old entries are removed automatically to keep storage small.</p>
           </div>
@@ -1286,7 +1319,7 @@ tr.row-mine td:first-child{box-shadow:inset 3px 0 0 var(--primary)}
               <option value="alloc">Supervisor assignments</option>
               <option value="student">Students</option>
               <option value="sup">Supervisors</option>
-              <option value="reg">Registrations</option>
+              <option value="reg">Registrations &amp; pool</option>
               <option value="setup">Campuses &amp; semesters</option>
               <option value="system">Settings, staff &amp; admin</option>
             </select>
@@ -1311,8 +1344,8 @@ tr.row-mine td:first-child{box-shadow:inset 3px 0 0 var(--primary)}
       <!-- SETTINGS -->
       <div id="tab-settings" class="tab-panel">
         <div class="page-head"><div>
-          <span class="eyebrow">System</span>
-          <h2>Settings</h2>
+          <span class="eyebrow">Settings</span>
+          <h2>General settings</h2>
           <p>How allocation works, supervision limits, disciplines, activity-log retention and admin access.</p>
         </div></div>
         <div class="grid-2">
@@ -1442,11 +1475,13 @@ tr.row-mine td:first-child{box-shadow:inset 3px 0 0 var(--primary)}
     <div class="sv-hero">
       <div>
         <span class="eyebrow">Registration review</span>
-        <h1 style="margin-top:4px">Supervisor registrations</h1>
+        <h1 style="margin-top:4px">Supervisor registrations &amp; pool</h1>
         <p id="rv-roles">—</p>
       </div>
+      <div id="rv-tabs" class="campus-pills"></div>
     </div>
     <div id="review-host"></div>
+    <div id="review-pool-host" class="hidden"></div>
   </div>
   <footer class="app-foot">Assign Supervisor · supervisor registration &amp; student allocation &nbsp;·&nbsp; Attendance, CoC, thesis examination &amp; appeals: <a data-shub-link href="https://secureintelligencelab.github.io/supervision-hub/" target="_blank" rel="noopener">Supervision Hub ↗</a></footer>
 </div>
@@ -1605,12 +1640,12 @@ tr.row-mine td:first-child{box-shadow:inset 3px 0 0 var(--primary)}
 import { initializeApp }                              from "https://www.gstatic.com/firebasejs/10.12.2/firebase-app.js";
 import { getAuth, signInWithEmailAndPassword,
          signOut, onAuthStateChanged,
-         createUserWithEmailAndPassword }              from "https://www.gstatic.com/firebasejs/10.12.2/firebase-auth.js";
+         createUserWithEmailAndPassword, sendPasswordResetEmail }              from "https://www.gstatic.com/firebasejs/10.12.2/firebase-auth.js";
 import { getFirestore, collection, doc,
          getDocs, getDoc, addDoc, setDoc,
          updateDoc, deleteDoc, query, where,
          orderBy, onSnapshot, serverTimestamp,
-         writeBatch, limit, startAfter, Timestamp, arrayUnion,
+         writeBatch, limit, startAfter, Timestamp, arrayUnion, arrayRemove,
          getCountFromServer }                          from "https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore.js";
 
 /* ── Firebase init ──────────────────────────────────────── */
@@ -1771,6 +1806,7 @@ const ACT = {
   'sup.semester.remove':{v:'removed from a semester list:',      c:'sup',    i:'i-cal', t:'danger'},
   'sup.semester.copy': {v:'copied a supervisor list into',       c:'sup',    i:'i-copy'},
   'reg.forward':       {v:'forwarded for endorsement the registration of', c:'reg', i:'i-arrow'},
+  'reg.forwardAdr':    {v:'forwarded to the Associate Dean Research the registration of', c:'reg', i:'i-arrow'},
   'reg.close':         {v:'closed the registration of',         c:'reg',    i:'i-x', t:'danger'},
   'reg.endorse':       {v:'endorsed the registration of',       c:'reg',    i:'i-check'},
   'reg.return':        {v:'returned to the Research Office the registration of', c:'reg', i:'i-back'},
@@ -1786,6 +1822,15 @@ const ACT = {
   'staff.add':         {v:'created an administrator account for', c:'system', i:'i-userplus'},
   'staff.enable':      {v:'enabled the account of',             c:'system', i:'i-check'},
   'staff.disable':     {v:'disabled the account of',            c:'system', i:'i-x', t:'danger'},
+  'pool.add':          {v:'added to the supervisor pool:',       c:'reg', i:'i-userplus'},
+  'pool.import':       {v:'imported into the supervisor pool',   c:'reg', i:'i-upload'},
+  'pool.edit':         {v:'edited in the supervisor pool:',      c:'reg', i:'i-edit'},
+  'pool.select':       {v:'selected to supervise:',              c:'reg', i:'i-check'},
+  'pool.unselect':     {v:'removed from the selection:',         c:'reg', i:'i-x'},
+  'pool.invite':       {v:'invited to select students:',         c:'reg', i:'i-send'},
+  'pool.inactive':     {v:'marked inactive in the pool:',        c:'reg', i:'i-x', t:'danger'},
+  'pool.reactivate':   {v:'reactivated in the pool:',            c:'reg', i:'i-check'},
+  'pool.delete':       {v:'deleted from the supervisor pool:',   c:'reg', i:'i-trash', t:'danger'},
   'settings.edit':     {v:'changed settings',                   c:'system', i:'i-sliders'},
   'admin.promote':     {v:'made an admin:',                     c:'system', i:'i-shield'},
   'log.clear':         {v:'cleared the activity log',           c:'system', i:'i-trash', t:'danger'},
@@ -2422,6 +2467,12 @@ el('login-btn').addEventListener('click', async()=>{
   }
 });
 el('login-password').addEventListener('keydown',e=>{ if(e.key==='Enter') el('login-btn').click(); });
+el('forgot-btn').addEventListener('click',async()=>{
+  const email=el('login-email').value.trim(), errEl=el('login-error');
+  if(!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)){ errEl.textContent='Type your email address above, then press "Forgot password?".'; show('login-error'); el('login-email').focus(); return; }
+  try{ await sendPasswordResetEmail(auth,email); }catch(e){ console.warn(e); }
+  hide('login-error'); toast('If an account exists for that email, a link to set your password has been sent. Check your junk folder too.','success',7000);
+});
 
 async function doLogout(){ if(svUnsub){svUnsub();svUnsub=null;} await signOut(auth); }
 el('logout-btn-admin').addEventListener('click',doLogout);
@@ -3071,6 +3122,7 @@ async function mountAdmin(){
       if(item.dataset.tab==='tab-registrations') openRegistrationsTab();
       if(item.dataset.tab==='tab-staff') openStaffTab();
       if(item.dataset.tab==='tab-overview') renderOverview();
+      if(item.dataset.tab==='tab-pool') openPoolTab();
       closeSidebarDrawer(); // collapse the drawer on mobile after choosing
       window.scrollTo({top:0});
     };
@@ -4090,20 +4142,30 @@ const REG_OPTS={
 };
 const OUTCOME_STATUS={'Approved':'approved','Conditionally Approved':'approved','Deferred':'deferred','Rejected':'declined','Other':'deferred'};
 const LEVEL_TYPE={'Principal Supervisor':'principal','Associate Supervisor (Co-supervisor)':'co','Industry Expert (Additional Member)':'co','Both (Principal and Co-Supervisor) or Any':'both'};
-const STAGES={office:'Research Office',school:'School / Division',adr:'Associate Dean Research / RSC'};
+const STAGES={office:'Course Coordinator / Research Officer',school:'Head of School / Division',adr:'Associate Dean Research / RSC'};
+/* Head of School endorsement is optional, switched on per school by an admin
+   (settings/global.hosRequired = {'School of Business': true, …}). */
+const hosRequired=school=>!!(school && SETTINGS?.hosRequired?.[school]);
+/* Which school a form belongs to: the forwarding school once chosen, otherwise its discipline.
+   "Both Business and IT" has no school until the Research Office (or an admin) decides. */
+function regSchool(r){
+  if(r?.endorsement?.school) return r.endorsement.school;
+  const d=regDisciplines(r?.discipline);
+  return d.length===1 ? (d[0]==='it'?'School of IT':'School of Business') : '';
+}
 const REG_STATUS={
-  submitted:  {l:'With Research Office',         b:'badge-amber', stage:'office',  step:1, w:'Research Office'},
+  submitted:  {l:'With Research Officer',        b:'badge-amber', stage:'office',  step:1, w:'Course Coordinator / Research Officer'},
   returned:   {l:'Returned to applicant',        b:'badge-amber', step:1, w:'Applicant (making changes)'},
   endorsement:{l:'Awaiting School endorsement',  b:'badge-blue',  stage:'school',  step:2, w:'School / Division'},
   approval:   {l:'Awaiting ADR / RSC decision',  b:'badge-purple',stage:'adr',     step:3, w:'Associate Dean Research / RSC'},
   deferred:   {l:'Deferred / on hold',           b:'badge-gray',  stage:'adr',     step:3, w:'Associate Dean Research / RSC'},
-  approved:   {l:'Approved · account pending',   b:'badge-green', stage:'account', step:4, w:'Administrator (create account)'},
-  registered: {l:'Registered',                   b:'badge-green', step:5, w:'—'},
+  approved:   {l:'Approved · in supervisor pool', b:'badge-green', step:5, w:'— (in the supervisor pool)'},
+  registered: {l:'Approved · account created',   b:'badge-green', step:5, w:'—'},
   declined:   {l:'Not approved',                 b:'badge-red',   step:3, bad:1, w:'—'},
   closed:     {l:'Closed',                       b:'badge-gray',  step:1, bad:1, w:'—'},
 };
-const REG_STEPS=['Submitted','Research Office','School / Division endorsement','Associate Dean Research / RSC','Supervisor account'];
-const TRAIL={returnApplicant:'Returned to the applicant for changes',resubmit:'Resubmitted by the applicant',forward:'Forwarded for School / Division endorsement',close:'Closed by the Research Office',endorse:'Endorsed by the School / Division',return:'Returned to the Research Office',decide:'Decision recorded',checklist:'Office checklist updated',account:'Supervisor account created',reopen:'Reopened'};
+const REG_STEPS=['Submitted','Course Coordinator / Research Officer','Head of School endorsement','Associate Dean Research / RSC','Supervisor pool'];
+const TRAIL={forwardAdr:'Forwarded to the Associate Dean Research / RSC (Head of School endorsement not required)',assign:'Assigned by an administrator',returnApplicant:'Returned to the applicant for changes',resubmit:'Resubmitted by the applicant',forward:'Forwarded for School / Division endorsement',close:'Closed by the Research Office',endorse:'Endorsed by the School / Division',return:'Returned to the Research Office',decide:'Decision recorded',checklist:'Office checklist updated',account:'Supervisor account created',reopen:'Reopened'};
 const DECLARATIONS=[
   'I confirm that I am actively engaged in research and scholarly activities relevant to the discipline in which I seek to supervise.',
   'I have read and understood the CIHE Australia relevant policies and procedures outlined in Section 4 and agree to supervise research candidates in accordance with these requirements.',
@@ -4134,9 +4196,10 @@ function fullTrail(r){
   (r.resubmissions||[]).forEach(at=>t.push({act:'resubmit',at,who:regName(r)}));
   return t.sort((a,b)=>(tsDate(a.at)?.getTime()||0)-(tsDate(b.at)?.getTime()||0));
 }
-function regStepsHTML(status){
+function regStepsHTML(status, noHos){
   const st=REG_STATUS[status]||REG_STATUS.submitted;
   return `<div class="steps">${REG_STEPS.map((lbl,i)=>{
+    if(i===2 && noHos) return `<div class="step skip">${esc(lbl)}<small>Not required</small></div>`;
     const cls = i<st.step ? 'done' : i===st.step ? (st.bad?'bad':'now') : '';
     const sub = i<st.step ? 'Done' : i===st.step ? (st.bad ? st.l : status==='deferred' ? 'Deferred / on hold' : status==='returned' ? 'Returned to applicant' : 'In progress') : 'To come';
     return `<div class="step ${cls}">${esc(lbl)}<small>${esc(sub)}</small></div>`;
@@ -4336,7 +4399,7 @@ async function checkRegStatus(refRaw){
       endorsement:'Your form has been forwarded to the School / Division for endorsement.',
       approval:'Your form has been endorsed and is with the Associate Dean Research / RSC for a decision.',
       deferred:'A decision on your registration has been deferred. The Research Office will contact you.',
-      approved:'Your registration has been approved. Your Assign Supervisor account is being set up and the details will be emailed to you.',
+      approved:'Your registration has been approved and you have been added to the CIHE supervisor pool. Supervisors are invited semester by semester; if you are invited, you will receive an email with your sign-in details.',
       registered:'Your registration is complete and your Assign Supervisor account has been created. Sign-in details were sent to your email address.',
       declined:'Your registration was not approved. The Research Office will contact you with the details.',
       closed:'This registration was closed by the Research Office. Please contact them for details.',
@@ -4352,7 +4415,7 @@ async function checkRegStatus(refRaw){
       return;
     }
     out.innerHTML=`<div style="margin-top:6px"><div class="flex items-center gap-8" style="flex-wrap:wrap"><span class="fw-600">${esc(s.name||'Registration')}</span><span class="badge ${st.b}">${esc(s.outcome && ['approved','registered'].includes(s.status) ? s.outcome : st.l)}</span><span class="text-xs text-muted">updated ${esc(fmtDate(s.at))}</span></div>
-      ${regStepsHTML(s.status)}<p class="text-sm" style="margin-top:8px">${esc(msg)}</p></div>`;
+      ${regStepsHTML(s.status, s.noHos)}<p class="text-sm" style="margin-top:8px">${esc(msg)}</p></div>`;
   }catch(e){ out.innerHTML=`<div class="alert alert-danger">Could not check the status: ${esc(e.message)}</div>`; }
 }
 el('goto-register-link')?.addEventListener('click',e=>{ e.preventDefault(); openRegisterPortal(); });
@@ -4371,12 +4434,34 @@ const regCampusText=r=>(r.campusNames||[]).join(', ');
 const regDiscF=()=> REG_DISC!==null ? REG_DISC : (isAdminUser() && typeof adminDiscipline!=='undefined' && adminDiscipline!=='all' ? adminDiscipline : '');
 const isAdminUser=()=>PROFILE?.role==='admin';
 function myStages(){ return isAdminUser() ? ['office','school','adr'] : (PROFILE?.officeRoles||[]); }
-function regAwaitsMe(r){
-  const stage=REG_STATUS[r.status]?.stage; if(!stage) return false;
-  if(stage==='account') return isAdminUser();
+/* May the signed-in user act on this form at this stage?
+   • admins: always
+   • officers: they hold the stage; if the form is assigned to someone, it is them;
+     and for the Research Office and Head of School stages, the form is for their school
+     (an officer with no school handles every school, e.g. the Associate Dean Research). */
+function canActStage(r, stage){
+  if(isAdminUser()) return true;
   if(!myStages().includes(stage)) return false;
-  if(stage==='school' && !isAdminUser() && PROFILE?.officeSchool && r.endorsement?.school && PROFILE.officeSchool!==r.endorsement.school) return false;
+  if(r.assignee && r.assignee!==PROFILE?.uid) return false;
+  if(['office','school'].includes(stage) && PROFILE?.officeSchool && regSchool(r) && PROFILE.officeSchool!==regSchool(r)) return false;
   return true;
+}
+function regAwaitsMe(r){
+  const stage=r.status==='returned' ? null : REG_STATUS[r.status]?.stage; if(!stage) return false;
+  if(isAdminUser() && r.assignee && r.assignee!==PROFILE?.uid) return false; // assigned to someone else: theirs, not every admin's
+  return canActStage(r, stage);
+}
+const stageOfReg=r=>REG_STATUS[r.status]?.stage || (r.status==='returned'?'office':'');
+/* Who the form is with right now, for the queue and the detail view. */
+function regWithWho(r){
+  if(r.assignee) return r.assigneeName || personName(r.assignee) || 'Assigned person';
+  const stage=REG_STATUS[r.status]?.stage, sch=regSchool(r);
+  if(stage==='office' || stage==='school'){
+    const people=OFFICERS.filter(o=>!o.disabled && (o.officeRoles||[]).includes(stage) && (!o.officeSchool || !sch || o.officeSchool===sch));
+    const lbl=stage==='office' ? `Research Office${sch?' · '+sch:''}` : (sch||'Head of School');
+    return people.length===1 ? `${lbl} (${people[0].name||people[0].email})` : lbl;
+  }
+  return REG_STATUS[r.status]?.w || '—';
 }
 async function loadRegs(){
   const snap=await getDocs(collection(db,REG_COL));
@@ -4392,7 +4477,7 @@ async function loadOfficers(){
 }
 /* People to email for a stage. Falls back to admins (who can act at every stage). */
 function officersFor(stage, school){
-  const list=OFFICERS.filter(o=>!o.disabled && o.email && (o.officeRoles||[]).includes(stage) && (stage!=='school' || !o.officeSchool || !school || o.officeSchool===school));
+  const list=OFFICERS.filter(o=>!o.disabled && o.email && (o.officeRoles||[]).includes(stage) && (stage==='adr' || !o.officeSchool || !school || o.officeSchool===school));
   return list.length ? list : ADMINS.filter(a=>a.email);
 }
 function updateRegBadges(){
@@ -4407,7 +4492,7 @@ async function openRegQueue(hostId){
   ['admin-reg-host','review-host'].forEach(id=>{ if(id!==hostId && el(id)) el(id).innerHTML=''; });
   const host=el(hostId); if(!host) return;
   host.innerHTML=`<div class="card" style="text-align:center;padding:36px"><div class="spinner"></div></div>`;
-  try{ await Promise.all([loadRegs(),loadOfficers()]); renderRegQueue(); }
+  try{ await Promise.all([loadRegs(),loadOfficers(),loadPool().catch(()=>{})]); renderRegQueue(); }
   catch(e){ host.innerHTML = e.code==='permission-denied' ? REG_RULES_HINT : `<div class="alert alert-danger">Could not load registrations: ${esc(e.message)}</div>`; }
 }
 function renderRegQueue(){
@@ -4415,16 +4500,16 @@ function renderRegQueue(){
   const host=el(REG_HOST); if(!host) return;
   const n=k=>REGS.filter(r=>r.status===k).length;
   const mine=REGS.filter(regAwaitsMe).length;
-  const pills=[['mine',`Awaiting my action (${mine})`],['open','In progress'],['approved','Approved'],['registered','Registered'],['ended','Not approved / closed'],['all',`All (${REGS.length})`]];
+  const pills=[['mine',`Awaiting my action (${mine})`],['open','In progress'],['approved','Approved'],['ended','Not approved / closed'],['all',`All (${REGS.length})`]];
   const term=host.querySelector('[data-reg-search]')?.value||'';
   host.innerHTML=`
     <div class="stats-strip">
       <div class="stat-card hl"><div class="stat-val c-accent">${mine}</div><div class="stat-lbl">Awaiting my action</div></div>
       <div class="stat-card"><div class="stat-val c-amber">${n('submitted')}</div><div class="stat-lbl">With Research Office</div></div>
-      <div class="stat-card"><div class="stat-val">${n('endorsement')}</div><div class="stat-lbl">With School / Division</div></div>
+      <div class="stat-card"><div class="stat-val">${n('endorsement')}</div><div class="stat-lbl">With Head of School</div></div>
       <div class="stat-card"><div class="stat-val c-purple">${n('approval')+n('deferred')}</div><div class="stat-lbl">With ADR / RSC</div></div>
-      <div class="stat-card"><div class="stat-val c-green">${n('approved')}</div><div class="stat-lbl">Approved · account pending</div></div>
-      <div class="stat-card"><div class="stat-val">${n('registered')}</div><div class="stat-lbl">Registered</div></div>
+      <div class="stat-card"><div class="stat-val">${n('returned')}</div><div class="stat-lbl">Returned to applicant</div></div>
+      <div class="stat-card"><div class="stat-val c-green">${n('approved')+n('registered')}</div><div class="stat-lbl">Approved · in supervisor pool</div></div>
     </div>
     <div class="card table-card">
       <div class="table-toolbar">
@@ -4452,8 +4537,7 @@ function renderRegRows(){
   const rows=REGS.filter(r=>{
     if(REG_FILTER==='mine' && !regAwaitsMe(r)) return false;
     if(REG_FILTER==='open' && !['submitted','returned','endorsement','approval','deferred'].includes(r.status)) return false;
-    if(REG_FILTER==='approved' && r.status!=='approved') return false;
-    if(REG_FILTER==='registered' && r.status!=='registered') return false;
+    if(REG_FILTER==='approved' && !['approved','registered'].includes(r.status)) return false;
     if(REG_FILTER==='ended' && !['declined','closed'].includes(r.status)) return false;
     if(!levelMatch(r.level,REG_LEVEL)) return false;
     if(regDiscF() && !regDisciplines(r.discipline).includes(regDiscF())) return false;
@@ -4467,13 +4551,13 @@ function renderRegRows(){
   }
   body.innerHTML=rows.map(r=>{
     const st=REG_STATUS[r.status]||{l:r.status,b:'badge-gray',w:'—'};
-    const withWho = r.status==='endorsement' && r.endorsement?.school ? r.endorsement.school : st.w;
+    const withWho = regWithWho(r);
     return `<tr>
       <td class="text-xs text-muted" style="white-space:nowrap">${esc(fmtDate(r.submittedAt))}</td>
       <td><div class="fw-600">${esc(regName(r))}</div><div class="text-xs text-muted">${esc(r.email)}${r.institution?' · '+esc(r.institution):''}</div></td>
       <td class="text-sm">${esc(r.discipline)}<div class="text-xs text-muted">${esc(r.level)}</div>${regCampusText(r)?`<div class="text-xs" style="margin-top:2px">${icon('i-building','ic-sm')} ${esc(regCampusText(r))}</div>`:''}</td>
       <td><span class="badge ${st.b}">${esc(st.l)}</span>${r.decision?.outcome?`<div class="text-xs text-muted" style="margin-top:3px">${esc(r.decision.outcome)}</div>`:''}</td>
-      <td class="text-sm">${esc(withWho)}</td>
+      <td class="text-sm">${esc(withWho)}${r.assignee?' <span class="badge badge-gray" title="Assigned by an administrator">Assigned</span>':''}</td>
       <td><button class="btn btn-sm ${regAwaitsMe(r)?'btn-primary':''}" data-reg-open="${r.id}">${regAwaitsMe(r)?'Review':'Open'}</button></td>
     </tr>`;
   }).join('');
@@ -4497,18 +4581,32 @@ function regDetailHTML(r){
   return `
     <div class="flex items-center gap-8" style="flex-wrap:wrap"><span class="badge ${st.b}">${esc(st.l)}</span><span class="text-xs text-muted">Ref <code>${esc(r.id)}</code> · submitted ${esc(fmtDate(r.submittedAt))}</span>
       <div class="spacer"></div><button class="btn btn-sm btn-primary" data-ra="word">${icon('i-download')}Download Word file</button><button class="btn btn-sm" data-ra="mail-applicant">${icon('i-mail')}Email applicant</button></div>
-    ${regStepsHTML(r.status)}
+    ${assignCtlHTML(r)}
+    ${regStepsHTML(r.status, r.endorsement?.skipped)}
     <div id="reg-action">${regActionHTML(r)}</div>
     ${sec('Section 1 · Registration type',`<div class="kv">${kvHTML('Master of Research discipline',r.discipline)}${kvHTML('Supervision level sought',r.level)}${kvHTML('Preferred campus / location',regCampusText(r),'wide')}</div>`)}
     ${sec('Section 2 · Personal details',`<div class="kv">${kvHTML('Name',regName(r))}${kvHTML('Australian citizen / PR',r.citizen)}${kvHTML('Phone',r.phone)}${kvHTML('Email',r.email)}${kvHTML('Residential address',r.address,'wide')}</div>`)}
     ${sec('Section 3 · Academic & professional profile',`<div class="kv">${kvHTML('Current position title',r.position)}${kvHTML('Employing institution',r.institution)}${kvHTML('Institution address',r.institutionAddress,'wide')}${kvHTML('PhD / doctoral qualification',r.phd,'wide')}${kvHTML('Research areas & specialisations',r.researchAreas,'wide')}${kvHTML('ORCID / Google Scholar',r.profileLink,'wide')}${kvHTML('HDR students supervised to completion',r.hdrCompleted)}${kvHTML('Current HDR students supervising',r.hdrCurrent)}${kvHTML('Supervision mode',r.mode)}</div>`)}
     ${sec('Supporting documents',`<div class="kv">${kvHTML('How provided',docMethodText(r),'wide')}${r.docFolder?kvHTML('Shared folder',r.docFolder,'wide'):''}${docLine('CV',r.docCv,docs.cv)}${docLine('PhD certificate',r.docPhd,docs.phd)}${docLine('Transcripts',r.docTranscripts,docs.tr)}${r.docOther?kvHTML('Other documents',r.docOther):''}</div>`)}
     ${sec('Section 5 · Supervisor declaration',`<div class="text-sm">${icon('i-check','ic-sm')} All ${DECLARATIONS.length} statements confirmed, including the Conflict of Interest Declaration.</div><div class="kv mt-8">${sigKV('Signature',r.signatureImg)}${kvHTML('Print full name',r.signature)}${kvHTML('Date',dmy(r.signedOn))}</div>`)}
-    ${sec('Section 6 · Faculty / School endorsement',`<div class="kv">${kvHTML('Forwarding School / Division',e.school)}${kvHTML('Endorsed by',e.by)}${kvHTML('Date of endorsement',dmy(e.date))}${sigKV('Signature',e.sig)}${e.note?kvHTML('Comment',e.note,'wide'):''}</div>`)}
+    ${e.skipped ? sec('Section 6 · Faculty / School endorsement',`<div class="kv">${kvHTML('Forwarding School / Division',e.school)}${kvHTML('Head of School endorsement','Not required for this school — sent straight to the Associate Dean Research / RSC','wide')}</div>`) : ''}
+    ${e.skipped ? '' : sec('Section 6 · Faculty / School endorsement',`<div class="kv">${kvHTML('Forwarding School / Division',e.school)}${kvHTML('Endorsed by',e.by)}${kvHTML('Date of endorsement',dmy(e.date))}${sigKV('Signature',e.sig)}${e.note?kvHTML('Comment',e.note,'wide'):''}</div>`)}
     ${sec('Section 7 · Approval by Associate Dean Research or RSC',`<div class="kv">${kvHTML('Name',d.name)}${kvHTML('Registration outcome',d.outcome)}${kvHTML('Date of decision',dmy(d.date))}${kvHTML('RSC decision / date',d.rsc)}${sigKV('Signature',d.sig)}${kvHTML('Comments / conditions',d.comments,'wide')}</div>`)}
     ${sec('Checklist · office use only',CHECKLIST.map(([k,l])=>`<div class="text-sm" style="padding:3px 0;color:${ck[k]?'var(--text)':'var(--text3)'}">${ck[k]?'☑':'☐'} ${esc(l)}</div>`).join('')+(r.account?.uid?`<div class="text-sm" style="padding:3px 0">☑ Assign Supervisor account created ${esc(fmtDate(r.account.at))}</div>`:''))}
     ${fullTrail(r).length?sec('History',fullTrail(r).reverse().map(t=>`<div class="text-sm" style="padding:4px 0"><strong>${esc(TRAIL[t.act]||t.act)}</strong> <span class="text-muted">· ${esc(t.who||'')} · ${esc(fmtDate(t.at))}</span>${t.note?`<div class="text-muted" style="white-space:pre-wrap">${esc(t.note)}</div>`:''}</div>`).join('')):''}
     ${isAdminUser()?`<div class="reg-sec flex gap-8" style="flex-wrap:wrap">${['declined','closed'].includes(r.status)?`<button class="btn btn-sm" data-ra="reopen">${icon('i-refresh')}Reopen (back to Research Office)</button>`:''}<div class="spacer"></div><button class="btn btn-sm btn-danger" data-ra="delete">${icon('i-trash')}Delete registration</button></div>`:''}`;
+}
+/* Admins can hand the current stage to a specific person (an officer for that stage, or another admin). */
+function assignCtlHTML(r){
+  const stage=stageOfReg(r);
+  if(!isAdminUser() || !stage || !['submitted','returned','endorsement','approval','deferred'].includes(r.status)) return '';
+  const sch=regSchool(r);
+  const cands=[...OFFICERS.filter(o=>!o.disabled && (o.officeRoles||[]).includes(stage)), ...ADMINS.filter(a=>!a.disabled)].filter((u,i,a)=>a.findIndex(x=>x.id===u.id)===i)
+    .sort((a,b)=>{ const m=u=>(u.officeRoles||[]).includes(stage)&&(!u.officeSchool||!sch||u.officeSchool===sch)?0:1; return m(a)-m(b)||String(a.name||'').localeCompare(String(b.name||'')); });
+  const lbl=u=>`${u.name||u.email}${(u.officeRoles||[]).includes(stage)?` · ${STAGES[stage]}${u.officeSchool?' · '+u.officeSchool:''}`:' · administrator'}`;
+  return `<div class="assign-bar"><label for="ra-assign">${icon('i-user','ic-sm')}Assigned to</label><select id="ra-assign" data-ra-assign>
+    <option value="">Automatic — ${esc(STAGES[stage])}${['office','school'].includes(stage)&&sch?' · '+esc(sch):''}</option>
+    ${cands.map(u=>`<option value="${u.id}" ${r.assignee===u.id?'selected':''}>${esc(lbl(u))}</option>`).join('')}</select><span class="text-xs text-muted">Only this person (or an administrator) can act on the form at this stage. It clears when the form moves on.</span></div>`;
 }
 function regActionHTML(r){
   const mine=myStages(), adm=isAdminUser(), st=r.status;
@@ -4516,25 +4614,24 @@ function regActionHTML(r){
   const waiting=who=>`<div class="alert alert-info" style="margin:12px 0 0">Waiting on <strong>${esc(who)}</strong>. No action is needed from you at this stage.</div>`;
   let h='';
   if(st==='submitted'){
-    if(!mine.includes('office')) return waiting('the Research Office');
-    const rd=regDisciplines(r.discipline);
-    const guess = r.endorsement?.school || (rd.length===1 ? (rd[0]==='it'?'School of IT':'School of Business') : '');
+    if(!canActStage(r,'office')) return waiting(regWithWho(r));
+    const guess = regSchool(r);
     const docs=r.officeReview?.docs||{};
     h=box('Research Office · check and forward',`
-      <p class="text-sm text-muted">Confirm the supporting documents, then send the form to the School / Division for endorsement.${r.docMethod==='email'?' <strong>The applicant chose to email the documents</strong> — check your inbox for the reference <code>'+esc(r.id)+'</code>.':' Open each link to check it works without signing in.'}</p>
+      <p class="text-sm text-muted">Confirm the supporting documents, then forward the form. It goes to the <strong>Head of School</strong> only if endorsement is required for that school; otherwise straight to the <strong>Associate Dean Research / RSC</strong>.${r.docMethod==='email'?' <strong>The applicant chose to email the documents</strong> — check your inbox for the reference <code>'+esc(r.id)+'</code>.':' Open each link to check it works without signing in.'}</p>
       ${[['cv','CV received'],['phd','PhD certificate received'],['tr','Transcripts received']].map(([k,l])=>`<label class="check-row"><input type="checkbox" id="ra-doc-${k}" ${docs[k]?'checked':''}/> <span>${l}</span></label>`).join('')}
       <div class="g2 mt-8"><div class="form-group"><label>Forwarding School / Division <span class="req">*</span></label><select id="ra-school"><option value="">— Select —</option>${optsHTML(REG_OPTS.school,guess)}</select></div></div>
       <div class="form-group"><label>Note <span class="opt">(required to return or close — a return note is shown to the applicant)</span></label><textarea id="ra-note" rows="3" maxlength="600" placeholder="e.g. Your transcripts link asks for sign-in — please set it to 'Anyone with the link'."></textarea></div>
-      <div class="form-actions"><button class="btn btn-primary" data-ra="forward">${icon('i-arrow')}Forward for endorsement</button><button class="btn" data-ra="returnApplicant">${icon('i-back')}Return to applicant</button><button class="btn btn-danger" data-ra="close">Close without progressing</button></div>`);
+      <div class="form-actions"><button class="btn btn-primary" data-ra="forward" id="ra-forward-btn">${icon('i-arrow')}${hosRequired(guess)?'Forward to the Head of School':'Forward to the Associate Dean Research'}</button><button class="btn" data-ra="returnApplicant">${icon('i-back')}Return to applicant</button><button class="btn btn-danger" data-ra="close">Close without progressing</button></div>`);
   } else if(st==='returned'){
-    if(!mine.includes('office')) return waiting('the applicant to update and resubmit the form');
+    if(!canActStage(r,'office')) return waiting('the applicant to update and resubmit the form');
     const last=[...(r.trail||[])].reverse().find(t=>t.act==='returnApplicant');
     h=box('Returned to the applicant',`
       <div class="alert alert-warning" style="margin-bottom:12px">Waiting for ${esc(regName(r))} to update and resubmit the form. It comes back to you automatically when they do.${last?`<div style="margin-top:6px"><strong>Your note${last.at?` (${esc(fmtDate(last.at))})`:''}:</strong> ${esc(last.note)}</div>`:''}</div>
       <div class="form-group"><label>Note <span class="opt">(required to close)</span></label><textarea id="ra-note" rows="2"></textarea></div>
       <div class="form-actions"><button class="btn" data-ra="mail-applicant">${icon('i-mail')}Remind applicant</button><button class="btn" data-ra="takeBack">Continue without changes</button><button class="btn btn-danger" data-ra="closeReturned">Close registration</button></div>`);
   } else if(st==='endorsement'){
-    if(!regAwaitsMe(r)) return waiting(r.endorsement?.school||'the School / Division');
+    if(!canActStage(r,'school')) return waiting(regWithWho(r));
     h=box(`${esc(r.endorsement?.school||'School / Division')} · endorsement (Section 6)`,`
       <div class="g2"><div class="form-group"><label>Endorsed by (name) <span class="req">*</span></label><input type="text" id="ra-by" value="${esc(PROFILE?.name||'')}" maxlength="120"/></div>
       <div class="form-group"><label>Date of endorsement <span class="req">*</span></label><input type="date" id="ra-date" value="${todayISO()}"/></div></div>
@@ -4542,7 +4639,7 @@ function regActionHTML(r){
       <div class="form-group"><label>Comment <span class="opt">(optional — required if you return the form)</span></label><textarea id="ra-note" rows="2"></textarea></div>
       <div class="form-actions"><button class="btn btn-primary" data-ra="endorse">${icon('i-check')}Endorse and send to Associate Dean Research / RSC</button><button class="btn" data-ra="return">${icon('i-back')}Return to Research Office</button></div>`);
   } else if(st==='approval' || st==='deferred'){
-    if(!mine.includes('adr')) return waiting('the Associate Dean Research / RSC');
+    if(!canActStage(r,'adr')) return waiting(regWithWho(r));
     const d=r.decision||{};
     h=box('Associate Dean Research / RSC · decision (Section 7)',`
       <div class="g3"><div class="form-group"><label>Name <span class="req">*</span></label><input type="text" id="ra-by" value="${esc(d.name||PROFILE?.name||'')}" maxlength="120"/></div>
@@ -4554,24 +4651,12 @@ function regActionHTML(r){
       <p class="hint" style="margin:-4px 0 12px">Approved and Conditionally Approved allow the supervisor account to be created. Deferred and Other keep the form with you. Rejected ends the registration.</p>
       <div class="form-actions"><button class="btn btn-primary" data-ra="decide">${icon('i-shield')}Record decision</button></div>`);
   } else if(st==='approved' || st==='registered'){
-    if(st==='approved'){
-      if(adm){
-        h+=box('Create the supervisor account',`
-          ${r.decision?.outcome==='Conditionally Approved'?`<div class="alert alert-warning">Conditionally approved${r.decision.comments?': '+esc(r.decision.comments):''}</div>`:''}
-          <div class="g2">
-            <div class="form-group"><label>Display name</label><input type="text" id="ra-name" value="${esc(regName(r))}" maxlength="120"/></div>
-            <div class="form-group"><label>Sign-in email</label><input type="email" id="ra-email" value="${esc(r.email)}"/></div>
-            <div class="form-group"><label>Temporary password</label><div class="flex gap-8"><input type="text" id="ra-pass" placeholder="Min. 6 characters" autocomplete="off"/><button type="button" class="btn" data-ra="genpass">Generate</button></div></div>
-            <div class="form-group"><label>Campus</label><select id="ra-campus"><option value="">— Select Campus —</option>${CAMPUSES.map(c=>`<option value="${c.id}">${esc(c.name)}</option>`).join('')}</select></div>
-            <div class="form-group"><label>Supervisor type <span class="opt">(applied for: ${esc(r.level)})</span></label><select id="ra-type">
-              ${[['both','Both (Principal & Co-Supervisor)'],['principal','Principal Supervisor Only'],['co','Co-Supervisor Only']].map(([v,l])=>`<option value="${v}" ${LEVEL_TYPE[r.level]===v?'selected':''}>${l}</option>`).join('')}</select></div>
-          </div>
-          <label>Discipline(s) this supervisor covers <span class="req">*</span> <span class="opt">(applied for: ${esc(r.discipline)})</span></label><div class="mb-8">${discChecksHTML('ra-disc', regDisciplines(r.discipline))}</div>
-          <label>On the supervisor list for</label><div class="sem-box mb-16" id="ra-sem-box"></div>
-          <div class="form-actions"><button class="btn btn-primary" data-ra="account">${icon('i-userplus')}Create supervisor account</button></div>`);
-      } else h+=waiting('an administrator to create the supervisor account');
-    }
-    if(adm || mine.includes('office')){
+    const inPool=POOL.some(p=>p.id===r.id || p.registrationId===r.id);
+    h+=box('Supervisor pool',`
+      ${r.decision?.outcome==='Conditionally Approved'?`<div class="alert alert-warning">Conditionally approved${r.decision.comments?': '+esc(r.decision.comments):''}</div>`:''}
+      <p class="text-sm text-muted">${inPool?'Approved and in the <strong>supervisor pool</strong>.':'Approved, but <strong>not yet in the supervisor pool</strong> (approved before the pool existed).'} Invitations to select students are sent from the pool, semester by semester; a sign-in account is created then.</p>
+      <div class="form-actions mt-8">${!inPool && (adm||mine.includes('adr')) ? `<button class="btn btn-primary" data-ra="addPool">${icon('i-userplus')}Add to the supervisor pool</button>`:''}${adm?`<button class="btn" data-ra="openPool">${icon('i-users')}Open the supervisor pool</button>`:''}</div>`);
+    if(canActStage({...r,assignee:''},'office')){
       const ck=r.checklist||{};
       h+=box('Office checklist',`${CHECKLIST.map(([k,l])=>`<label class="check-row"><input type="checkbox" id="ra-ck-${k}" ${ck[k]?'checked':''}/> <span>${esc(l)}</span></label>`).join('')}
         <div class="form-actions mt-8"><button class="btn" data-ra="checklist">Save checklist</button></div>`);
@@ -4586,21 +4671,37 @@ function openReg(id){
   el('reg-modal').classList.remove('hidden');
   if(el('ra-sem-box')) renderSemChecks('ra-sem-box', defaultSemList());
   delete SIG['ra-sig']; if(el('ra-sig')) initSigPad('ra-sig');
+  const rs=el('ra-school'), fb=el('ra-forward-btn');
+  if(rs && fb) rs.onchange=()=>{ fb.innerHTML=`${icon('i-arrow')}${hosRequired(rs.value)?'Forward to the Head of School':'Forward to the Associate Dean Research'}`; };
   const pc=(r.campusIds||[]).find(id=>CAMPUSES.some(c=>c.id===id)); if(pc && el('ra-campus')) el('ra-campus').value=pc; // applicant's first preferred campus
   el('reg-modal-body').querySelectorAll('[data-ra]').forEach(b=>b.onclick=()=>regAct(r,b.dataset.ra,b));
+  const as=el('reg-modal-body').querySelector('[data-ra-assign]'); if(as) as.onchange=()=>assignReg(r, as.value);
 }
 const closeReg=()=>el('reg-modal').classList.add('hidden');
 el('reg-close-btn').addEventListener('click',closeReg);
 el('reg-modal').addEventListener('click',e=>{ if(e.target===el('reg-modal')) closeReg(); });
 document.addEventListener('keydown',e=>{ if(e.key==='Escape') closeReg(); });
 
+async function assignReg(r, uid){
+  const u=uid ? [...OFFICERS,...ADMINS,...ALL_USERS].find(x=>x.id===uid) : null;
+  const who=u ? (u.name||u.email) : '';
+  try{
+    await regSave(r,{assignee:uid||'', assigneeName:who},'assign', uid?`${STAGES[stageOfReg(r)]}: ${who}`:'Back to automatic routing', who||'automatic');
+    toast(uid?`Assigned to ${who}`:'Back to automatic routing','success');
+    openReg(r.id);
+    if(u?.email) openRouteEmail([u], who, `Supervisor registration assigned to you – ${regName(r)}`,
+      routeBody(r, `An administrator has assigned this supervisor registration to you for the ${STAGES[stageOfReg(r)]} stage.`));
+  }catch(e){ toast('Error: '+e.message,'error'); }
+}
 /* Write the change to the form and mirror the stage to the public status doc. */
 async function regSave(r, patch, act, note, logDet, pubExtra){
   const entry={at:Timestamp.now(), uid:ME.uid, who:String(PROFILE?.name||ME.email||'').slice(0,60), act, note:String(note||'').slice(0,400)};
   const b=writeBatch(db);
+  if(patch.status && patch.status!==r.status && r.assignee && patch.assignee===undefined){ patch.assignee=''; patch.assigneeName=''; }
   b.update(doc(db,REG_COL,r.id),{...patch, updatedAt:serverTimestamp(), trail:arrayUnion(entry)});
   const pub={status:patch.status||r.status, name:`${r.firstName} ${r.lastName}`.slice(0,80), at:serverTimestamp(), ...(pubExtra||{})};
   const outcome=(patch.decision||r.decision)?.outcome; if(outcome) pub.outcome=outcome;
+  if((patch.endorsement||r.endorsement)?.skipped) pub.noHos=true;
   b.set(doc(db,REG_STATUS_COL,r.id),pub); // full rewrite, so a returned form's copy never lingers
   await b.commit();
   logAct('reg.'+act, regName(r), logDet||note||'', r.id);
@@ -4631,7 +4732,7 @@ async function regAct(r, act, btn){
         endorsement:'Your supervisor registration has been forwarded to the School / Division for endorsement.',
         approval:'Your supervisor registration has been endorsed and is with the Associate Dean Research / RSC for a decision.',
         deferred:'A decision on your supervisor registration has been deferred.',
-        approved:`Your supervisor registration has been ${r.decision?.outcome==='Conditionally Approved'?'conditionally approved':'approved'}. Your Assign Supervisor account is being set up and the sign-in details will follow.`,
+        approved:`Your supervisor registration has been ${r.decision?.outcome==='Conditionally Approved'?'conditionally approved':'approved'} and you have been added to the CIHE supervisor pool. Supervisors are invited to take on students semester by semester; if you are invited, you will receive an email with your sign-in details.`,
         registered:'Your supervisor registration is complete and your Assign Supervisor account has been created.',
         declined:'We are writing about the outcome of your supervisor registration.',
         closed:'We are writing about your supervisor registration.',
@@ -4643,6 +4744,8 @@ async function regAct(r, act, btn){
       return;
     }
     if(act==='word'){ downloadRegDocx(r); return; }
+    if(act==='openPool'){ closeReg(); gotoAdminTab('tab-pool'); return; }
+    if(act==='addPool'){ await addRegToPool(r); await loadPool(); toast(`${name} added to the supervisor pool`,'success'); openReg(r.id); return; }
     if(act==='genpass'){
       const a='ABCDEFGHJKLMNPQRSTUVWXYZabcdefghijkmnpqrstuvwxyz23456789', n=crypto.getRandomValues(new Uint32Array(12));
       el('ra-pass').value=[...n].map(x=>a[x%a.length]).join(''); return;
@@ -4687,10 +4790,17 @@ async function regAct(r, act, btn){
       }
       const school=v('ra-school');
       if(!school){ fail('Choose the forwarding School / Division.'); return; }
-      await regSave(r,{status:'endorsement',officeReview:{docs,by:ME.uid},endorsement:{school}},'forward',note,school);
-      closeReg(); toast(`Forwarded to ${school}`,'success');
-      openRouteEmail(officersFor('school',school), school, `Supervisor registration for endorsement – ${name}`,
-        routeBody(r,`A supervisor registration has been forwarded to ${school} for endorsement (Section 6).${note?'\n\nNote from the Research Office: '+note:''}`));
+      if(hosRequired(school)){
+        await regSave(r,{status:'endorsement',officeReview:{docs,by:ME.uid},endorsement:{school}},'forward',note,school);
+        closeReg(); toast(`Forwarded to the Head of School (${school})`,'success');
+        openRouteEmail(officersFor('school',school), school, `Supervisor registration for endorsement – ${name}`,
+          routeBody(r,`A supervisor registration has been forwarded to ${school} for Head of School endorsement (Section 6).${note?'\n\nNote from the Course Coordinator / Research Officer: '+note:''}`));
+      } else {
+        await regSave(r,{status:'approval',officeReview:{docs,by:ME.uid},endorsement:{school,skipped:true}},'forwardAdr',note,school);
+        closeReg(); toast('Forwarded to the Associate Dean Research / RSC','success');
+        openRouteEmail(officersFor('adr'), 'Associate Dean Research / RSC', `Supervisor registration for approval – ${name}`,
+          routeBody(r,`A supervisor registration (${school}) has been checked by the Course Coordinator / Research Officer and is ready for your decision (Section 7). Head of School endorsement is not required for this school.${note?'\n\nNote: '+note:''}`));
+      }
     }
     else if(act==='endorse' || act==='return'){
       const note=v('ra-note');
@@ -4718,11 +4828,11 @@ async function regAct(r, act, btn){
       const status=OUTCOME_STATUS[outcome];
       if(status==='declined' && !confirm(`Record "${outcome}" for ${name}? This ends the registration.`)) return;
       await regSave(r,{status,decision:{name:by,outcome,date,comments,rsc,sig,uid:ME.uid}},'decide',[outcome,comments].filter(Boolean).join(' — '),outcome);
-      closeReg(); toast(`Decision recorded: ${outcome}`,'success');
-      if(status==='approved' && isAdminUser()){ openReg(r.id); return; } // admin can go straight on to the account
-      openRouteEmail(status==='approved'?ADMINS.filter(a=>a.email):officersFor('office'), status==='approved'?'Administrators':'Research Office', `Supervisor registration ${outcome.toLowerCase()} – ${name}`,
+      if(status==='approved'){ try{ await addRegToPool(r,{outcome,comments}); }catch(e){ toast('Decision saved, but adding to the supervisor pool failed: '+e.message,'error',7000); } }
+      closeReg(); toast(status==='approved'?`Decision recorded: ${outcome} — added to the supervisor pool`:`Decision recorded: ${outcome}`,'success');
+      openRouteEmail(officersFor('office'), 'Research Office', `Supervisor registration ${outcome.toLowerCase()} – ${name}`,
         routeBody(r, status==='approved'
-          ? `This supervisor registration has been ${outcome.toLowerCase()} by ${by}. Please create the Assign Supervisor account and complete the office checklist.${comments?'\n\nComments / conditions: '+comments:''}`
+          ? `This supervisor registration has been ${outcome.toLowerCase()} by ${by} and the supervisor has been added to the supervisor pool. Please complete the office checklist. Invitations to select students are sent from the pool for each semester.${comments?'\n\nComments / conditions: '+comments:''}`
           : `The Associate Dean Research / RSC (${by}) has recorded the outcome "${outcome}" for this supervisor registration.${comments?'\n\nComments: '+comments:''}`));
     }
     else if(act==='checklist'){
@@ -4777,7 +4887,17 @@ async function mountReview(){
   el('rv-back-btn').classList.toggle('hidden',!isSup);
   el('rv-back-btn').onclick=()=>mountSupervisor();
   const stages=myStages();
-  setTxt('rv-roles', stages.length ? 'You review for: '+stages.map(s=>STAGES[s]).join(' · ')+(PROFILE.officeSchool?` (${PROFILE.officeSchool})`:'') : 'No review stage is assigned to this account yet. Ask an administrator.');
+  const rvTabs=el('rv-tabs');
+  if(rvTabs){
+    rvTabs.innerHTML=`<button class="campus-pill active" data-rv="reg">Registrations</button><button class="campus-pill" data-rv="pool">Supervisor pool</button>`;
+    rvTabs.querySelectorAll('[data-rv]').forEach(b=>b.onclick=()=>{
+      rvTabs.querySelectorAll('[data-rv]').forEach(x=>x.classList.toggle('active',x===b));
+      el('review-host').classList.toggle('hidden',b.dataset.rv!=='reg'); el('review-pool-host').classList.toggle('hidden',b.dataset.rv!=='pool');
+      if(b.dataset.rv==='pool') openPool('review-pool-host',poolCtxForMe()); else openRegQueue('review-host');
+    });
+  }
+  el('review-host').classList.remove('hidden'); el('review-pool-host')?.classList.add('hidden');
+  setTxt('rv-roles', stages.length ? 'You review for: '+stages.map(s=>STAGES[s]).join(' · ')+(PROFILE.officeSchool?` — ${PROFILE.officeSchool} only (Research Office and Head of School stages)`:'') : 'No review stage is assigned to this account yet. Ask an administrator.');
   await openRegQueue('review-host');
 }
 /* Supervisor workspace: a "Registrations" button for supervisors who also review. */
@@ -4791,7 +4911,21 @@ function syncSvReviewButton(){
 }
 
 /* ── Admin → Registrations tab: officers + account policy ── */
+function renderHosSettings(){
+  const box=el('hos-settings'); if(!box) return;
+  box.innerHTML=REG_OPTS.school.map(sc=>`<label class="check-row"><input type="checkbox" data-hos="${esc(sc)}" ${hosRequired(sc)?'checked':''}/> <span><strong>${esc(sc)}</strong> — Head of School endorsement required</span></label>`).join('');
+  box.querySelectorAll('[data-hos]').forEach(c=>c.onchange=async()=>{
+    const map={...(SETTINGS.hosRequired||{}), [c.dataset.hos]:c.checked};
+    try{
+      await setDoc(doc(db,'settings','global'),{hosRequired:map},{merge:true});
+      SETTINGS.hosRequired=map;
+      logAct('settings.edit','Head of School endorsement',`${c.dataset.hos}: ${c.checked?'required':'not required'}`);
+      toast(`${c.dataset.hos}: Head of School endorsement ${c.checked?'required':'not required'}`,'success');
+    }catch(e){ c.checked=!c.checked; toast('Error: '+e.message,'error'); }
+  });
+}
 function initRegistrationsTab(){
+  renderHosSettings();
   el('of-school').innerHTML=`<option value="">Any school / division</option>`+optsHTML(REG_OPTS.school);
   el('of-user').onchange=()=>fillOfficerForm(el('of-user').value);
   el('of-clear-btn').onclick=()=>fillOfficerForm('');
@@ -4989,11 +5123,12 @@ function buildRegDocx(r){
     ['Signature',sigCell(r.signatureImg,r.signature,dmy(r.signedOn),'Signed by the applicant on the online registration form.')],
     ['Print Full Name',r.signature],['Date',dmy(r.signedOn)]]);
   body+=wP(wRun('OFFICE USE ONLY',{b:1,sz:24}),{before:160,after:80,keep:1});
-  body+=wTable([{head:'SECTION 6: Faculty / School Endorsement'},['Forwarding School / Division',e.school],['Endorsed By (Name)',e.by],['Date of Endorsement',dmy(e.date)],
+  if(e.skipped) body+=wTable([{head:'SECTION 6: Faculty / School Endorsement'},['Forwarding School / Division',e.school],['Head of School endorsement','Not required for this school — forwarded directly to the Associate Dean Research / RSC']]);
+  else body+=wTable([{head:'SECTION 6: Faculty / School Endorsement'},['Forwarding School / Division',e.school],['Endorsed By (Name)',e.by],['Date of Endorsement',dmy(e.date)],
     ['Signature',sigCell(e.sig,e.by,dmy(e.date),eAcct?`Recorded in Assign Supervisor by the signed-in account of ${eAcct}.`:'')],...(e.note?[['Comment',e.note]]:[])]);
   body+=wTable([{head:'SECTION 7: Approval by Associate Dean Research or RSC'},['Name',d.name],['Registration Outcome',d.outcome],['Date of Decision',dmy(d.date)],['Comments / Conditions',d.comments],
     ['Signature',sigCell(d.sig,d.name,dmy(d.date),dAcct?`Recorded in Assign Supervisor by the signed-in account of ${dAcct}.`:'')],['RSC decision / date',d.rsc]]);
-  body+=wTable([{head:'Checklist – Office Use Only'},{full:CHECKLIST.map(([k,l])=>wP(wRun(`${tick(ck[k])}  ${l}`),{before:30,after:30})).join('')+(r.account?.uid?wP(wRun(`☑  Assign Supervisor account created ${fmtDate(r.account.at)}`),{before:30,after:30}):'')}]);
+  body+=wTable([{head:'Checklist – Office Use Only'},{full:CHECKLIST.map(([k,l])=>wP(wRun(`${tick(ck[k])}  ${l}`),{before:30,after:30})).join('')+(['approved','registered'].includes(r.status)?wP(wRun(`☑  Approved and added to the supervisor pool`),{before:30,after:30}):'')+(r.account?.uid?wP(wRun(`☑  Assign Supervisor account created ${fmtDate(r.account.at)}`),{before:30,after:30}):'')}]);
   if(fullTrail(r).length) body+=wTable([{head:'Electronic Record'},{full:fullTrail(r).map(t=>wP(wRun(`${fmtDate(t.at)}  ·  ${TRAIL[t.act]||t.act}  ·  ${t.who||''}${t.note?'\n'+t.note:''}`,{sz:18}),{before:30,after:30})).join('')}]);
   body+=wP(wRun(`Generated from Assign Supervisor on ${fmtDate(new Date())} by ${PROFILE?.name||ME?.email||''}. Signatures were captured electronically at each step.`,{i:1,color:'777777',sz:16}),{before:120});
 
@@ -5216,8 +5351,11 @@ async function renderOverview(){
   const atLimit=listed.filter(s=>(pc[s.id]||0)>=maxP || (cc[s.id]||0)>=maxC).length;
   const idle=listed.filter(s=>!pc[s.id] && !cc[s.id]).length;
   let regsOk=true; try{ await loadRegs(); updateRegBadges(); }catch{ regsOk=false; }
-  const mine=REGS.filter(regAwaitsMe).length, toCreate=REGS.filter(r=>r.status==='approved').length;
-  const openRegs=REGS.filter(r=>['submitted','endorsement','approval','deferred','approved'].includes(r.status)).length;
+  try{ if(!POOL_LOADED) await loadPool(); }catch{}
+  const mine=REGS.filter(regAwaitsMe).length;
+  const notPooled=REGS.filter(r=>r.status==='approved' && !POOL.some(p=>p.id===r.id||p.registrationId===r.id)).length;
+  const openRegs=REGS.filter(r=>['submitted','returned','endorsement','approval','deferred'].includes(r.status)).length;
+  const poolAct=POOL.filter(p=>p.active!==false), poolSelected=adminSemester?poolAct.filter(p=>poolSemState(p,adminSemester)==='selected').length:0;
   const orphans=STUDENTS.filter(s=>!s.semester || !SEMESTERS.find(x=>x.id===s.semester)).length;
   const inactive=scoped.filter(s=>s.active===false).length;
   const pct=(a,b)=>b?Math.round(a/b*100):0;
@@ -5228,7 +5366,8 @@ async function renderOverview(){
   if(!SEMESTERS.length) att.push(`<div class="att-row"><span class="att-n t-red">!</span><div><div class="att-t">No semester yet</div><div class="att-s">Create a semester before adding students.</div></div><button class="btn btn-sm" data-goto-tab="tab-semesters">Semesters${icon('i-arrow')}</button></div>`);
   if(!CAMPUSES.length) att.push(`<div class="att-row"><span class="att-n t-red">!</span><div><div class="att-t">No campus yet</div><div class="att-s">Principal supervisors are matched to students by campus.</div></div><button class="btn btn-sm" data-goto-tab="tab-campuses">Campuses${icon('i-arrow')}</button></div>`);
   item(mine,'blue',`Registration${mine===1?'':'s'} waiting for you`,'Supervisor registration forms at a stage you handle.','tab-registrations','Review');
-  item(toCreate,'green',`Approved registration${toCreate===1?'':'s'} without an account`,'Create the supervisor account and finish the office checklist.','tab-registrations','Create accounts');
+  item(poolSelected,'blue',`Supervisor${poolSelected===1?'':'s'} selected but not yet invited`,`Selected for ${adminSemester?semesterLabel(adminSemester):'this semester'} in the supervisor pool.`,'tab-pool','Send invitations');
+  item(notPooled,'green',`Approved registration${notPooled===1?'':'s'} not in the pool`,'Approved before the supervisor pool existed. Open each one and add it to the pool.','tab-registrations','Registrations');
   item(total-pA,'amber',`Student${total-pA===1?'':'s'} without a principal supervisor`,'In this semester, active students only.','tab-allocations','Allocations');
   item(needCo,'amber',`Student${needCo===1?'':'s'} still needing a co-supervisor`,'They have a principal supervisor but no co-supervisor yet.','tab-allocations','Allocations');
   if(SUPS.length && !listed.length) att.push(`<div class="att-row"><span class="att-n t-red">0</span><div><div class="att-t">Nobody is on this semester's supervisor list</div><div class="att-s">Add supervisors to the list, or copy it from another semester.</div></div><button class="btn btn-sm" data-goto-tab="tab-supervisors">Supervisors${icon('i-arrow')}</button></div>`);
@@ -5245,7 +5384,8 @@ async function renderOverview(){
       ${kpi('',total,null,'Active students',inactive?`${inactive} inactive not counted`:'In this semester')}
       ${kpi('hl',pA,total,'Principal supervisor allocated',`${pct(pA,total)}% complete · ${total-pA} waiting`,pct(pA,total))}
       ${kpi('hl2',cA,total,'Co-supervisor allocated',`${pct(cA,total)}% complete · ${total-cA} waiting`,pct(cA,total))}
-      ${kpi('',listed.length,null,'Supervisors on this semester\'s list',`${atLimit} at limit · ${idle} with no students yet`)}
+      ${kpi('',listed.length,null,'Invited for this semester',`${atLimit} at limit · ${idle} with no students yet`)}
+      ${kpi('',POOL_LOADED?poolAct.length:'—',null,'Supervisor pool',POOL_LOADED?`${poolAct.filter(p=>(p.disciplines||[]).includes('business')).length} Business · ${poolAct.filter(p=>(p.disciplines||[]).includes('it')).length} IT`:'')}
       ${kpi('',regsOk?openRegs:'—',null,'Registrations not yet complete',regsOk?(mine?`<span class="c-accent fw-600">${mine} waiting for you</span>`:'None waiting for you'):'Publish the updated rules')}
     </div>
     <div class="grid-2">
@@ -5412,6 +5552,436 @@ function buildSVDiscPills(){
   box.innerHTML=opts.map(([k,l])=>`<button class="campus-pill ${svDisc===k?'active':''}" data-svdisc="${k}">${esc(l)}</button>`).join('');
   box.querySelectorAll('[data-svdisc]').forEach(b=>b.onclick=()=>{ svDisc=b.dataset.svdisc; buildSVDiscPills(); svRefresh(); });
 }
+
+/* ══════════════════════════════════════════════════════════
+   SUPERVISOR POOL
+   `supervisorPool/{id}` — everyone approved to supervise, whether or not
+   they have a sign-in account yet:
+     • approved registrations (id = registration id, source 'registration')
+     • supervisors imported or added by an admin (source 'import' / 'manual')
+     • existing accounts (id = their uid, source 'account'), added automatically
+   Per semester:  selected  ← the ADR / an admin decides (pool.selected[] holds semester ids)
+                  invited   ← an admin sends the invitation: the account is created
+                              if needed and the person is put on that semester's
+                              supervisor list (users.semesters). Only then can they
+                              sign in and select students.
+══════════════════════════════════════════════════════════ */
+const POOL_COL='supervisorPool';
+let POOL=[], POOL_LOADED=false, POOL_CHECK=new Set();
+let poolSem=null, poolDisc=null, poolLevel='', poolCampus='', poolView='all', POOL_HOST=null, POOL_CTX={};
+const poolName=p=>p.name||[p.title,p.firstName,p.lastName].filter(Boolean).join(' ')||p.email||'—';
+const lc=s=>String(s||'').trim().toLowerCase();
+const poolAccount=p=>p.uid ? ALL_USERS.find(u=>u.id===p.uid) || SUPS.find(u=>u.id===p.uid) : null;
+function poolSemState(p, sem){
+  const acc=poolAccount(p);
+  if(sem && acc && !acc.disabled && (acc.role||'supervisor')==='supervisor' && supInSemester(acc,sem)) return 'invited';
+  if(sem && (p.selected||[]).includes(sem)) return 'selected';
+  return '';
+}
+const LEVEL_SHORT={'Principal Supervisor':'Principal','Associate Supervisor (Co-supervisor)':'Associate','Industry Expert (Additional Member)':'Industry expert','Both (Principal and Co-Supervisor) or Any':'Both / any'};
+function normLevel(t){
+  const s=lc(t);
+  if(!s) return '';
+  if(s.includes('both')||s.includes('any')) return REG_OPTS.level[3];
+  if(s.includes('industry')) return REG_OPTS.level[2];
+  if(s.includes('assoc')||s.startsWith('co')||s.includes('co-sup')||s.includes('co sup')) return REG_OPTS.level[1];
+  if(s.includes('princ')) return REG_OPTS.level[0];
+  return '';
+}
+function normDiscList(t){ const s=lc(t); if(s.includes('both')||(s.includes('business')&&normDiscipline(s.replace('business',''))==='it')) return ['business','it']; const d=normDiscipline(t); return d?[d]:[]; }
+function matchCampuses(text){
+  const parts=String(text||'').split(/[;|\/]+/).map(x=>x.trim()).filter(Boolean);
+  const ids=[], names=[];
+  parts.forEach(pt=>{ const c=CAMPUSES.find(c=>lc(c.name)===lc(pt) || lc(c.location)===lc(pt) || lc(c.name).includes(lc(pt)) || lc(pt).includes(lc(c.name))); if(c){ if(!ids.includes(c.id)){ ids.push(c.id); names.push(campusLabel(c)); } } else names.push(pt); });
+  return {ids,names};
+}
+
+async function loadPool(){
+  const snap=await getDocs(collection(db,POOL_COL));
+  POOL=snap.docs.map(d=>({id:d.id,...d.data()})); POOL_LOADED=true;
+}
+/* Admin only: make sure every existing supervisor account is in the pool. */
+async function syncPoolWithAccounts(){
+  if(!isAdminUser()) return 0;
+  const missing=SUPS.filter(s=>!POOL.some(p=>p.uid===s.id || (p.email && lc(p.email)===lc(s.email))));
+  const unlinked=POOL.filter(p=>!p.uid && p.email).map(p=>[p,SUPS.find(s=>lc(s.email)===lc(p.email))]).filter(x=>x[1]);
+  if(!missing.length && !unlinked.length) return 0;
+  const b=writeBatch(db);
+  missing.forEach(s=>b.set(doc(db,POOL_COL,s.id),{
+    name:s.name||'', email:s.email||'', emailLower:lc(s.email), phone:'', disciplines:supDisc(s)||[], level:{principal:REG_OPTS.level[0],co:REG_OPTS.level[1],both:REG_OPTS.level[3]}[s.supervisorType||'both'],
+    supervisorType:s.supervisorType||'both', campusIds:s.campus?[s.campus]:[], campusNames:s.campus?[campusLabel(CAMPUSES.find(c=>c.id===s.campus)||{name:s.campus})]:[],
+    source:'account', uid:s.id, active:!s.disabled, selected:[], invited:[], addedAt:serverTimestamp(), addedBy:ME.uid }));
+  unlinked.forEach(([p,s])=>b.update(doc(db,POOL_COL,p.id),{uid:s.id}));
+  await b.commit(); await loadPool();
+  return missing.length;
+}
+/* Called when the ADR / an admin approves a registration. */
+async function addRegToPool(r, decision){
+  const id=r.id;
+  await setDoc(doc(db,POOL_COL,id),{
+    title:r.title||'', firstName:r.firstName||'', lastName:r.lastName||'', name:regName(r), email:r.email||'', emailLower:lc(r.email), phone:r.phone||'',
+    disciplines:regDisciplines(r.discipline), level:r.level||'', supervisorType:LEVEL_TYPE[r.level]||'both',
+    campusIds:r.campusIds||[], campusNames:r.campusNames||[], institution:r.institution||'', position:r.position||'',
+    researchAreas:r.researchAreas||'', profileLink:r.profileLink||'', hdrCompleted:r.hdrCompleted||'', hdrCurrent:r.hdrCurrent||'', mode:r.mode||'',
+    outcome:decision?.outcome||r.decision?.outcome||'', conditions:decision?.comments||r.decision?.comments||'',
+    source:'registration', registrationId:id, active:true, selected:[], invited:[], addedAt:serverTimestamp(), addedBy:ME.uid
+  });
+  logAct('pool.add', regName(r), 'From approved registration', id);
+}
+
+/* ── Rendering (admin tab and the review page share this) ── */
+async function openPool(hostId, ctx){
+  POOL_HOST=hostId; POOL_CTX=ctx;
+  if(!poolSem) poolSem = (isAdminUser()?adminSemester:null) || SEMESTERS.find(s=>s.isActive)?.id || SEMESTERS[0]?.id || null;
+  if(poolDisc===null) poolDisc = isAdminUser() && adminDiscipline!=='all' ? adminDiscipline : '';
+  const host=el(hostId); if(!host) return;
+  host.innerHTML=`<div class="card" style="text-align:center;padding:36px"><div class="spinner"></div></div>`;
+  try{
+    await Promise.all([loadPool(), loadAllUsers().catch(()=>{})]);
+    const added=await syncPoolWithAccounts().catch(e=>{ console.warn('pool sync',e); return 0; });
+    if(added) toast(`${added} existing supervisor account(s) added to the pool`,'info',4000);
+    renderPool();
+  }catch(e){
+    host.innerHTML = e.code==='permission-denied'
+      ? `<div class="card"><div class="fw-600" style="margin-bottom:6px">The database doesn't allow the supervisor pool yet</div><div class="text-sm text-muted">Publish the updated <code class="chip-code">firestore.rules</code> (Firebase Console → Firestore → Rules), then refresh. It adds the <code class="chip-code">supervisorPool</code> collection.</div></div>`
+      : `<div class="alert alert-danger">Could not load the pool: ${esc(e.message)}</div>`;
+  }
+}
+function poolFiltered(ignoreView){
+  const term=lc(el(POOL_HOST)?.querySelector('[data-pool-search]')?.value);
+  return POOL.filter(p=>{
+    if(poolDisc && !((p.disciplines||[]).length===0 || p.disciplines.includes(poolDisc))) return false;
+    if(poolLevel && !levelMatch(p.level,poolLevel)) return false;
+    if(poolCampus && !(p.campusIds||[]).includes(poolCampus)) return false;
+    if(!ignoreView){
+      const st=poolSemState(p,poolSem);
+      if(poolView==='active' && p.active===false) return false;
+      if(poolView==='none' && (st || p.active===false)) return false;
+      if(poolView==='selected' && st!=='selected') return false;
+      if(poolView==='invited' && st!=='invited') return false;
+      if(poolView==='inactive' && p.active!==false) return false;
+    }
+    if(term && !lc(`${poolName(p)} ${p.email} ${p.institution} ${p.researchAreas} ${(p.campusNames||[]).join(' ')}`).includes(term)) return false;
+    return true;
+  }).sort((a,b)=>String(a.lastName||poolName(a)).localeCompare(String(b.lastName||poolName(b))));
+}
+function renderPool(){
+  const host=el(POOL_HOST); if(!host) return;
+  const C=POOL_CTX, semLbl=poolSem?semesterLabel(poolSem):'—';
+  const act=POOL.filter(p=>p.active!==false);
+  const count=f=>act.filter(f).length;
+  const base=poolFiltered(true);
+  const vc=k=>base.filter(p=>{ const st=poolSemState(p,poolSem); return k==='all'||(k==='active'&&p.active!==false)||(k==='none'&&!st&&p.active!==false)||(k==='selected'&&st==='selected')||(k==='invited'&&st==='invited')||(k==='inactive'&&p.active===false); }).length;
+  const selN=count(p=>poolSemState(p,poolSem)==='selected');
+  const term=host.querySelector('[data-pool-search]')?.value||'';
+  host.innerHTML=`
+    <div class="card mb-16" style="padding:14px 18px">
+      <div class="flex items-center gap-12" style="flex-wrap:wrap">
+        <span class="fw-600">Selecting for</span>
+        <select data-pool-sem style="width:auto;min-width:220px">${SEMESTERS.map(s=>`<option value="${s.id}" ${s.id===poolSem?'selected':''}>${esc(semesterLabel(s.id))}${s.isActive?' (Active)':''}</option>`).join('')}</select>
+        <div class="spacer"></div>
+        ${C.canInvite&&selN?`<button class="btn btn-primary" data-pool-invite-selected>${icon('i-send')}Invite all ${selN} selected for ${esc(semLbl)}</button>`:''}
+        <div class="flex gap-8">
+          <button class="btn btn-sm" data-pool-export="business">${icon('i-download')}Export Business</button>
+          <button class="btn btn-sm" data-pool-export="it">${icon('i-download')}Export IT</button>
+          <button class="btn btn-sm" data-pool-export="">${icon('i-download')}Export all</button>
+        </div>
+      </div>
+    </div>
+    <div class="kpi-grid">
+      <div class="stat-card"><div class="stat-val">${act.length}</div><div class="stat-lbl">In the pool</div><div class="stat-sub">${POOL.length-act.length} inactive</div></div>
+      <div class="stat-card"><div class="stat-val">${count(p=>(p.disciplines||[]).includes('business'))}</div><div class="stat-lbl">${discBadge('business')} supervisors</div></div>
+      <div class="stat-card"><div class="stat-val">${count(p=>(p.disciplines||[]).includes('it'))}</div><div class="stat-lbl">${discBadge('it')} supervisors</div></div>
+      <div class="stat-card hl2"><div class="stat-val c-purple">${selN}</div><div class="stat-lbl">Selected for ${esc(semLbl)}</div><div class="stat-sub">Decided, not yet invited</div></div>
+      <div class="stat-card hl"><div class="stat-val c-accent">${count(p=>poolSemState(p,poolSem)==='invited')}</div><div class="stat-lbl">Invited for ${esc(semLbl)}</div><div class="stat-sub">On the supervisor list, can select students</div></div>
+    </div>
+    <div class="card table-card">
+      <div class="table-toolbar">
+        <div class="campus-pills">${[['all','All'],['none','Not selected'],['selected','Selected'],['invited','Invited'],['inactive','Inactive']].map(([k,l])=>`<button class="campus-pill ${poolView===k?'active':''}" data-pool-view="${k}">${l} (${vc(k)})</button>`).join('')}</div>
+        <div class="spacer"></div>
+        <div class="search-wrap"><span class="search-icon">${icon('i-search')}</span><input type="text" class="search-input" data-pool-search placeholder="Search name, email, institution, research area…" value="${esc(term)}"/></div>
+      </div>
+      <div class="table-toolbar">
+        <select data-pool-disc style="width:auto;min-width:150px;height:34px"><option value="">All disciplines</option>${DISCIPLINES.map(d=>`<option value="${d.id}" ${poolDisc===d.id?'selected':''}>${esc(d.short)}</option>`).join('')}</select>
+        <select data-pool-level style="width:auto;min-width:200px;height:34px">${LEVEL_FILTERS.map(([v,l])=>`<option value="${v}" ${poolLevel===v?'selected':''}>${esc(l)}</option>`).join('')}</select>
+        <select data-pool-campus style="width:auto;min-width:170px;height:34px"><option value="">All campuses</option>${CAMPUSES.map(c=>`<option value="${c.id}" ${poolCampus===c.id?'selected':''}>${esc(campusLabel(c))}</option>`).join('')}</select>
+        <div class="spacer"></div>
+        <span class="text-xs text-muted" data-pool-checked></span>
+        ${C.canSelect?`<button class="btn btn-sm" data-pool-bulk="select">${icon('i-check')}Select for ${esc(semLbl)}</button><button class="btn btn-sm" data-pool-bulk="unselect">Remove selection</button>`:''}
+        ${C.canInvite?`<button class="btn btn-sm btn-primary" data-pool-bulk="invite">${icon('i-send')}Invite</button>`:''}
+      </div>
+      <div class="tw"><table><thead><tr><th style="width:34px"><input type="checkbox" data-pool-all style="width:auto"/></th><th>Supervisor</th><th>Discipline &amp; level</th><th>Campus</th><th>Source</th><th>${esc(semLbl)}</th><th></th></tr></thead><tbody data-pool-rows></tbody></table></div>
+    </div>`;
+  const q=s=>host.querySelector(s);
+  q('[data-pool-sem]').onchange=e=>{ poolSem=e.target.value; POOL_CHECK.clear(); renderPool(); };
+  host.querySelectorAll('[data-pool-view]').forEach(b=>b.onclick=()=>{ poolView=b.dataset.poolView; renderPool(); });
+  q('[data-pool-search]').oninput=deb(()=>renderPoolRows(),150);
+  q('[data-pool-disc]').onchange=e=>{ poolDisc=e.target.value; renderPool(); };
+  q('[data-pool-level]').onchange=e=>{ poolLevel=e.target.value; renderPool(); };
+  q('[data-pool-campus]').onchange=e=>{ poolCampus=e.target.value; renderPool(); };
+  host.querySelectorAll('[data-pool-export]').forEach(b=>b.onclick=()=>exportPool(b.dataset.poolExport));
+  host.querySelectorAll('[data-pool-bulk]').forEach(b=>b.onclick=()=>poolBulk(b.dataset.poolBulk));
+  q('[data-pool-invite-selected]')?.addEventListener('click',()=>invitePool(POOL.filter(p=>p.active!==false && poolSemState(p,poolSem)==='selected')));
+  q('[data-pool-all]').onchange=e=>{ poolFiltered().forEach(p=>e.target.checked?POOL_CHECK.add(p.id):POOL_CHECK.delete(p.id)); renderPoolRows(); };
+  renderPoolRows();
+}
+function renderPoolRows(){
+  const host=el(POOL_HOST), body=host?.querySelector('[data-pool-rows]'); if(!body) return;
+  const C=POOL_CTX, rows=poolFiltered();
+  const valid=new Set(POOL.map(p=>p.id)); [...POOL_CHECK].forEach(id=>{ if(!valid.has(id)) POOL_CHECK.delete(id); });
+  const srcLbl={registration:'Registration',import:'Imported',manual:'Added by admin',account:'Existing account'};
+  body.innerHTML = rows.length ? rows.map(p=>{
+    const st=poolSemState(p,poolSem), acc=poolAccount(p);
+    const stBadge = st==='invited' ? `<span class="badge badge-blue badge-dot">Invited</span>` : st==='selected' ? `<span class="badge badge-purple badge-dot">Selected</span>` : `<span class="text-xs text-muted">Not selected</span>`;
+    const disc=(p.disciplines||[]).length ? p.disciplines.map(d=>discBadge(d)).join(' ') : '<span class="badge badge-amber">Discipline not set</span>';
+    return `<tr style="${p.active===false?'opacity:.55':''}">
+      <td><input type="checkbox" data-pool-check="${p.id}" ${POOL_CHECK.has(p.id)?'checked':''} style="width:auto"/></td>
+      <td><div class="fw-600">${esc(poolName(p))}</div><div class="text-xs text-muted">${esc(p.email||'no email')}${p.institution?' · '+esc(p.institution):''}</div></td>
+      <td>${disc}<div class="text-xs text-muted" style="margin-top:3px">${esc(LEVEL_SHORT[p.level]||p.level||'—')}</div></td>
+      <td class="text-sm">${esc((p.campusNames||[]).join(', ')||'—')}</td>
+      <td class="text-sm">${esc(srcLbl[p.source]||p.source||'—')}${p.outcome==='Conditionally Approved'?'<div class="text-xs c-amber">Conditional</div>':''}<div class="text-xs text-muted">${acc?(acc.disabled?'Account disabled':'Has an account'):'No account yet'}</div></td>
+      <td>${stBadge}</td>
+      <td><div class="flex gap-8" style="flex-wrap:wrap;justify-content:flex-end">
+        ${C.canSelect && p.active!==false && st!=='invited' ? (st==='selected'
+          ? `<button class="btn btn-sm" data-pool-act="unselect" data-id="${p.id}">Unselect</button>`
+          : `<button class="btn btn-sm btn-soft" data-pool-act="select" data-id="${p.id}">${icon('i-check')}Select</button>`) : ''}
+        ${C.canInvite && p.active!==false && st!=='invited' ? `<button class="btn btn-sm ${st==='selected'?'btn-primary':''}" data-pool-act="invite" data-id="${p.id}">${icon('i-send')}Invite</button>` : ''}
+        <button class="btn btn-sm btn-ghost" data-pool-act="view" data-id="${p.id}" title="Details">${icon('i-eye')}</button>
+      </div></td></tr>`;
+  }).join('') : `<tr><td colspan="7" style="text-align:center;padding:36px;color:var(--text2)">${POOL.length?'Nobody matches these filters.':'The pool is empty. Approved registrations are added automatically; import or add supervisors approved before.'}</td></tr>`;
+  body.querySelectorAll('[data-pool-check]').forEach(c=>c.onchange=()=>{ c.checked?POOL_CHECK.add(c.dataset.poolCheck):POOL_CHECK.delete(c.dataset.poolCheck); updatePoolChecked(); });
+  body.querySelectorAll('[data-pool-act]').forEach(b=>b.onclick=()=>poolAct(b.dataset.poolAct, POOL.find(p=>p.id===b.dataset.id)));
+  updatePoolChecked();
+}
+function updatePoolChecked(){ const t=el(POOL_HOST)?.querySelector('[data-pool-checked]'); if(t) t.textContent=POOL_CHECK.size?`${POOL_CHECK.size} ticked`:'Tick people to act on several at once'; }
+
+/* ── Select / unselect (ADR or admin) ── */
+async function setPoolSelected(list, on){
+  if(!poolSem){ toast('Create a semester first','error'); return; }
+  const todo=list.filter(p=>p.active!==false && poolSemState(p,poolSem)!=='invited' && ((p.selected||[]).includes(poolSem)!==on));
+  if(!todo.length){ toast(on?'Already selected (or already invited)':'Nothing to unselect','info'); return; }
+  try{
+    for(let i=0;i<todo.length;i+=400){ const b=writeBatch(db); todo.slice(i,i+400).forEach(p=>b.update(doc(db,POOL_COL,p.id),{selected:on?arrayUnion(poolSem):arrayRemove(poolSem), updatedAt:serverTimestamp()})); await b.commit(); }
+    todo.forEach(p=>{ p.selected=on?[...(p.selected||[]),poolSem]:(p.selected||[]).filter(x=>x!==poolSem); });
+    logAct(on?'pool.select':'pool.unselect', todo.length===1?poolName(todo[0]):`${todo.length} supervisors`, semesterLabel(poolSem), todo.length===1?todo[0].id:'');
+    POOL_CHECK.clear(); renderPool();
+    toast(`${todo.length} ${on?'selected for':'removed from the selection for'} ${semesterLabel(poolSem)}`,'success');
+  }catch(e){ toast(e.code==='permission-denied'?'You do not have permission to change the selection.':'Error: '+e.message,'error'); }
+}
+function poolBulk(kind){
+  const list=POOL.filter(p=>POOL_CHECK.has(p.id));
+  if(!list.length){ toast('Tick at least one supervisor first','info'); return; }
+  if(kind==='select') setPoolSelected(list,true);
+  else if(kind==='unselect') setPoolSelected(list,false);
+  else if(kind==='invite') invitePool(list);
+}
+
+/* ── Invite (admin): create the account if needed, put them on the semester list, email them ── */
+function randomPassword(){ const a='ABCDEFGHJKLMNPQRSTUVWXYZabcdefghijkmnpqrstuvwxyz23456789!#%+', n=crypto.getRandomValues(new Uint32Array(20)); return [...n].map(x=>a[x%a.length]).join(''); }
+async function invitePool(list){
+  if(!isAdminUser()){ toast('Only an administrator can send invitations','error'); return; }
+  if(!poolSem){ toast('Create a semester first','error'); return; }
+  list=list.filter(p=>p.active!==false && poolSemState(p,poolSem)!=='invited');
+  if(!list.length){ toast('Everyone ticked is already invited for this semester','info'); return; }
+  const noEmail=list.filter(p=>!p.email); if(noEmail.length){ toast(`${noEmail.map(poolName).join(', ')} ha${noEmail.length===1?'s':'ve'} no email address — add one first`,'error',6000); return; }
+  const noDisc=list.filter(p=>!(p.disciplines||[]).length);
+  const newAcc=list.filter(p=>!poolAccount(p));
+  if(!confirm(`Invite ${list.length} supervisor(s) to select students for ${semesterLabel(poolSem)}?\n\n• They are added to that semester's supervisor list.\n• ${newAcc.length} new sign-in account(s) will be created; each new person gets an email from the system to set their own password.${noDisc.length?`\n• ${noDisc.length} have no discipline set and will be offered for both Business and IT students.`:''}\n\nYour email app then opens with an invitation to send them.`)) return;
+  const done=[], failed=[];
+  for(const p of list){
+    try{
+      let acc=poolAccount(p) || ALL_USERS.find(u=>lc(u.email)===lc(p.email) && (u.role||'supervisor')==='supervisor');
+      if(acc){
+        const patch={disabled:false};
+        if(Array.isArray(acc.semesters) && !acc.semesters.includes(poolSem)) patch.semesters=arrayUnion(poolSem);
+        if(!supDisc(acc) && (p.disciplines||[]).length) patch.disciplines=p.disciplines;
+        await updateDoc(doc(db,'users',acc.id),{...patch, poolId:p.id});
+      } else {
+        const campus=(p.campusIds||[]).find(id=>CAMPUSES.some(c=>c.id===id))||'';
+        const profile={name:poolName(p), email:p.email, altEmail:'', campus, supervisorType:p.supervisorType||LEVEL_TYPE[p.level]||'both', role:'supervisor', semesters:[poolSem], disciplines:p.disciplines||[], poolId:p.id, ...(p.registrationId?{registrationId:p.registrationId}:{})};
+        const pApp=provisionApp(), pAuth=getAuth(pApp);
+        let cred;
+        try{ cred=await createUserWithEmailAndPassword(pAuth,p.email,randomPassword()); }
+        catch(e){
+          if(String(e.code||'').includes('email-already-in-use')) throw new Error('a sign-in already exists for this email but has no profile here — add them under Staff or in the Firebase console');
+          throw e;
+        }
+        try{ await setDoc(doc(getFirestore(pApp),'users',cred.user.uid),profile); }
+        catch(err){ await setDoc(doc(db,'users',cred.user.uid),profile); }
+        finally{ await signOut(pAuth).catch(()=>{}); }
+        acc={id:cred.user.uid,...profile};
+        try{ await sendPasswordResetEmail(auth,p.email); }catch(e){ console.warn('reset email',e); }
+        logAct('sup.add', poolName(p), `${p.email} · from the supervisor pool`, cred.user.uid);
+      }
+      await updateDoc(doc(db,POOL_COL,p.id),{uid:acc.id, invited:arrayUnion(poolSem), selected:arrayRemove(poolSem), lastInvitedAt:serverTimestamp(), updatedAt:serverTimestamp()});
+      done.push({p,isNew:!poolAccount(p)});
+    }catch(e){ failed.push(`${poolName(p)}: ${String(e.message||e).replace('Firebase:','').trim()}`); }
+  }
+  if(done.length) logAct('pool.invite', done.length===1?poolName(done[0].p):`${done.length} supervisors`, semesterLabel(poolSem), done.length===1?done[0].p.id:'');
+  await Promise.all([loadPool(), loadAllUsers().catch(()=>{})]);
+  POOL_CHECK.clear(); renderPool(); renderSupervisorsList(); renderPrefDropdown();
+  if(failed.length) alert(`Could not invite ${failed.length}:\n\n${failed.join('\n')}`);
+  if(!done.length) return;
+  toast(`${done.length} invited for ${semesterLabel(poolSem)}`,'success');
+  const targets=done.map(({p})=>({name:poolName(p),email:p.email}));
+  openRouteEmail(targets, targets.length===1?targets[0].name:`${targets.length} supervisors`, `Invitation to supervise – ${semesterLabel(poolSem)}`,
+    `Dear ${targets.length===1?studentFirstName(targets[0]):'colleagues'},\n\nYou are invited to supervise Master of Research students at CIHE Australia in ${semesterLabel(poolSem)}.\n\nPlease sign in to Assign Supervisor, review the student proposals and select the students you would like to supervise (as principal or co-supervisor):\n${APP_URL}\n\nSign in with your email address. If this is your first time, you will receive a separate email to set your password — please check your junk folder if it has not arrived. You can also use "Forgot password?" on the sign-in page at any time.\n\nOnce students are allocated, attendance, CoC, thesis examination and appeals are managed in Assign Supervisor:\n${SUPERVISION_HUB_URL}\n\nBest regards,\n${myDisplayName()}`);
+}
+
+/* ── Row actions, details, add / edit ── */
+function poolAct(kind,p){
+  if(!p) return;
+  if(kind==='select') setPoolSelected([p],true);
+  else if(kind==='unselect') setPoolSelected([p],false);
+  else if(kind==='invite') invitePool([p]);
+  else if(kind==='view') openPoolModal(p,false);
+}
+function poolModalEl(){
+  let m=el('pool-modal');
+  if(!m){ m=document.createElement('div'); m.id='pool-modal'; m.className='modal-overlay hidden';
+    m.innerHTML=`<div class="modal-box" style="max-width:760px"><button class="modal-close" aria-label="Close" data-pm-close>${icon('i-x')}</button><span class="eyebrow">${icon('i-users','ic-sm')}Supervisor pool</span><div class="modal-title" style="margin-top:4px" data-pm-title></div><div data-pm-body></div></div>`;
+    document.body.appendChild(m);
+    m.addEventListener('click',e=>{ if(e.target===m || e.target.closest('[data-pm-close]')) m.classList.add('hidden'); });
+    document.addEventListener('keydown',e=>{ if(e.key==='Escape') m.classList.add('hidden'); });
+  }
+  return m;
+}
+function openPoolModal(p, editing){
+  const m=poolModalEl(), C=POOL_CTX, isNew=!p;
+  p=p||{disciplines:poolDisc?[poolDisc]:[],campusIds:[],active:true,source:'manual'};
+  m.querySelector('[data-pm-title]').textContent=isNew?'Add a supervisor':poolName(p);
+  const body=m.querySelector('[data-pm-body]');
+  if(!editing && !isNew){
+    const acc=poolAccount(p), semNames=ids=>(ids||[]).map(semesterLabel).join(', ')||'—';
+    body.innerHTML=`<div class="kv" style="margin-top:8px">
+      ${kvHTML('Email',p.email)}${kvHTML('Phone',p.phone)}${kvHTML('Discipline',(p.disciplines||[]).map(discLong).join(', ')||'Not set')}${kvHTML('Supervision level',p.level)}
+      ${kvHTML('Preferred campus',(p.campusNames||[]).join(', '))}${kvHTML('Institution',p.institution)}${kvHTML('Position',p.position)}${kvHTML('Sign-in account',acc?(acc.disabled?'Disabled':'Yes'):'Not yet — created on invitation')}
+      ${kvHTML('Research areas',p.researchAreas,'wide')}${p.profileLink?kvHTML('ORCID / Google Scholar',p.profileLink,'wide'):''}
+      ${p.outcome?kvHTML('Registration outcome',p.outcome+(p.conditions?' — '+p.conditions:''),'wide'):''}
+      ${kvHTML('Selected for',semNames(p.selected))}${kvHTML('Invited for',semNames(p.invited))}${p.notes?kvHTML('Notes',p.notes,'wide'):''}</div>
+      <div class="form-actions mt-16">
+        ${p.registrationId && C.canEdit!==undefined ? `<button class="btn btn-sm" data-pm="reg">${icon('i-clip')}Open registration form</button>`:''}
+        ${C.canEdit?`<button class="btn btn-sm" data-pm="edit">${icon('i-edit')}Edit</button><button class="btn btn-sm ${p.active===false?'':'btn-danger'}" data-pm="toggle">${p.active===false?'Reactivate':'Mark inactive'}</button>${p.source!=='registration'&&p.source!=='account'&&!acc?`<button class="btn btn-sm btn-danger" data-pm="delete">${icon('i-trash')}Delete</button>`:''}`:''}
+      </div>`;
+  } else {
+    body.innerHTML=`<p class="modal-desc">${isNew?'For someone approved to supervise outside this system. They get a sign-in account only when invited for a semester.':'Changes here do not change an existing sign-in account; edit that under Supervisor accounts.'}</p>
+      <div class="g3"><div class="form-group"><label>Title</label><select data-pf="title"><option value="">—</option>${optsHTML(REG_OPTS.title,p.title||'')}</select></div>
+        <div class="form-group"><label>First name <span class="req">*</span></label><input type="text" data-pf="firstName" value="${esc(p.firstName||'')}"/></div>
+        <div class="form-group"><label>Last name <span class="req">*</span></label><input type="text" data-pf="lastName" value="${esc(p.lastName||'')}"/></div></div>
+      <div class="g2"><div class="form-group"><label>Email <span class="req">*</span></label><input type="email" data-pf="email" value="${esc(p.email||'')}"/></div>
+        <div class="form-group"><label>Phone</label><input type="text" data-pf="phone" value="${esc(p.phone||'')}"/></div></div>
+      <div class="form-group"><label>Discipline(s) <span class="req">*</span></label><div>${discChecksHTML('pf-disc',p.disciplines||[])}</div></div>
+      <div class="g2"><div class="form-group"><label>Supervision level</label><select data-pf="level"><option value="">—</option>${optsHTML(REG_OPTS.level,p.level||'')}</select></div>
+        <div class="form-group"><label>Institution</label><input type="text" data-pf="institution" value="${esc(p.institution||'')}"/></div></div>
+      <div class="form-group"><label>Preferred campus</label><div class="sem-box"><div class="sem-list" style="border:none;margin:0;padding:0">${CAMPUSES.map(c=>`<label class="check-row"><input type="checkbox" data-pf-campus="${c.id}" ${(p.campusIds||[]).includes(c.id)?'checked':''}/> <span>${esc(campusLabel(c))}</span></label>`).join('')}</div></div></div>
+      <div class="g2"><div class="form-group"><label>Position</label><input type="text" data-pf="position" value="${esc(p.position||'')}"/></div>
+        <div class="form-group"><label>Research areas</label><input type="text" data-pf="researchAreas" value="${esc(p.researchAreas||'')}"/></div></div>
+      <div class="form-group"><label>Notes</label><textarea data-pf="notes" rows="2">${esc(p.notes||'')}</textarea></div>
+      <div class="form-actions"><button class="btn btn-primary" data-pm="save">${isNew?'Add to the pool':'Save changes'}</button><button class="btn btn-ghost" data-pm-close>Cancel</button></div>`;
+  }
+  body.querySelectorAll('[data-pm]').forEach(b=>b.onclick=()=>poolModalAct(b.dataset.pm,p,isNew,b));
+  m.classList.remove('hidden');
+}
+async function poolModalAct(kind,p,isNew,btn){
+  const m=poolModalEl();
+  if(kind==='edit') return openPoolModal(p,true);
+  if(kind==='reg'){ m.classList.add('hidden'); try{ if(!REGS.length) await loadRegs(); }catch{} if(REGS.some(r=>r.id===p.registrationId)) openReg(p.registrationId); else toast('Registration form not found','error'); return; }
+  try{
+    if(kind==='toggle'){
+      await updateDoc(doc(db,POOL_COL,p.id),{active:p.active===false, updatedAt:serverTimestamp()});
+      logAct(p.active===false?'pool.reactivate':'pool.inactive', poolName(p), p.email, p.id);
+    } else if(kind==='delete'){
+      if(!confirm(`Delete ${poolName(p)} from the pool?`)) return;
+      await deleteDoc(doc(db,POOL_COL,p.id)); logAct('pool.delete', poolName(p), p.email, p.id);
+    } else if(kind==='save'){
+      const f=k=>m.querySelector(`[data-pf="${k}"]`)?.value.trim()||'';
+      const d={title:f('title'),firstName:f('firstName'),lastName:f('lastName'),email:f('email'),phone:f('phone'),level:f('level'),institution:f('institution'),position:f('position'),researchAreas:f('researchAreas'),notes:f('notes')};
+      d.disciplines=readDiscChecks('pf-disc');
+      d.campusIds=[...m.querySelectorAll('[data-pf-campus]:checked')].map(c=>c.dataset.pfCampus);
+      d.campusNames=d.campusIds.map(id=>campusLabel(CAMPUSES.find(c=>c.id===id)));
+      if(!d.firstName||!d.lastName||!d.email){ toast('First name, last name and email are required','error'); return; }
+      if(!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(d.email)){ toast('Enter a valid email address','error'); return; }
+      if(!d.disciplines.length){ toast('Tick Business, IT or both','error'); return; }
+      if(POOL.some(x=>x.id!==p.id && lc(x.email)===lc(d.email))){ toast('Someone with that email is already in the pool','error'); return; }
+      d.name=[d.title,d.firstName,d.lastName].filter(Boolean).join(' '); d.emailLower=lc(d.email); d.supervisorType=LEVEL_TYPE[d.level]||'both';
+      btn.disabled=true;
+      if(isNew){ const r=await addDoc(collection(db,POOL_COL),{...d,source:'manual',active:true,selected:[],invited:[],addedAt:serverTimestamp(),addedBy:ME.uid}); logAct('pool.add', d.name, 'Added by an administrator', r.id); }
+      else { await updateDoc(doc(db,POOL_COL,p.id),{...d,updatedAt:serverTimestamp()}); logAct('pool.edit', d.name, d.email, p.id); }
+    }
+    m.classList.add('hidden'); await loadPool(); renderPool(); toast('Saved','success');
+  }catch(e){ toast('Error: '+e.message,'error'); if(btn) btn.disabled=false; }
+}
+
+/* ── Export ── */
+function exportPool(disc){
+  const list=POOL.filter(p=>!disc || (p.disciplines||[]).includes(disc));
+  if(!list.length){ toast('Nobody to export','info'); return; }
+  const rows=[['Title','First Name','Last Name','Full Name','Email','Phone','Discipline','Supervision Level','Supervisor Type','Preferred Campus','Institution','Position','Research Areas','ORCID / Google Scholar','HDR Completed','HDR Current','Supervision Mode','Source','Registration Ref','Registration Outcome','Conditions','Has Account','Selected For','Invited For','Status','Notes'].map(csvCell)];
+  list.sort((a,b)=>String(a.lastName||poolName(a)).localeCompare(String(b.lastName||poolName(b)))).forEach(p=>rows.push([
+    p.title,p.firstName,p.lastName,poolName(p),p.email,p.phone,(p.disciplines||[]).map(discLabel).join(' & ')||'Not set',p.level,({principal:'Principal',co:'Co-supervisor',both:'Principal & co'})[p.supervisorType]||'',
+    (p.campusNames||[]).join('; '),p.institution,p.position,p.researchAreas,p.profileLink,p.hdrCompleted,p.hdrCurrent,p.mode,p.source,p.registrationId,p.outcome,p.conditions,
+    poolAccount(p)?'Yes':'No',(p.selected||[]).map(semesterLabel).join('; '),(p.invited||[]).map(semesterLabel).join('; '),p.active===false?'Inactive':'Active',p.notes].map(csvCell)));
+  downloadCSV(rows,`supervisor-pool_${disc?discLabel(disc).toLowerCase():'business-and-it'}_${new Date().toISOString().slice(0,10)}.csv`);
+  toast(`Exported ${list.length} supervisor(s)`,'success');
+}
+
+/* ── Import ── */
+function initPoolTools(){
+  if(!el('pool-drop') || el('pool-drop').dataset.bound) return;
+  el('pool-drop').dataset.bound='1';
+  const dz=el('pool-drop');
+  dz.onclick=()=>el('pool-csv').click();
+  dz.ondragover=e=>{ e.preventDefault(); dz.classList.add('dragging'); };
+  dz.ondragleave=()=>dz.classList.remove('dragging');
+  dz.ondrop=e=>{ e.preventDefault(); dz.classList.remove('dragging'); previewPoolImport(e.dataTransfer.files[0]); };
+  el('pool-csv').onchange=e=>{ previewPoolImport(e.target.files[0]); e.target.value=''; };
+  el('pool-add-btn').onclick=()=>openPoolModal(null,true);
+  el('pool-template-btn').onclick=()=>downloadCSV([
+    ['Title','First Name','Last Name','Email','Phone','Discipline','Supervision Level','Campus','Institution','Position','Research Areas','Notes'].map(csvCell),
+    ['Dr.','Jane','Citizen','jane.citizen@example.edu.au','+61 400 000 000','IT','Both','Sydney Campus; Canberra Campus','Example University','Senior Lecturer','Cyber security; machine learning','Approved by RSC 2025'].map(csvCell),
+    ['Prof','Sam','Lee','sam.lee@example.edu.au','','Business','Principal','Sydney Campus','Example University','Professor','Accounting; corporate governance',''].map(csvCell)],'supervisor-pool-template.csv');
+}
+async function previewPoolImport(file){
+  if(!file) return;
+  const rows=parseCSV(await file.text());
+  const g=(r,...ks)=>{ for(const k of ks){ const hit=Object.keys(r).find(h=>lc(h)===lc(k)); if(hit && String(r[hit]).trim()) return String(r[hit]).trim(); } return ''; };
+  const seen=new Set(POOL.map(p=>lc(p.email))), out=[], skipped=[];
+  rows.forEach(r=>{
+    let first=g(r,'First Name','Firstname','Given Name'), last=g(r,'Last Name','Surname','Family Name');
+    const full=g(r,'Name','Full Name','Supervisor','Supervisor Name');
+    let title=g(r,'Title');
+    if(!first && !last && full){ const parts=full.split(/\s+/); if(/^(dr|prof|professor|assoc|a\/prof|mr|mrs|ms|miss)\.?$/i.test(parts[0])) title=title||parts.shift(); last=parts.pop()||''; first=parts.join(' '); }
+    const email=g(r,'Email','Email Address','E-mail');
+    const name=[title,first,last].filter(Boolean).join(' ');
+    if(!email || !(first||last)){ skipped.push(`${name||email||'(blank row)'} — needs a name and an email`); return; }
+    if(seen.has(lc(email))){ skipped.push(`${name} — already in the pool`); return; }
+    seen.add(lc(email));
+    const level=normLevel(g(r,'Supervision Level','Level','Role','Supervisor Type','Type'));
+    const cm=matchCampuses(g(r,'Campus','Campuses','Preferred Campus','Location'));
+    out.push({title,firstName:first,lastName:last,name,email,emailLower:lc(email),phone:g(r,'Phone','Mobile','Phone Number'),disciplines:normDiscList(g(r,'Discipline','Disciplines','School','Program')),
+      level,supervisorType:LEVEL_TYPE[level]||'both',campusIds:cm.ids,campusNames:cm.names,institution:g(r,'Institution','Organisation','Organization','University'),
+      position:g(r,'Position','Position Title','Title / Position'),researchAreas:g(r,'Research Areas','Research Area','Expertise'),notes:g(r,'Notes','Comments')});
+  });
+  const pv=el('pool-import-preview'); pv.classList.remove('hidden');
+  const noDisc=out.filter(p=>!p.disciplines.length).length;
+  pv.innerHTML=`${out.length?`<div class="alert alert-info">Ready to add <strong>${out.length}</strong> supervisor(s) to the pool${skipped.length?`; ${skipped.length} row(s) skipped`:''}.
+      <button class="btn btn-sm btn-primary" id="pool-import-go" style="margin-left:8px">Import ${out.length}</button><button class="btn btn-sm" id="pool-import-cancel" style="margin-left:6px">Cancel</button></div>`:`<div class="alert alert-warning">Nothing to import.</div>`}
+    ${noDisc?`<div class="alert alert-warning">${noDisc} row(s) have no recognisable discipline. Import them and set it with Edit, or add a Discipline column (Business / IT / Both).</div>`:''}
+    ${skipped.length?`<details class="text-sm mb-8"><summary>Skipped rows</summary><ul style="margin:6px 0 0 18px">${skipped.map(s=>`<li>${esc(s)}</li>`).join('')}</ul></details>`:''}
+    ${out.length?`<div class="tw"><table><thead><tr><th>Name</th><th>Email</th><th>Discipline</th><th>Level</th><th>Campus</th></tr></thead><tbody>${out.slice(0,10).map(p=>`<tr><td>${esc(p.name)}</td><td class="text-xs">${esc(p.email)}</td><td>${p.disciplines.map(d=>discBadge(d)).join(' ')||'<span class="badge badge-amber">Not set</span>'}</td><td class="text-xs">${esc(LEVEL_SHORT[p.level]||'—')}</td><td class="text-xs">${esc(p.campusNames.join(', ')||'—')}</td></tr>`).join('')}${out.length>10?`<tr><td colspan="5" class="text-xs text-muted" style="text-align:center">…and ${out.length-10} more</td></tr>`:''}</tbody></table></div>`:''}`;
+  el('pool-import-cancel')?.addEventListener('click',()=>pv.classList.add('hidden'));
+  el('pool-import-go')?.addEventListener('click',async()=>{
+    try{
+      for(let i=0;i<out.length;i+=400){ const b=writeBatch(db); out.slice(i,i+400).forEach(p=>b.set(doc(collection(db,POOL_COL)),{...p,source:'import',active:true,selected:[],invited:[],addedAt:serverTimestamp(),addedBy:ME.uid})); await b.commit(); }
+      logAct('pool.import', `${out.length} supervisors`, `From ${file.name||'CSV'}`);
+      pv.classList.add('hidden'); await loadPool(); renderPool(); toast(`${out.length} supervisor(s) added to the pool`,'success');
+    }catch(e){ toast('Import error: '+e.message,'error'); }
+  });
+}
+
+/* ── Entry points ── */
+async function openPoolTab(){ initPoolTools(); await openPool('admin-pool-host',{canSelect:true,canInvite:true,canEdit:true}); }
+function poolCtxForMe(){ const adr=isAdminUser()||(PROFILE?.officeRoles||[]).includes('adr'); return {canSelect:adr,canInvite:isAdminUser(),canEdit:isAdminUser()}; }
 
 </script>
 </body>
