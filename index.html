@@ -1407,6 +1407,13 @@ tr.row-mine td:first-child{box-shadow:inset 3px 0 0 var(--primary)}
           </div>
 
           <div class="card">
+            <div class="card-header"><h3><svg class="ic"><use href="#i-db"/></svg>Check database rules</h3></div>
+            <p class="card-sub">Tests the live Firebase rules the way the app uses them, including a real test submission of the public registration form (removed again straight away). Run it after publishing new rules, or whenever something is refused.</p>
+            <button class="btn btn-primary" id="dbcheck-btn" onclick="runDbCheck()"><svg class="ic"><use href="#i-shield"/></svg>Run the check</button>
+            <div id="dbcheck-out" class="mt-16"></div>
+          </div>
+
+          <div class="card">
             <div class="card-header"><h3><svg class="ic"><use href="#i-shield"/></svg>Promote a user by UID</h3></div>
             <p class="card-sub">For accounts listed under <strong>Staff</strong>, use <em>Make admin</em> there. Use this only for a sign-in that has no profile yet: paste its Firebase UID.</p>
             <div class="form-group"><label>Firebase user UID</label><input type="text" id="promote-uid" placeholder="Paste UID from Firebase Console…"/></div>
@@ -1623,7 +1630,6 @@ tr.row-mine td:first-child{box-shadow:inset 3px 0 0 var(--primary)}
           <div class="form-group"><label>Date</label><input type="text" id="rg-date" disabled/></div>
         </div>
         <div class="form-group"><label>Signature <span class="req">*</span></label><div id="rg-sig-host"></div></div>
-        <input type="text" id="rg-website" class="hp-field" tabindex="-1" autocomplete="off" aria-hidden="true"/>
         <div id="rg-error" class="alert alert-danger hidden mt-16"></div>
         <div class="form-actions mt-16">
           <button class="btn btn-primary" id="rg-submit-btn" style="height:42px;padding:0 22px"><svg class="ic"><use href="#i-send"/></svg>Submit registration</button>
@@ -4008,6 +4014,7 @@ function populateExportDropdowns(){
   }
 }
 window.populateExportDropdowns=populateExportDropdowns;
+window.runDbCheck=(...a)=>runDbCheck(...a);
 
 /* ══════════════════════════════════════════════════════════
    PER-SEMESTER SUPERVISOR LISTS
@@ -4315,8 +4322,11 @@ async function startRegEdit(id, s){
   el('rg-edit-banner').scrollIntoView({behavior:'smooth',block:'start'});
 }
 async function submitRegistration(){
+  try{ await submitRegistrationInner(); }
+  catch(e){ console.error('Registration form error:',e); regFormError('Something went wrong before the form could be sent: '+(e?.message||e)+'. Please try again, or email '+RESEARCH_OFFICE_EMAIL+'.'); el('rg-submit-btn').disabled=false; }
+}
+async function submitRegistrationInner(){
   el('rg-error').classList.add('hidden');
-  if(el('rg-website').value) return; // honeypot: only bots fill this hidden field
   const data={};
   for(const [key,id,required] of RG_FIELDS){
     const v=el(id).value.trim();
@@ -4380,9 +4390,10 @@ async function submitRegistration(){
     el('rg-ref').value=ref.id;
     window.scrollTo({top:0,behavior:'smooth'});
   }catch(e){
+    console.error('Registration submit refused:',e.code,e.message,e);
     regFormError(e.code==='permission-denied'
-      ? 'The form could not be submitted (the database refused it). Please email the Research Office at '+RESEARCH_OFFICE_EMAIL+'.'
-      : 'Could not submit: '+e.message);
+      ? 'The form could not be submitted — the database refused it (permission-denied). Please email the Research Office at '+RESEARCH_OFFICE_EMAIL+' so they can fix it; your answers are still on this page.'
+      : 'Could not submit ('+(e.code||'error')+'): '+e.message);
   }
   btn.disabled=false;
 }
@@ -5982,6 +5993,46 @@ async function previewPoolImport(file){
 /* ── Entry points ── */
 async function openPoolTab(){ initPoolTools(); await openPool('admin-pool-host',{canSelect:true,canInvite:true,canEdit:true}); }
 function poolCtxForMe(){ const adr=isAdminUser()||(PROFILE?.officeRoles||[]).includes('adr'); return {canSelect:adr,canInvite:isAdminUser(),canEdit:isAdminUser()}; }
+
+
+/* ══════════════════════════════════════════════════════════
+   DATABASE RULES CHECK (admin, General settings)
+   Runs the same writes the app makes against the real Firebase project and
+   reports each one, so a rules problem shows up with Firebase's own error.
+   The public-form test builds its document from the form's own field list
+   (RG_FIELDS) — exactly what an applicant sends — then deletes it again.
+══════════════════════════════════════════════════════════ */
+const TINY_PNG='data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAYAAAAfFcSJAAAADUlEQVR42mNkYPhfDwAChwGA60e6kgAAAABJRU5ErkJggg==';
+async function runDbCheck(){
+  const out=el('dbcheck-out'), btn=el('dbcheck-btn');
+  btn.disabled=true; out.innerHTML='';
+  const rows=[];
+  const show=()=>{ out.innerHTML=`<div class="tw"><table><thead><tr><th>Check</th><th>Result</th></tr></thead><tbody>${rows.map(r=>`<tr><td class="text-sm">${esc(r.name)}</td><td class="text-sm">${r.ok===null?'<div class="spinner" style="width:14px;height:14px"></div>':r.ok?`<span class="badge badge-green">Passed</span>`:`<span class="badge badge-red">Failed</span> <code class="chip-code">${esc(r.code||'')}</code><div class="text-xs" style="margin-top:4px">${esc(r.msg||'')}</div>`}</td></tr>`).join('')}</tbody></table></div>`; };
+  const step=async(name,fn)=>{ const r={name,ok:null}; rows.push(r); show(); try{ await fn(); r.ok=true; }catch(e){ r.ok=false; r.code=e.code||'error'; r.msg=e.message||String(e); console.error('DB check failed:',name,e); } show(); return r.ok; };
+  await step('Read settings',()=>getDoc(doc(db,'settings','global')));
+  await step('Read campuses (public — used by the registration form)',()=>getDocs(collection(db,'campuses')));
+  await step('Read registrations (staff)',()=>getDocs(query(collection(db,REG_COL),limit(1))));
+  await step('Read the supervisor pool (staff)',()=>getDocs(query(collection(db,POOL_COL),limit(1))));
+  let testId=null;
+  const formOk=await step('Public registration form: submit a test form',async()=>{
+    const SAMPLE={discipline:'Business',level:REG_OPTS.level[0],title:'Dr.',firstName:'Rules',lastName:'Check',phone:'0000',email:'rules-check@example.com',address:'Test address',position:'Test',institution:'Test',researchAreas:'Test',hdrCompleted:REG_OPTS.hdrCompleted[0],hdrCurrent:REG_OPTS.hdrCurrent[0],mode:REG_OPTS.mode[0],docFolder:'https://example.com/folder',signature:'Rules Check'};
+    const data={}; RG_FIELDS.forEach(([k])=>data[k]=SAMPLE[k]||'');
+    const ref=doc(collection(db,REG_COL)); testId=ref.id;
+    const b=writeBatch(db);
+    b.set(ref,{...data, docMethod:'links', citizen:'Yes', campusIds:[], campusNames:['Test campus'], signatureImg:TINY_PNG, declarations:true, signedOn:todayISO(), status:'submitted', submittedAt:serverTimestamp()});
+    b.set(doc(db,REG_STATUS_COL,ref.id),{status:'submitted', name:'Rules Check', at:serverTimestamp()});
+    await b.commit();
+  });
+  if(formOk){
+    await step('Applicant status check (public)',()=>getDoc(doc(db,REG_STATUS_COL,testId)));
+    await step('Remove the test form again',async()=>{ const b=writeBatch(db); b.delete(doc(db,REG_COL,testId)); b.delete(doc(db,REG_STATUS_COL,testId)); await b.commit(); });
+  }
+  const failed=rows.filter(r=>r.ok===false);
+  out.insertAdjacentHTML('afterbegin', failed.length
+    ? `<div class="alert alert-danger"><strong>${failed.length} check(s) failed.</strong> A <code>permission-denied</code> result almost always means Firebase is not using the latest rules. Open <strong>Firebase Console → Firestore Database → Rules</strong>, replace everything with the contents of the latest <code>firestore.rules</code>, press <strong>Publish</strong>, and make sure no red error appears. Then run this check again.</div>`
+    : `<div class="alert alert-success"><strong>All checks passed.</strong> The registration form can be submitted with the rules currently in Firebase.</div>`);
+  btn.disabled=false;
+}
 
 </script>
 </body>
