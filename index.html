@@ -457,6 +457,14 @@ tr.row-mine td:first-child{box-shadow:inset 3px 0 0 var(--primary)}
 .assign-bar label{display:inline-flex;align-items:center;gap:6px;margin:0;font-size:12.5px;color:var(--text)}
 .assign-bar select{width:auto;min-width:260px;height:32px;font-size:12.5px}
 .step.skip{border-style:dashed;color:var(--text3);background:transparent}
+.sig-pad{outline:none;max-width:460px}
+.sig-pad:focus-visible canvas,.sig-pad:focus-within canvas{border-color:var(--primary)}
+.sig-tools{display:flex;gap:8px;align-items:center;flex-wrap:wrap;margin-top:6px}
+.sig-tools kbd{font-family:var(--font);font-size:10.5px;border:1px solid var(--border2);border-bottom-width:2px;border-radius:4px;padding:0 4px;background:var(--bg3)}
+.sig-msg{min-height:16px;margin-top:4px}
+.ae-grid{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:0 14px;margin-top:12px}
+.ae-grid .wide{grid-column:1/-1}
+@media(max-width:700px){ .ae-grid{grid-template-columns:1fr} }
 /* ───────────── Supervisor registration ───────────── */
 .reg-wrap{max-width:880px;margin:0 auto;padding:44px 16px 24px}
 .reg-wrap .card{margin-bottom:16px}
@@ -1812,6 +1820,8 @@ const ACT = {
   'sup.semester.remove':{v:'removed from a semester list:',      c:'sup',    i:'i-cal', t:'danger'},
   'sup.semester.copy': {v:'copied a supervisor list into',       c:'sup',    i:'i-copy'},
   'reg.forward':       {v:'forwarded for endorsement the registration of', c:'reg', i:'i-arrow'},
+  'reg.adrReturn':     {v:'returned to the Course Coordinator / Research Officer the registration of', c:'reg', i:'i-back'},
+  'reg.adminEdit':     {v:'corrected the answers of', c:'reg', i:'i-edit'},
   'reg.forwardAdr':    {v:'forwarded to the Associate Dean Research the registration of', c:'reg', i:'i-arrow'},
   'reg.close':         {v:'closed the registration of',         c:'reg',    i:'i-x', t:'danger'},
   'reg.endorse':       {v:'endorsed the registration of',       c:'reg',    i:'i-check'},
@@ -4176,7 +4186,7 @@ const REG_STATUS={
   closed:     {l:'Closed',                       b:'badge-gray',  step:1, bad:1, w:'—'},
 };
 const REG_STEPS=['Submitted','Course Coordinator / Research Officer','Head of School endorsement','Associate Dean Research / RSC','Supervisor pool'];
-const TRAIL={poolRemove:'Removed from the supervisor pool by an administrator',forwardAdr:'Forwarded to the Associate Dean Research / RSC (Head of School endorsement not required)',assign:'Assigned by an administrator',returnApplicant:'Returned to the applicant for changes',resubmit:'Resubmitted by the applicant',forward:'Forwarded for School / Division endorsement',close:'Closed by the Research Office',endorse:'Endorsed by the School / Division',return:'Returned to the Research Office',decide:'Decision recorded',checklist:'Office checklist updated',account:'Supervisor account created',reopen:'Reopened'};
+const TRAIL={adrReturn:'Returned by the Associate Dean Research / RSC to the Course Coordinator / Research Officer',adminEdit:'Answers corrected by an administrator',poolRemove:'Removed from the supervisor pool by an administrator',forwardAdr:'Forwarded to the Associate Dean Research / RSC (Head of School endorsement not required)',assign:'Assigned by an administrator',returnApplicant:'Returned to the applicant for changes',resubmit:'Resubmitted by the applicant',forward:'Forwarded for School / Division endorsement',close:'Closed by the Research Office',endorse:'Endorsed by the School / Division',return:'Returned to the Research Office',decide:'Decision recorded',checklist:'Office checklist updated',account:'Supervisor account created',reopen:'Reopened'};
 const DECLARATIONS=[
   'I confirm that I am actively engaged in research and scholarly activities relevant to the discipline in which I seek to supervise.',
   'I have read and understood the CIHE Australia relevant policies and procedures outlined in Section 4 and agree to supervise research candidates in accordance with these requirements.',
@@ -4207,8 +4217,8 @@ function fullTrail(r){
   (r.resubmissions||[]).forEach(at=>t.push({act:'resubmit',at,who:regName(r)}));
   return t.sort((a,b)=>(tsDate(a.at)?.getTime()||0)-(tsDate(b.at)?.getTime()||0));
 }
-function regStepsHTML(status, noHos){
-  const st=REG_STATUS[status]||REG_STATUS.submitted;
+function regStepsHTML(status, noHos, returnedFrom){
+  const st = status==='returned' && returnedFrom==='adr' ? {...REG_STATUS.returned, step:3} : (REG_STATUS[status]||REG_STATUS.submitted);
   return `<div class="steps">${REG_STEPS.map((lbl,i)=>{
     if(i===2 && noHos) return `<div class="step skip">${esc(lbl)}<small>Not required</small></div>`;
     const cls = i<st.step ? 'done' : i===st.step ? (st.bad?'bad':'now') : '';
@@ -4276,29 +4286,107 @@ async function loadRegisterCampuses(){
 /* ── Signature pad (drawn with mouse, finger or stylus; saved as a small PNG) ── */
 const SIG={};
 function sigPadHTML(id){
-  return `<div class="sig-pad"><canvas id="${id}" width="600" height="180" aria-label="Signature box"></canvas>
-    <div class="sig-foot"><span class="text-xs text-muted">Sign in the box with your mouse, finger or stylus</span><button type="button" class="read-more-btn" data-sig-clear="${id}">Clear</button></div></div>`;
+  return `<div class="sig-pad" data-sig-wrap="${id}" tabindex="0" aria-label="Signature box: draw, upload or paste an image">
+    <canvas id="${id}" width="600" height="180" aria-label="Signature box"></canvas>
+    <div class="sig-foot">
+      <span class="text-xs text-muted">Draw with your mouse, finger or stylus — or use an image of your signature:</span>
+      <button type="button" class="read-more-btn" data-sig-clear="${id}">Clear</button>
+    </div>
+    <div class="sig-tools">
+      <button type="button" class="btn btn-sm" data-sig-upload="${id}">${icon('i-upload')}Upload image</button>
+      <button type="button" class="btn btn-sm" data-sig-paste="${id}">${icon('i-copy')}Paste image</button>
+      <span class="text-xs text-muted">or click the box and press <kbd>Ctrl</kbd>+<kbd>V</kbd> (<kbd>⌘</kbd>+<kbd>V</kbd> on a Mac)</span>
+      <input type="file" accept="image/*" data-sig-file="${id}" style="display:none"/>
+    </div>
+    <div class="sig-msg text-xs" data-sig-msg="${id}"></div>
+  </div>`;
 }
 function initSigPad(id){
   const c=el(id); if(!c) return;
+  const wrap=document.querySelector(`[data-sig-wrap="${id}"]`), msg=document.querySelector(`[data-sig-msg="${id}"]`);
   const ctx=c.getContext('2d'); let down=false, ink=false;
-  ctx.lineWidth=2.6; ctx.lineCap='round'; ctx.lineJoin='round'; ctx.strokeStyle='#101a33';
+  const pen=()=>{ ctx.lineWidth=2.6; ctx.lineCap='round'; ctx.lineJoin='round'; ctx.strokeStyle='#101a33'; };
+  pen();
+  const say=(t,bad)=>{ if(msg){ msg.textContent=t||''; msg.style.color=bad?'var(--red)':'var(--text2)'; } };
   const pos=e=>{ const r=c.getBoundingClientRect(); return [(e.clientX-r.left)*c.width/r.width,(e.clientY-r.top)*c.height/r.height]; };
-  c.onpointerdown=e=>{ e.preventDefault(); try{ c.setPointerCapture(e.pointerId); }catch{} down=true; const [x,y]=pos(e); ctx.beginPath(); ctx.moveTo(x,y); ctx.lineTo(x+.1,y+.1); ctx.stroke(); ink=true; };
+  c.onpointerdown=e=>{ e.preventDefault(); wrap?.focus({preventScroll:true}); try{ c.setPointerCapture(e.pointerId); }catch{} down=true; pen(); const [x,y]=pos(e); ctx.beginPath(); ctx.moveTo(x,y); ctx.lineTo(x+.1,y+.1); ctx.stroke(); ink=true; say(''); };
   c.onpointermove=e=>{ if(!down) return; const [x,y]=pos(e); ctx.lineTo(x,y); ctx.stroke(); };
   c.onpointerup=c.onpointercancel=()=>{ down=false; };
-  const clear=()=>{ ctx.clearRect(0,0,c.width,c.height); ink=false; };
+  const clear=()=>{ ctx.clearRect(0,0,c.width,c.height); ink=false; say(''); };
   document.querySelector(`[data-sig-clear="${id}"]`).onclick=clear;
-  SIG[id]={ empty:()=>!ink, data:()=>c.toDataURL('image/png'), clear };
+
+  /* An image of a signature (photo, scan or screenshot): fitted into the box and
+     cleaned up — the paper becomes transparent and the ink dark — so it looks
+     like a drawn signature and stays small enough to save. */
+  async function useImage(blob){
+    if(!blob || !String(blob.type||'').startsWith('image/')){ say('That is not an image. Use a PNG, JPG or similar picture of your signature.',true); return; }
+    if(blob.size>15*1024*1024){ say('That image is too large (over 15 MB).',true); return; }
+    let img;
+    try{
+      const url=URL.createObjectURL(blob);
+      img=await new Promise((ok,no)=>{ const i=new Image(); i.onload=()=>ok(i); i.onerror=no; i.src=url; });
+      URL.revokeObjectURL(url);
+    }catch{ say('That image could not be opened. Try saving it as PNG or JPG first.',true); return; }
+    // 1) look at the image at a working size and find the ink (anything clearly darker than the paper)
+    const sc=Math.min(1,1400/Math.max(img.width,img.height)), ww=Math.max(1,Math.round(img.width*sc)), wh=Math.max(1,Math.round(img.height*sc));
+    const wk=document.createElement('canvas'); wk.width=ww; wk.height=wh;
+    const wc=wk.getContext('2d'); wc.fillStyle='#fff'; wc.fillRect(0,0,ww,wh); wc.drawImage(img,0,0,ww,wh);
+    const wd=wc.getImageData(0,0,ww,wh).data, lum=i=>0.299*wd[i]+0.587*wd[i+1]+0.114*wd[i+2];
+    let sum=0; for(let i=0;i<wd.length;i+=4) sum+=lum(i);
+    const thr=Math.min(200,(sum/(ww*wh))*0.72);
+    // 2) crop to the ink (rows / columns with a few dark pixels, so specks are ignored)
+    const rows=new Uint32Array(wh), cols=new Uint32Array(ww);
+    for(let y=0;y<wh;y++) for(let x=0;x<ww;x++) if(lum((y*ww+x)*4)<thr){ rows[y]++; cols[x]++; }
+    const minHits=Math.max(2,Math.round(Math.min(ww,wh)*0.004));
+    let y0=rows.findIndex(v=>v>=minHits), y1=wh-1-[...rows].reverse().findIndex(v=>v>=minHits);
+    let x0=cols.findIndex(v=>v>=minHits), x1=ww-1-[...cols].reverse().findIndex(v=>v>=minHits);
+    if(y0<0||x0<0){ say('No signature could be found in that image. Use a clear picture of dark ink on light paper, or draw it instead.',true); return; }
+    const mx=Math.round((x1-x0+1)*0.04)+4, my=Math.round((y1-y0+1)*0.08)+4;
+    x0=Math.max(0,x0-mx); y0=Math.max(0,y0-my); x1=Math.min(ww-1,x1+mx); y1=Math.min(wh-1,y1+my);
+    // 3) fit the cropped signature into the box, keeping its shape
+    const W=c.width, H=c.height, pad=6, cw=x1-x0+1, ch=y1-y0+1, k=Math.min((W-2*pad)/cw,(H-2*pad)/ch);
+    const w=Math.max(1,Math.round(cw*k)), h=Math.max(1,Math.round(ch*k));
+    const t=document.createElement('canvas'); t.width=W; t.height=H;
+    const tc=t.getContext('2d'); tc.fillStyle='#fff'; tc.fillRect(0,0,W,H); tc.imageSmoothingQuality='high'; tc.drawImage(wk,x0,y0,cw,ch,(W-w)/2,(H-h)/2,w,h);
+    // 4) paper → transparent, ink → dark, like a drawn signature
+    const px=tc.getImageData(0,0,W,H), d=px.data; let inked=0;
+    for(let i=0;i<d.length;i+=4){
+      const L=0.299*d[i]+0.587*d[i+1]+0.114*d[i+2];
+      if(L<thr){ const a=Math.min(255,Math.round((thr-L)/thr*255*1.8)+60); d[i]=16;d[i+1]=26;d[i+2]=51;d[i+3]=a; inked++; }
+      else d[i+3]=0;
+    }
+    if(inked<30){ say('No signature could be found in that image. Use a clear picture of dark ink on light paper, or draw it instead.',true); return; }
+    ctx.clearRect(0,0,W,H); ctx.putImageData(px,0,0); ink=true;
+    const size=c.toDataURL('image/png').length;
+    say(size>SIG_MAX ? 'The image is too detailed to save. Crop it to just the signature, or draw it instead.' : 'Signature image added. Check it looks right, or press Clear to try again.', size>SIG_MAX);
+  }
+  const file=document.querySelector(`[data-sig-file="${id}"]`);
+  document.querySelector(`[data-sig-upload="${id}"]`).onclick=()=>file.click();
+  file.onchange=()=>{ useImage(file.files[0]); file.value=''; };
+  document.querySelector(`[data-sig-paste="${id}"]`).onclick=async()=>{
+    try{
+      if(!navigator.clipboard?.read) throw new Error('unsupported');
+      const items=await navigator.clipboard.read();
+      for(const it of items){ const type=it.types.find(t=>t.startsWith('image/')); if(type){ await useImage(await it.getType(type)); return; } }
+      say('There is no image on the clipboard. Copy a picture of your signature first.',true);
+    }catch(e){ wrap?.focus(); say('Your browser did not allow reading the clipboard here. Click the signature box and press Ctrl+V (⌘+V on a Mac) instead.',true); }
+  };
+  wrap?.addEventListener('paste',e=>{
+    const it=[...(e.clipboardData?.items||[])].find(i=>i.type.startsWith('image/'));
+    if(it){ e.preventDefault(); useImage(it.getAsFile()); }
+  });
+  wrap?.addEventListener('dragover',e=>{ e.preventDefault(); });
+  wrap?.addEventListener('drop',e=>{ const f=e.dataTransfer?.files?.[0]; if(f){ e.preventDefault(); useImage(f); } });
+  SIG[id]={ empty:()=>!ink, data:()=>c.toDataURL('image/png'), clear, useImage };
 }
 const SIG_MAX=90000; // characters; the rules allow 100,000
 const okSig=u=> typeof u==='string' && u.startsWith('data:image/png;base64,') ? u : '';
 /* Reads a pad. Returns the PNG data URL, or '' after telling the user what is wrong. */
 function readSig(id, say){
   const s=SIG[id];
-  if(!s || s.empty()){ say('Please sign in the signature box.'); el(id)?.scrollIntoView({behavior:'smooth',block:'center'}); return ''; }
+  if(!s || s.empty()){ say('Please sign in the signature box, or upload / paste an image of your signature.'); el(id)?.scrollIntoView({behavior:'smooth',block:'center'}); return ''; }
   const d=s.data();
-  if(d.length>SIG_MAX){ say('That signature is too detailed to save. Press Clear and sign again more simply.'); return ''; }
+  if(d.length>SIG_MAX){ say('That signature is too detailed to save. Press Clear and sign again more simply, or use a cropped image of just the signature.'); return ''; }
   return d;
 }
 
@@ -4310,7 +4398,7 @@ function regFormError(msg, focusId){
 let RG_EDIT=null;
 async function startRegEdit(id, s){
   const f=s.form||{};
-  RG_EDIT={id};
+  RG_EDIT={id, returnedFrom:s.returnedFrom==='adr'?'adr':'office'};
   await loadRegisterCampuses();
   RG_FIELDS.forEach(([key,elId])=>{ const e=el(elId); if(e && f[key]!==undefined) e.value=f[key]; });
   document.querySelectorAll('input[name="rg-citizen"]').forEach(r=>r.checked=r.value===f.citizen);
@@ -4320,7 +4408,7 @@ async function startRegEdit(id, s){
   el('rg-doc-access').checked=false;
   document.querySelectorAll('#rg-declarations [data-decl]').forEach(c=>c.checked=false);
   SIG['rg-sig']?.clear();
-  el('rg-edit-banner').innerHTML=`<div class="alert alert-warning"><strong>You are updating registration <code>${esc(id)}</code>.</strong> The Research Office asked for these changes:<div style="white-space:pre-wrap;margin-top:4px">${esc(s.note||'')}</div><div class="text-sm" style="margin-top:6px">Make the changes, tick the declarations, sign again and press <strong>Resubmit registration</strong>.</div></div>`;
+  el('rg-edit-banner').innerHTML=`<div class="alert alert-warning"><strong>You are updating registration <code>${esc(id)}</code>.</strong> ${s.returnedFrom==='adr'?'The Associate Dean Research':'The Research Office'} asked for these changes:<div style="white-space:pre-wrap;margin-top:4px">${esc(s.note||'')}</div><div class="text-sm" style="margin-top:6px">Make the changes, tick the declarations, sign again and press <strong>Resubmit registration</strong>.</div></div>`;
   show('rg-edit-banner'); show('rg-form-wrap'); hide('rg-done');
   el('rg-submit-btn').innerHTML=`${icon('i-send')}Resubmit registration`;
   el('rg-edit-banner').scrollIntoView({behavior:'smooth',block:'start'});
@@ -4366,11 +4454,13 @@ async function submitRegistrationInner(){
   try{
     const editing=RG_EDIT;
     const ref=editing ? doc(db,REG_COL,editing.id) : doc(collection(db,REG_COL));
-    const answers={...data, docMethod, citizen, campusIds, campusNames, signatureImg, declarations:true, signedOn:todayISO(), status:'submitted'};
+    // a resubmission goes straight back to whoever returned it
+    const nextStatus = editing && editing.returnedFrom==='adr' ? 'approval' : 'submitted';
+    const answers={...data, docMethod, citizen, campusIds, campusNames, signatureImg, declarations:true, signedOn:todayISO(), status:nextStatus};
     const b=writeBatch(db);
     if(editing) b.update(ref,{...answers, resubmittedAt:serverTimestamp(), resubmissions:arrayUnion(Timestamp.now())});
     else b.set(ref,{...answers, submittedAt:serverTimestamp()});
-    b.set(doc(db,REG_STATUS_COL,ref.id),{status:'submitted', name:`${data.firstName} ${data.lastName}`.slice(0,80), at:serverTimestamp()});
+    b.set(doc(db,REG_STATUS_COL,ref.id),{status:nextStatus, name:`${data.firstName} ${data.lastName}`.slice(0,80), at:serverTimestamp()});
     await b.commit();
     RG_EDIT=null; hide('rg-edit-banner'); el('rg-submit-btn').innerHTML=`${icon('i-send')}Submit registration`;
     const docsSent=docMethod==='links';
@@ -4379,14 +4469,14 @@ async function submitRegistrationInner(){
     el('rg-done').innerHTML=`<div class="card" style="text-align:center;padding:34px 22px">
         <span class="share-ic" style="margin:0 auto 12px;background:var(--green)">${icon('i-check')}</span>
         <h2>Registration ${editing?'resubmitted':'submitted'}</h2>
-        <p class="text-muted" style="margin:6px auto 16px;max-width:520px">Thank you, ${esc(data.firstName)}. Your ${editing?'updated ':''}form is now with the Research Office. Keep this reference code — you need it to check your status.</p>
+        <p class="text-muted" style="margin:6px auto 16px;max-width:520px">Thank you, ${esc(data.firstName)}. Your ${editing?'updated ':''}form is now with ${nextStatus==='approval'?'the Associate Dean Research':'the Research Office'}. Keep this reference code — you need it to check your status.</p>
         <div><span class="ref-code" id="rg-done-ref">${esc(ref.id)}</span></div>
         <div class="form-actions" style="justify-content:center;margin-top:14px">
           <button class="btn" id="rg-done-copy">${icon('i-copy')}Copy reference</button>
           <a class="btn ${docsSent?'':'btn-primary'}" href="${esc(mail)}">${icon('i-mail')}Email documents to the Research Office</a>
         </div>
         ${docsSent?'':`<div class="alert alert-warning" style="text-align:left;margin:18px auto 0;max-width:560px"><strong>Next step:</strong> email your CV, PhD certificate and transcripts (or a zipped folder) to ${esc(RESEARCH_OFFICE_EMAIL)} with the reference above in the subject line. The button above opens that email for you. Your registration cannot progress until the documents arrive.</div>`}
-        ${regStepsHTML('submitted')}
+        ${regStepsHTML(nextStatus)}
         <p class="text-sm text-muted" style="margin-top:10px">A sign-in account is created only after your registration is approved. You will be contacted at ${esc(data.email)}.</p>
       </div>`;
     show('rg-done');
@@ -4418,12 +4508,12 @@ async function checkRegStatus(refRaw){
       registered:'Your registration is complete and your Assign Supervisor account has been created. Sign-in details were sent to your email address.',
       declined:'Your registration was not approved. The Research Office will contact you with the details.',
       closed:'This registration was closed by the Research Office. Please contact them for details.',
-      returned:'The Research Office has returned your form for changes. Update it below and submit it again.',
+      returned:'Your form has been returned to you for changes. Update it below and submit it again.',
     }[s.status]||'';
     if(s.status==='returned'){
       out.innerHTML=`<div style="margin-top:6px"><div class="flex items-center gap-8" style="flex-wrap:wrap"><span class="fw-600">${esc(s.name||'Registration')}</span><span class="badge badge-amber">Returned to you for changes</span><span class="text-xs text-muted">returned ${esc(fmtDate(s.at))}</span></div>
-        ${regStepsHTML('returned')}
-        <div class="alert alert-warning" style="margin-top:10px"><strong>What the Research Office needs you to change:</strong><div style="white-space:pre-wrap;margin-top:4px">${esc(s.note||'(no note)')}</div></div>
+        ${regStepsHTML('returned', s.noHos, s.returnedFrom)}
+        <div class="alert alert-warning" style="margin-top:10px"><strong>What ${s.returnedFrom==='adr'?'the Associate Dean Research':'the Research Office'} needs you to change:</strong><div style="white-space:pre-wrap;margin-top:4px">${esc(s.note||'(no note)')}</div></div>
         <button class="btn btn-primary" id="rg-edit-btn">${icon('i-edit')}Update my registration</button>
         <span class="text-xs text-muted" style="margin-left:8px">Your earlier answers are filled in. You will need to tick the declarations and sign again.</span></div>`;
       el('rg-edit-btn').onclick=()=>startRegEdit(ref,s);
@@ -4466,7 +4556,9 @@ function regAwaitsMe(r){
   if(isAdminUser() && r.assignee && r.assignee!==PROFILE?.uid) return false; // assigned to someone else: theirs, not every admin's
   return canActStage(r, stage);
 }
-const stageOfReg=r=>REG_STATUS[r.status]?.stage || (r.status==='returned'?'office':'');
+const retFrom=r=>r?.returnedFrom==='adr'?'adr':'office';
+const stageOfReg=r=>REG_STATUS[r.status]?.stage || (r.status==='returned'?retFrom(r):'');
+const RET_WHO={office:'the Course Coordinator / Research Officer',adr:'the Associate Dean Research / RSC'};
 /* Who the form is with right now, for the queue and the detail view. */
 function regWithWho(r){
   if(r.assignee) return r.assigneeName || personName(r.assignee) || 'Assigned person';
@@ -4595,9 +4687,9 @@ function regDetailHTML(r){
   const docLine=(lbl,url,got)=>kvHTML(lbl, url || (got?'Received by the Research Office':r.docFolder?'See the shared folder':r.docMethod==='email'?'To be emailed to the Research Office':'Not provided'));
   return `
     <div class="flex items-center gap-8" style="flex-wrap:wrap"><span class="badge ${st.b}">${esc(st.l)}</span><span class="text-xs text-muted">Ref <code>${esc(r.id)}</code> · submitted ${esc(fmtDate(r.submittedAt))}</span>
-      <div class="spacer"></div><button class="btn btn-sm btn-primary" data-ra="word">${icon('i-download')}Download Word file</button><button class="btn btn-sm" data-ra="mail-applicant">${icon('i-mail')}Email applicant</button></div>
+      <div class="spacer"></div>${isAdminUser()?`<button class="btn btn-sm" data-ra="adminEdit">${icon('i-edit')}Correct answers</button>`:''}<button class="btn btn-sm btn-primary" data-ra="word">${icon('i-download')}Download Word file</button><button class="btn btn-sm" data-ra="mail-applicant">${icon('i-mail')}Email applicant</button></div>
     ${assignCtlHTML(r)}
-    ${regStepsHTML(r.status, r.endorsement?.skipped)}
+    ${regStepsHTML(r.status, r.endorsement?.skipped, r.returnedFrom)}
     <div id="reg-action">${regActionHTML(r)}</div>
     ${sec('Section 1 · Registration type',`<div class="kv">${kvHTML('Master of Research discipline',r.discipline)}${kvHTML('Supervision level sought',r.level)}${kvHTML('Preferred campus / location',regCampusText(r),'wide')}</div>`)}
     ${sec('Section 2 · Personal details',`<div class="kv">${kvHTML('Name',regName(r))}${kvHTML('Australian citizen / PR',r.citizen)}${kvHTML('Phone',r.phone)}${kvHTML('Email',r.email)}${kvHTML('Residential address',r.address,'wide')}</div>`)}
@@ -4622,6 +4714,67 @@ function assignCtlHTML(r){
     <option value="">Automatic — ${esc(STAGES[stage])}${['office','school'].includes(stage)&&sch?' · '+esc(sch):''}</option>
     ${cands.map(u=>`<option value="${u.id}" ${r.assignee===u.id?'selected':''}>${esc(lbl(u))}</option>`).join('')}</select><span class="text-xs text-muted">Only this person (or an administrator) can act on the form at this stage. It clears when the form moves on.</span></div>`;
 }
+/* ── Admin: correct the applicant's answers on their behalf ── */
+const FIELD_LABELS={discipline:'Discipline',level:'Supervision level sought',title:'Title',firstName:'First name',lastName:'Last name',phone:'Phone',email:'Email',address:'Residential address',
+  position:'Current position',institution:'Employing institution',institutionAddress:'Institution address',phd:'PhD / doctoral qualification',researchAreas:'Research areas',profileLink:'ORCID / Google Scholar',
+  hdrCompleted:'HDR students supervised to completion',hdrCurrent:'Current HDR students',mode:'Supervision mode',docFolder:'Shared folder link',docCv:'CV link',docPhd:'PhD certificate link',docTranscripts:'Transcripts link',docOther:'Other documents link',
+  citizen:'Australian citizen / PR',docMethod:'How documents are provided',campusIds:'Preferred campus'};
+const EDIT_SELECTS={discipline:'discipline',level:'level',title:'title',hdrCompleted:'hdrCompleted',hdrCurrent:'hdrCurrent',mode:'mode'};
+const EDIT_LONG=['address','institutionAddress','researchAreas'];
+function openAdminEdit(r){
+  const keys=RG_FIELDS.filter(([k])=>k!=='signature');
+  const fld=([k,,req,max])=>{
+    const lbl=`${esc(FIELD_LABELS[k]||k)}${req?' <span class="req">*</span>':''}`, v=r[k]||'';
+    const input = EDIT_SELECTS[k] ? `<select data-ae="${k}"><option value="">— Select —</option>${optsHTML([...REG_OPTS[EDIT_SELECTS[k]], ...(v && !REG_OPTS[EDIT_SELECTS[k]].includes(v)?[v]:[])],v)}</select>`
+      : EDIT_LONG.includes(k) ? `<textarea data-ae="${k}" rows="2" maxlength="${max}">${esc(v)}</textarea>` : `<input type="text" data-ae="${k}" value="${esc(v)}" maxlength="${max}"/>`;
+    return `<div class="form-group ${EDIT_LONG.includes(k)?'wide':''}"><label>${lbl}</label>${input}</div>`;
+  };
+  el('reg-modal-body').innerHTML=`
+    <div class="alert alert-info" style="margin-top:8px">You are correcting <strong>${esc(regName(r))}</strong>'s answers on their behalf. Every change is recorded in the form's history (and the Word file). The applicant's signature and declarations are not changed.</div>
+    <div class="ae-grid">${keys.map(fld).join('')}
+      <div class="form-group"><label>${esc(FIELD_LABELS.citizen)}</label><select data-ae="citizen">${optsHTML(['Yes','No'],r.citizen||'')}</select></div>
+      <div class="form-group"><label>${esc(FIELD_LABELS.docMethod)}</label><select data-ae="docMethod"><option value="links" ${r.docMethod!=='email'?'selected':''}>Shared links</option><option value="email" ${r.docMethod==='email'?'selected':''}>Emailed to the Research Office</option></select></div>
+      <div class="form-group wide"><label>${esc(FIELD_LABELS.campusIds)} <span class="req">*</span></label><div class="sem-box"><div class="sem-list" style="border:none;margin:0;padding:0">${CAMPUSES.map(c=>`<label class="check-row"><input type="checkbox" data-ae-campus="${c.id}" ${(r.campusIds||[]).includes(c.id)?'checked':''}/> <span>${esc(campusLabel(c))}</span></label>`).join('')}</div></div></div>
+    </div>
+    <div class="form-group"><label>Reason for the correction <span class="opt">(recorded in the history)</span></label><input type="text" id="ae-reason" maxlength="200" placeholder="e.g. Applicant emailed a new phone number"/></div>
+    <div class="form-actions"><button class="btn btn-primary" id="ae-save">${icon('i-check')}Save corrections</button><button class="btn btn-ghost" id="ae-cancel">Cancel</button></div>`;
+  el('ae-cancel').onclick=()=>openReg(r.id);
+  el('ae-save').onclick=async()=>{
+    const q=k=>el('reg-modal-body').querySelector(`[data-ae="${k}"]`)?.value.trim()??'';
+    const patch={}, changed=[];
+    for(const [k,,req] of keys){
+      const v=q(k);
+      if(req && !v){ toast(`${FIELD_LABELS[k]||k} is required`,'error'); return; }
+      if(v!==(r[k]||'')){ patch[k]=v; changed.push(FIELD_LABELS[k]||k); }
+    }
+    ['citizen','docMethod'].forEach(k=>{ const v=q(k); if(v!==(r[k]||(k==='docMethod'?'links':''))){ patch[k]=v; changed.push(FIELD_LABELS[k]); } });
+    const ids=[...el('reg-modal-body').querySelectorAll('[data-ae-campus]:checked')].map(c=>c.dataset.aeCampus);
+    if(!ids.length && !(r.campusNames||[]).length){ toast('Choose at least one preferred campus','error'); return; }
+    if(ids.length && ids.slice().sort().join()!==(r.campusIds||[]).slice().sort().join()){ patch.campusIds=ids; patch.campusNames=ids.map(id=>campusLabel(CAMPUSES.find(c=>c.id===id))); changed.push(FIELD_LABELS.campusIds); }
+    if(patch.email && !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(patch.email)){ toast('Enter a valid email address','error'); return; }
+    for(const k of ['docFolder','docCv','docPhd','docTranscripts','docOther','profileLink']) if(patch[k] && k!=='profileLink' && !safeUrl(patch[k])){ toast(`${FIELD_LABELS[k]} must start with https://`,'error'); return; }
+    if(!changed.length){ toast('Nothing was changed','info'); return; }
+    const reason=el('ae-reason').value.trim();
+    el('ae-save').disabled=true;
+    try{
+      await regSave(r,patch,'adminEdit',`Changed: ${changed.join(', ')}${reason?' — '+reason:''}`,changed.join(', ').slice(0,150));
+      // keep the supervisor pool entry in step
+      const pe=POOL.find(x=>x.id===r.id || x.registrationId===r.id);
+      if(pe){
+        const nr={...r,...patch}, pp={};
+        if(patch.title!==undefined||patch.firstName!==undefined||patch.lastName!==undefined){ pp.title=nr.title||''; pp.firstName=nr.firstName; pp.lastName=nr.lastName; pp.name=regName(nr); }
+        if(patch.email!==undefined){ pp.email=nr.email; pp.emailLower=lc(nr.email); }
+        ['phone','institution','position','researchAreas','profileLink','mode','hdrCompleted','hdrCurrent'].forEach(k=>{ if(patch[k]!==undefined) pp[k]=patch[k]; });
+        if(patch.discipline!==undefined) pp.disciplines=regDisciplines(nr.discipline);
+        if(patch.level!==undefined){ pp.level=nr.level; pp.supervisorType=LEVEL_TYPE[nr.level]||'both'; }
+        if(patch.campusIds){ pp.campusIds=patch.campusIds; pp.campusNames=patch.campusNames; }
+        if(Object.keys(pp).length){ await updateDoc(doc(db,POOL_COL,pe.id),{...pp,updatedAt:serverTimestamp()}); await loadPool(); }
+      }
+      toast(`Corrected: ${changed.join(', ')}`,'success');
+      openReg(r.id);
+    }catch(e){ el('ae-save').disabled=false; toast('Error: '+e.message,'error'); }
+  };
+}
 function regActionHTML(r){
   const mine=myStages(), adm=isAdminUser(), st=r.status;
   const box=(title,inner)=>`<div class="reg-act" style="margin-top:12px"><h4 class="sub-head" style="margin-top:0">${title}</h4>${inner}</div>`;
@@ -4638,12 +4791,12 @@ function regActionHTML(r){
       <div class="form-group"><label>Note <span class="opt">(required to return or close — a return note is shown to the applicant)</span></label><textarea id="ra-note" rows="3" maxlength="600" placeholder="e.g. Your transcripts link asks for sign-in — please set it to 'Anyone with the link'."></textarea></div>
       <div class="form-actions"><button class="btn btn-primary" data-ra="forward" id="ra-forward-btn">${icon('i-arrow')}${hosRequired(guess)?'Forward to the Head of School':'Forward to the Associate Dean Research'}</button><button class="btn" data-ra="returnApplicant">${icon('i-back')}Return to applicant</button><button class="btn btn-danger" data-ra="close">Close without progressing</button></div>`);
   } else if(st==='returned'){
-    if(!canActStage(r,'office')) return waiting('the applicant to update and resubmit the form');
+    if(!canActStage(r,retFrom(r))) return waiting('the applicant to update and resubmit the form');
     const last=[...(r.trail||[])].reverse().find(t=>t.act==='returnApplicant');
     h=box('Returned to the applicant',`
-      <div class="alert alert-warning" style="margin-bottom:12px">Waiting for ${esc(regName(r))} to update and resubmit the form. It comes back to you automatically when they do.${last?`<div style="margin-top:6px"><strong>Your note${last.at?` (${esc(fmtDate(last.at))})`:''}:</strong> ${esc(last.note)}</div>`:''}</div>
+      <div class="alert alert-warning" style="margin-bottom:12px">Waiting for ${esc(regName(r))} to update and resubmit the form. It comes back to ${retFrom(r)==='adr'?'the Associate Dean Research':'the Course Coordinator / Research Officer'} automatically when they do.${last?`<div style="margin-top:6px"><strong>Your note${last.at?` (${esc(fmtDate(last.at))})`:''}:</strong> ${esc(last.note)}</div>`:''}</div>
       <div class="form-group"><label>Note <span class="opt">(required to close)</span></label><textarea id="ra-note" rows="2"></textarea></div>
-      <div class="form-actions"><button class="btn" data-ra="mail-applicant">${icon('i-mail')}Remind applicant</button><button class="btn" data-ra="takeBack">Continue without changes</button><button class="btn btn-danger" data-ra="closeReturned">Close registration</button></div>`);
+      <div class="form-actions"><button class="btn" data-ra="mail-applicant">${icon('i-mail')}Remind applicant</button><button class="btn" data-ra="takeBack">Continue without changes</button>${retFrom(r)==='office'?'<button class="btn btn-danger" data-ra="closeReturned">Close registration</button>':''}</div>`);
   } else if(st==='endorsement'){
     if(!canActStage(r,'school')) return waiting(regWithWho(r));
     h=box(`${esc(r.endorsement?.school||'School / Division')} · endorsement (Section 6)`,`
@@ -4659,11 +4812,14 @@ function regActionHTML(r){
       <div class="g3"><div class="form-group"><label>Name <span class="req">*</span></label><input type="text" id="ra-by" value="${esc(d.name||PROFILE?.name||'')}" maxlength="120"/></div>
       <div class="form-group"><label>Registration outcome <span class="req">*</span></label><select id="ra-outcome"><option value="">— Select —</option>${optsHTML(REG_OPTS.outcome,'')}</select></div>
       <div class="form-group"><label>Date of decision <span class="req">*</span></label><input type="date" id="ra-date" value="${todayISO()}"/></div></div>
-      <div class="form-group"><label>Comments / conditions</label><textarea id="ra-note" rows="3">${esc(d.comments||'')}</textarea></div>
+      <div class="form-group"><label>Comments / conditions <span class="opt">(also the note if you return the form — the applicant sees it)</span></label><textarea id="ra-note" rows="3">${esc(d.comments||'')}</textarea></div>
       <div class="form-group"><label>RSC decision / date <span class="opt">(if it went to the RSC)</span></label><input type="text" id="ra-rsc" value="${esc(d.rsc||'')}" maxlength="160"/></div>
       <div class="form-group"><label>Signature <span class="req">*</span></label>${sigPadHTML('ra-sig')}</div>
       <p class="hint" style="margin:-4px 0 12px">Approved and Conditionally Approved allow the supervisor account to be created. Deferred and Other keep the form with you. Rejected ends the registration.</p>
-      <div class="form-actions"><button class="btn btn-primary" data-ra="decide">${icon('i-shield')}Record decision</button></div>`);
+      <div class="form-actions"><button class="btn btn-primary" data-ra="decide">${icon('i-shield')}Record decision</button>
+        <span class="text-xs text-muted" style="margin:0 2px 0 8px">or, if something needs fixing:</span>
+        <button class="btn" data-ra="returnApplicant">${icon('i-back')}Return to applicant</button>
+        <button class="btn" data-ra="adrReturn">${icon('i-back')}Return to Course Coordinator / Research Officer</button></div>`);
   } else if(st==='approved' || st==='registered'){
     const inPool=POOL.some(p=>p.id===r.id || p.registrationId===r.id), removed=!inPool && !!r.poolRemovedAt;
     h+=box('Supervisor pool',`
@@ -4713,7 +4869,12 @@ async function regSave(r, patch, act, note, logDet, pubExtra){
   const b=writeBatch(db);
   if(patch.status && patch.status!==r.status && r.assignee && patch.assignee===undefined){ patch.assignee=''; patch.assigneeName=''; }
   b.update(doc(db,REG_COL,r.id),{...patch, updatedAt:serverTimestamp(), trail:arrayUnion(entry)});
-  const pub={status:patch.status||r.status, name:`${r.firstName} ${r.lastName}`.slice(0,80), at:serverTimestamp(), ...(pubExtra||{})};
+  const nr={...r,...patch}, newStatus=patch.status||r.status;
+  if(newStatus==='returned' && !pubExtra){ // e.g. assigned or corrected while with the applicant: keep what they need to resubmit
+    const form={}; APPLICANT_KEYS.forEach(k=>{ if(nr[k]!==undefined) form[k]=nr[k]; });
+    pubExtra={note:String([...(r.trail||[])].reverse().find(t=>t.act==='returnApplicant')?.note||'').slice(0,600), form, returnedFrom:retFrom(nr)};
+  }
+  const pub={status:newStatus, name:`${nr.firstName} ${nr.lastName}`.slice(0,80), at:serverTimestamp(), ...(pubExtra||{})};
   const outcome=(patch.decision||r.decision)?.outcome; if(outcome) pub.outcome=outcome;
   if((patch.endorsement||r.endorsement)?.skipped) pub.noHos=true;
   b.set(doc(db,REG_STATUS_COL,r.id),pub); // full rewrite, so a returned form's copy never lingers
@@ -4758,6 +4919,7 @@ async function regAct(r, act, btn){
       return;
     }
     if(act==='word'){ downloadRegDocx(r); return; }
+    if(act==='adminEdit'){ openAdminEdit(r); return; }
     if(act==='openPool'){ closeReg(); gotoAdminTab('tab-pool'); return; }
     if(act==='addPool'){
       await addRegToPool(r);
@@ -4781,13 +4943,15 @@ async function regAct(r, act, btn){
     if(act==='returnApplicant'){
       const note=v('ra-note');
       if(!note){ fail('Write what the applicant needs to change — they will see this note.'); return; }
-      if(!confirm(`Return the form to ${name} for changes?\n\nThey will see your note, can open their form with their answers filled in, and resubmit it. It comes back to the Research Office when they do.`)) return;
-      const docs={cv:el('ra-doc-cv').checked, phd:el('ra-doc-phd').checked, tr:el('ra-doc-tr').checked};
+      const from=stageOfReg(r)==='adr'?'adr':'office';
+      if(!confirm(`Return the form to ${name} for changes?\n\nThey will see your note, can open their form with their answers filled in, and resubmit it. It comes back to ${RET_WHO[from]} when they do.`)) return;
       const form={}; APPLICANT_KEYS.forEach(k=>{ if(r[k]!==undefined) form[k]=r[k]; });
-      await regSave(r,{status:'returned',officeReview:{docs,by:ME.uid}},'returnApplicant',note,'',{note:note.slice(0,600),form});
+      const patch={status:'returned', returnedFrom:from};
+      if(el('ra-doc-cv')) patch.officeReview={docs:{cv:el('ra-doc-cv').checked, phd:el('ra-doc-phd').checked, tr:el('ra-doc-tr').checked},by:ME.uid};
+      await regSave(r,patch,'returnApplicant',note,'',{note:note.slice(0,600),form,returnedFrom:from});
       closeReg(); toast('Returned to the applicant','success');
       openRouteEmail([{name,email:r.email}], name, `Your CIHE supervisor registration needs changes (ref ${r.id})`,
-        `Dear ${studentFirstName({name})},\n\nThank you for your supervisor registration. The Research Office has returned it to you for the following changes:\n\n${note}\n\nPlease open the link below, choose "Update my registration", make the changes and submit it again. Your earlier answers are already filled in.\n${REGISTER_URL}/${r.id}\n\nBest regards,\n${myDisplayName()}`);
+        `Dear ${studentFirstName({name})},\n\nThank you for your supervisor registration. ${from==='adr'?'The Associate Dean Research':'The Research Office'} has returned it to you for the following changes:\n\n${note}\n\nPlease open the link below, choose "Update my registration", make the changes and submit it again. Your earlier answers are already filled in.\n${REGISTER_URL}/${r.id}\n\nBest regards,\n${myDisplayName()}`);
       return;
     }
     if(act==='takeBack' || act==='closeReturned'){
@@ -4798,7 +4962,18 @@ async function regAct(r, act, btn){
         await regSave(r,{status:'closed'},'close',note); closeReg(); toast('Registration closed','info'); return;
       }
       if(!confirm(`Take the form back from ${name} and continue reviewing it as it is?\n\nThey will no longer be able to edit it.`)) return;
-      await regSave(r,{status:'submitted'},'reopen',note||'Continued without the applicant\'s changes'); toast('Back with the Research Office','success'); openReg(r.id); return;
+      const back=retFrom(r)==='adr'?'approval':'submitted';
+      await regSave(r,{status:back},'reopen',note||'Continued without the applicant\'s changes'); toast(back==='approval'?'Back with the Associate Dean Research':'Back with the Course Coordinator / Research Officer','success'); openReg(r.id); return;
+    }
+    if(act==='adrReturn'){
+      const note=v('ra-note');
+      if(!note){ fail('Write what needs checking or correcting under Comments — the Course Coordinator / Research Officer will see it.'); return; }
+      if(!confirm(`Return the form of ${name} to the Course Coordinator / Research Officer?`)) return;
+      await regSave(r,{status:'submitted'},'adrReturn',note);
+      closeReg(); toast('Returned to the Course Coordinator / Research Officer','success');
+      openRouteEmail(officersFor('office',regSchool(r)), 'Course Coordinator / Research Officer', `Supervisor registration returned – ${name}`,
+        routeBody(r,`The Associate Dean Research / RSC has returned this supervisor registration to you.\n\nComment: ${note}`));
+      return;
     }
     if(act==='forward' || act==='close'){
       const docs={cv:el('ra-doc-cv').checked, phd:el('ra-doc-phd').checked, tr:el('ra-doc-tr').checked};
