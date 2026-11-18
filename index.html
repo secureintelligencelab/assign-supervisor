@@ -1836,7 +1836,7 @@ const ACT = {
   'pool.invite':       {v:'invited to select students:',         c:'reg', i:'i-send'},
   'pool.inactive':     {v:'marked inactive in the pool:',        c:'reg', i:'i-x', t:'danger'},
   'pool.reactivate':   {v:'reactivated in the pool:',            c:'reg', i:'i-check'},
-  'pool.delete':       {v:'deleted from the supervisor pool:',   c:'reg', i:'i-trash', t:'danger'},
+  'pool.delete':       {v:'removed from the supervisor pool:',   c:'reg', i:'i-trash', t:'danger'},
   'settings.edit':     {v:'changed settings',                   c:'system', i:'i-sliders'},
   'admin.promote':     {v:'made an admin:',                     c:'system', i:'i-shield'},
   'log.clear':         {v:'cleared the activity log',           c:'system', i:'i-trash', t:'danger'},
@@ -4125,8 +4125,8 @@ window.toggleSupSemester=async(id)=>{
    Public form (#register) → `registrations` document. The form is then
    routed through the offices named on the paper form:
      submitted    Research Office checks documents and forwards
-     endorsement  School / Division endorses            (Section 6)
-     approval     Associate Dean Research / RSC decides (Section 7)
+     endorsement  Head of School endorses (Section 6) — only where an admin requires it
+     approval     Associate Dean Research / RSC decides (Section 7, or Section 6 without endorsement)
      approved     an admin creates the sign-in account; office checklist
      registered   account exists
    plus: deferred (held by ADR / RSC), declined (rejected), closed.
@@ -4153,6 +4153,10 @@ const STAGES={office:'Course Coordinator / Research Officer',school:'Head of Sch
 /* Head of School endorsement is optional, switched on per school by an admin
    (settings/global.hosRequired = {'School of Business': true, …}). */
 const hosRequired=school=>!!(school && SETTINGS?.hosRequired?.[school]);
+/* Endorsement applies once the form went to a Head of School; before forwarding, it follows the school's setting. */
+const hosApplies=r=> r?.endorsement ? !r.endorsement.skipped : hosRequired(regSchool(r));
+/* Sections run 1–6 without Head of School endorsement (approval = Section 6), 1–7 with it. */
+const adrSec=r=> hosApplies(r) ? 7 : 6;
 /* Which school a form belongs to: the forwarding school once chosen, otherwise its discipline.
    "Both Business and IT" has no school until the Research Office (or an admin) decides. */
 function regSchool(r){
@@ -4172,7 +4176,7 @@ const REG_STATUS={
   closed:     {l:'Closed',                       b:'badge-gray',  step:1, bad:1, w:'—'},
 };
 const REG_STEPS=['Submitted','Course Coordinator / Research Officer','Head of School endorsement','Associate Dean Research / RSC','Supervisor pool'];
-const TRAIL={forwardAdr:'Forwarded to the Associate Dean Research / RSC (Head of School endorsement not required)',assign:'Assigned by an administrator',returnApplicant:'Returned to the applicant for changes',resubmit:'Resubmitted by the applicant',forward:'Forwarded for School / Division endorsement',close:'Closed by the Research Office',endorse:'Endorsed by the School / Division',return:'Returned to the Research Office',decide:'Decision recorded',checklist:'Office checklist updated',account:'Supervisor account created',reopen:'Reopened'};
+const TRAIL={poolRemove:'Removed from the supervisor pool by an administrator',forwardAdr:'Forwarded to the Associate Dean Research / RSC (Head of School endorsement not required)',assign:'Assigned by an administrator',returnApplicant:'Returned to the applicant for changes',resubmit:'Resubmitted by the applicant',forward:'Forwarded for School / Division endorsement',close:'Closed by the Research Office',endorse:'Endorsed by the School / Division',return:'Returned to the Research Office',decide:'Decision recorded',checklist:'Office checklist updated',account:'Supervisor account created',reopen:'Reopened'};
 const DECLARATIONS=[
   'I confirm that I am actively engaged in research and scholarly activities relevant to the discipline in which I seek to supervise.',
   'I have read and understood the CIHE Australia relevant policies and procedures outlined in Section 4 and agree to supervise research candidates in accordance with these requirements.',
@@ -4600,9 +4604,8 @@ function regDetailHTML(r){
     ${sec('Section 3 · Academic & professional profile',`<div class="kv">${kvHTML('Current position title',r.position)}${kvHTML('Employing institution',r.institution)}${kvHTML('Institution address',r.institutionAddress,'wide')}${kvHTML('PhD / doctoral qualification',r.phd,'wide')}${kvHTML('Research areas & specialisations',r.researchAreas,'wide')}${kvHTML('ORCID / Google Scholar',r.profileLink,'wide')}${kvHTML('HDR students supervised to completion',r.hdrCompleted)}${kvHTML('Current HDR students supervising',r.hdrCurrent)}${kvHTML('Supervision mode',r.mode)}</div>`)}
     ${sec('Supporting documents',`<div class="kv">${kvHTML('How provided',docMethodText(r),'wide')}${r.docFolder?kvHTML('Shared folder',r.docFolder,'wide'):''}${docLine('CV',r.docCv,docs.cv)}${docLine('PhD certificate',r.docPhd,docs.phd)}${docLine('Transcripts',r.docTranscripts,docs.tr)}${r.docOther?kvHTML('Other documents',r.docOther):''}</div>`)}
     ${sec('Section 5 · Supervisor declaration',`<div class="text-sm">${icon('i-check','ic-sm')} All ${DECLARATIONS.length} statements confirmed, including the Conflict of Interest Declaration.</div><div class="kv mt-8">${sigKV('Signature',r.signatureImg)}${kvHTML('Print full name',r.signature)}${kvHTML('Date',dmy(r.signedOn))}</div>`)}
-    ${e.skipped ? sec('Section 6 · Faculty / School endorsement',`<div class="kv">${kvHTML('Forwarding School / Division',e.school)}${kvHTML('Head of School endorsement','Not required for this school — sent straight to the Associate Dean Research / RSC','wide')}</div>`) : ''}
-    ${e.skipped ? '' : sec('Section 6 · Faculty / School endorsement',`<div class="kv">${kvHTML('Forwarding School / Division',e.school)}${kvHTML('Endorsed by',e.by)}${kvHTML('Date of endorsement',dmy(e.date))}${sigKV('Signature',e.sig)}${e.note?kvHTML('Comment',e.note,'wide'):''}</div>`)}
-    ${sec('Section 7 · Approval by Associate Dean Research or RSC',`<div class="kv">${kvHTML('Name',d.name)}${kvHTML('Registration outcome',d.outcome)}${kvHTML('Date of decision',dmy(d.date))}${kvHTML('RSC decision / date',d.rsc)}${sigKV('Signature',d.sig)}${kvHTML('Comments / conditions',d.comments,'wide')}</div>`)}
+    ${!hosApplies(r) ? '' : sec('Section 6 · Faculty / School endorsement',`<div class="kv">${kvHTML('Forwarding School / Division',e.school)}${kvHTML('Endorsed by',e.by)}${kvHTML('Date of endorsement',dmy(e.date))}${sigKV('Signature',e.sig)}${e.note?kvHTML('Comment',e.note,'wide'):''}</div>`)}
+    ${sec(`Section ${adrSec(r)} · Approval by Associate Dean Research or RSC`,`<div class="kv">${kvHTML('Name',d.name)}${kvHTML('Registration outcome',d.outcome)}${kvHTML('Date of decision',dmy(d.date))}${kvHTML('RSC decision / date',d.rsc)}${sigKV('Signature',d.sig)}${kvHTML('Comments / conditions',d.comments,'wide')}</div>`)}
     ${sec('Checklist · office use only',CHECKLIST.map(([k,l])=>`<div class="text-sm" style="padding:3px 0;color:${ck[k]?'var(--text)':'var(--text3)'}">${ck[k]?'☑':'☐'} ${esc(l)}</div>`).join('')+(r.account?.uid?`<div class="text-sm" style="padding:3px 0">☑ Assign Supervisor account created ${esc(fmtDate(r.account.at))}</div>`:''))}
     ${fullTrail(r).length?sec('History',fullTrail(r).reverse().map(t=>`<div class="text-sm" style="padding:4px 0"><strong>${esc(TRAIL[t.act]||t.act)}</strong> <span class="text-muted">· ${esc(t.who||'')} · ${esc(fmtDate(t.at))}</span>${t.note?`<div class="text-muted" style="white-space:pre-wrap">${esc(t.note)}</div>`:''}</div>`).join('')):''}
     ${isAdminUser()?`<div class="reg-sec flex gap-8" style="flex-wrap:wrap">${['declined','closed'].includes(r.status)?`<button class="btn btn-sm" data-ra="reopen">${icon('i-refresh')}Reopen (back to Research Office)</button>`:''}<div class="spacer"></div><button class="btn btn-sm btn-danger" data-ra="delete">${icon('i-trash')}Delete registration</button></div>`:''}`;
@@ -4652,7 +4655,7 @@ function regActionHTML(r){
   } else if(st==='approval' || st==='deferred'){
     if(!canActStage(r,'adr')) return waiting(regWithWho(r));
     const d=r.decision||{};
-    h=box('Associate Dean Research / RSC · decision (Section 7)',`
+    h=box(`Associate Dean Research / RSC · decision (Section ${adrSec(r)})`,`
       <div class="g3"><div class="form-group"><label>Name <span class="req">*</span></label><input type="text" id="ra-by" value="${esc(d.name||PROFILE?.name||'')}" maxlength="120"/></div>
       <div class="form-group"><label>Registration outcome <span class="req">*</span></label><select id="ra-outcome"><option value="">— Select —</option>${optsHTML(REG_OPTS.outcome,'')}</select></div>
       <div class="form-group"><label>Date of decision <span class="req">*</span></label><input type="date" id="ra-date" value="${todayISO()}"/></div></div>
@@ -4662,11 +4665,11 @@ function regActionHTML(r){
       <p class="hint" style="margin:-4px 0 12px">Approved and Conditionally Approved allow the supervisor account to be created. Deferred and Other keep the form with you. Rejected ends the registration.</p>
       <div class="form-actions"><button class="btn btn-primary" data-ra="decide">${icon('i-shield')}Record decision</button></div>`);
   } else if(st==='approved' || st==='registered'){
-    const inPool=POOL.some(p=>p.id===r.id || p.registrationId===r.id);
+    const inPool=POOL.some(p=>p.id===r.id || p.registrationId===r.id), removed=!inPool && !!r.poolRemovedAt;
     h+=box('Supervisor pool',`
       ${r.decision?.outcome==='Conditionally Approved'?`<div class="alert alert-warning">Conditionally approved${r.decision.comments?': '+esc(r.decision.comments):''}</div>`:''}
-      <p class="text-sm text-muted">${inPool?'Approved and in the <strong>supervisor pool</strong>.':'Approved, but <strong>not yet in the supervisor pool</strong> (approved before the pool existed).'} Invitations to select students are sent from the pool, semester by semester; a sign-in account is created then.</p>
-      <div class="form-actions mt-8">${!inPool && (adm||mine.includes('adr')) ? `<button class="btn btn-primary" data-ra="addPool">${icon('i-userplus')}Add to the supervisor pool</button>`:''}${adm?`<button class="btn" data-ra="openPool">${icon('i-users')}Open the supervisor pool</button>`:''}</div>`);
+      <p class="text-sm text-muted">${inPool?'Approved and in the <strong>supervisor pool</strong>.':removed?`Approved, but <strong>removed from the supervisor pool</strong> by an administrator (${esc(fmtDate(r.poolRemovedAt))}).`:'Approved, but <strong>not yet in the supervisor pool</strong> (approved before the pool existed).'} Invitations to select students are sent from the pool, semester by semester; a sign-in account is created then.</p>
+      <div class="form-actions mt-8">${!inPool && (removed?adm:(adm||mine.includes('adr'))) ? `<button class="btn btn-primary" data-ra="addPool">${icon('i-userplus')}${removed?'Add back to the pool':'Add to the supervisor pool'}</button>`:''}${adm?`<button class="btn" data-ra="openPool">${icon('i-users')}Open the supervisor pool</button>`:''}</div>`);
     if(canActStage({...r,assignee:''},'office')){
       const ck=r.checklist||{};
       h+=box('Office checklist',`${CHECKLIST.map(([k,l])=>`<label class="check-row"><input type="checkbox" id="ra-ck-${k}" ${ck[k]?'checked':''}/> <span>${esc(l)}</span></label>`).join('')}
@@ -4756,7 +4759,14 @@ async function regAct(r, act, btn){
     }
     if(act==='word'){ downloadRegDocx(r); return; }
     if(act==='openPool'){ closeReg(); gotoAdminTab('tab-pool'); return; }
-    if(act==='addPool'){ await addRegToPool(r); await loadPool(); toast(`${name} added to the supervisor pool`,'success'); openReg(r.id); return; }
+    if(act==='addPool'){
+      await addRegToPool(r);
+      if(r.poolRemovedAt && isAdminUser()){
+        await updateDoc(doc(db,REG_COL,r.id),{poolRemovedAt:null});
+        const acc=ALL_USERS.find(u=>lc(u.email)===lc(r.email) && u.poolRemoved); if(acc) await updateDoc(doc(db,'users',acc.id),{poolRemoved:false});
+        await loadRegs();
+      }
+      await loadPool(); toast(`${name} added to the supervisor pool`,'success'); openReg(r.id); return; }
     if(act==='genpass'){
       const a='ABCDEFGHJKLMNPQRSTUVWXYZabcdefghijkmnpqrstuvwxyz23456789', n=crypto.getRandomValues(new Uint32Array(12));
       el('ra-pass').value=[...n].map(x=>a[x%a.length]).join(''); return;
@@ -4810,7 +4820,7 @@ async function regAct(r, act, btn){
         await regSave(r,{status:'approval',officeReview:{docs,by:ME.uid},endorsement:{school,skipped:true}},'forwardAdr',note,school);
         closeReg(); toast('Forwarded to the Associate Dean Research / RSC','success');
         openRouteEmail(officersFor('adr'), 'Associate Dean Research / RSC', `Supervisor registration for approval – ${name}`,
-          routeBody(r,`A supervisor registration (${school}) has been checked by the Course Coordinator / Research Officer and is ready for your decision (Section 7). Head of School endorsement is not required for this school.${note?'\n\nNote: '+note:''}`));
+          routeBody(r,`A supervisor registration (${school}) has been checked by the Course Coordinator / Research Officer and is ready for your decision (Section 6). Head of School endorsement is not required for this school.${note?'\n\nNote: '+note:''}`));
       }
     }
     else if(act==='endorse' || act==='return'){
@@ -5134,9 +5144,9 @@ function buildRegDocx(r){
     ['Signature',sigCell(r.signatureImg,r.signature,dmy(r.signedOn),'Signed by the applicant on the online registration form.')],
     ['Print Full Name',r.signature],['Date',dmy(r.signedOn)]]);
   body+=wP(wRun('OFFICE USE ONLY',{b:1,sz:24}),{before:160,after:80,keep:1});
-  if(!e.skipped) body+=wTable([{head:'SECTION 6: Faculty / School Endorsement'},['Forwarding School / Division',e.school],['Endorsed By (Name)',e.by],['Date of Endorsement',dmy(e.date)],
+  if(hosApplies(r)) body+=wTable([{head:'SECTION 6: Faculty / School Endorsement'},['Forwarding School / Division',e.school],['Endorsed By (Name)',e.by],['Date of Endorsement',dmy(e.date)],
     ['Signature',sigCell(e.sig,e.by,dmy(e.date),eAcct?`Recorded in Assign Supervisor by the signed-in account of ${eAcct}.`:'')],...(e.note?[['Comment',e.note]]:[])]);
-  body+=wTable([{head:'SECTION 7: Approval by Associate Dean Research or RSC'},['Name',d.name],['Registration Outcome',d.outcome],['Date of Decision',dmy(d.date)],['Comments / Conditions',d.comments],
+  body+=wTable([{head:`SECTION ${adrSec(r)}: Approval by Associate Dean Research or RSC`},['Name',d.name],['Registration Outcome',d.outcome],['Date of Decision',dmy(d.date)],['Comments / Conditions',d.comments],
     ['Signature',sigCell(d.sig,d.name,dmy(d.date),dAcct?`Recorded in Assign Supervisor by the signed-in account of ${dAcct}.`:'')],['RSC decision / date',d.rsc]]);
   body+=wTable([{head:'Checklist – Office Use Only'},{full:CHECKLIST.map(([k,l])=>wP(wRun(`${tick(ck[k])}  ${l}`),{before:30,after:30})).join('')+(['approved','registered'].includes(r.status)?wP(wRun(`☑  Approved and added to the supervisor pool`),{before:30,after:30}):'')+(r.account?.uid?wP(wRun(`☑  Assign Supervisor account created ${fmtDate(r.account.at)}`),{before:30,after:30}):'')}]);
   if(fullTrail(r).length) body+=wTable([{head:'Electronic Record'},{full:fullTrail(r).map(t=>wP(wRun(`${fmtDate(t.at)}  ·  ${TRAIL[t.act]||t.act}  ·  ${t.who||''}${t.note?'\n'+t.note:''}`,{sz:18}),{before:30,after:30})).join('')}]);
@@ -5372,7 +5382,7 @@ async function renderOverview(){
   let regsOk=true; try{ await loadRegs(); updateRegBadges(); }catch{ regsOk=false; }
   try{ if(!POOL_LOADED) await loadPool(); }catch{}
   const mine=REGS.filter(regAwaitsMe).length;
-  const notPooled=REGS.filter(r=>r.status==='approved' && !POOL.some(p=>p.id===r.id||p.registrationId===r.id)).length;
+  const notPooled=REGS.filter(r=>r.status==='approved' && !r.poolRemovedAt && !POOL.some(p=>p.id===r.id||p.registrationId===r.id)).length;
   const openRegs=REGS.filter(r=>['submitted','returned','endorsement','approval','deferred'].includes(r.status)).length;
   const poolAct=POOL.filter(p=>p.active!==false), poolSelected=adminSemester?poolAct.filter(p=>poolSemState(p,adminSemester)==='selected').length:0;
   const orphans=STUDENTS.filter(s=>!s.semester || !SEMESTERS.find(x=>x.id===s.semester)).length;
@@ -5622,7 +5632,7 @@ async function loadPool(){
 /* Admin only: make sure every existing supervisor account is in the pool. */
 async function syncPoolWithAccounts(){
   if(!isAdminUser()) return 0;
-  const missing=SUPS.filter(s=>!POOL.some(p=>p.uid===s.id || (p.email && lc(p.email)===lc(s.email))));
+  const missing=SUPS.filter(s=>!s.poolRemoved && !POOL.some(p=>p.uid===s.id || (p.email && lc(p.email)===lc(s.email))));
   const unlinked=POOL.filter(p=>!p.uid && p.email).map(p=>[p,SUPS.find(s=>lc(s.email)===lc(p.email))]).filter(x=>x[1]);
   if(!missing.length && !unlinked.length) return 0;
   const b=writeBatch(db);
@@ -5630,7 +5640,7 @@ async function syncPoolWithAccounts(){
     name:s.name||'', email:s.email||'', emailLower:lc(s.email), phone:'', disciplines:supDisc(s)||[], level:{principal:REG_OPTS.level[0],co:REG_OPTS.level[1],both:REG_OPTS.level[3]}[s.supervisorType||'both'],
     supervisorType:s.supervisorType||'both', campusIds:s.campus?[s.campus]:[], campusNames:s.campus?[campusLabel(CAMPUSES.find(c=>c.id===s.campus)||{name:s.campus})]:[],
     source:'account', uid:s.id, active:!s.disabled, selected:[], invited:[], addedAt:serverTimestamp(), addedBy:ME.uid }));
-  unlinked.forEach(([p,s])=>b.update(doc(db,POOL_COL,p.id),{uid:s.id}));
+  unlinked.forEach(([p,s])=>{ b.update(doc(db,POOL_COL,p.id),{uid:s.id}); if(s.poolRemoved) b.update(doc(db,'users',s.id),{poolRemoved:false}); });
   await b.commit(); await loadPool();
   return missing.length;
 }
@@ -5728,6 +5738,7 @@ function renderPool(){
         <span class="text-xs text-muted" data-pool-checked></span>
         ${C.canSelect?`<button class="btn btn-sm" data-pool-bulk="select">${icon('i-check')}Select for ${esc(semLbl)}</button><button class="btn btn-sm" data-pool-bulk="unselect">Remove selection</button>`:''}
         ${C.canInvite?`<button class="btn btn-sm btn-primary" data-pool-bulk="invite">${icon('i-send')}Invite</button>`:''}
+        ${C.canEdit?`<button class="btn btn-sm btn-danger" data-pool-bulk="remove">${icon('i-trash')}Remove from pool</button>`:''}
       </div>
       <div class="tw"><table><thead><tr><th style="width:34px"><input type="checkbox" data-pool-all style="width:auto"/></th><th>Supervisor</th><th>Discipline &amp; level</th><th>Campus</th><th>Source</th><th>${esc(semLbl)}</th><th></th></tr></thead><tbody data-pool-rows></tbody></table></div>
     </div>`;
@@ -5793,6 +5804,7 @@ function poolBulk(kind){
   if(kind==='select') setPoolSelected(list,true);
   else if(kind==='unselect') setPoolSelected(list,false);
   else if(kind==='invite') invitePool(list);
+  else if(kind==='remove') confirmPoolRemove(list);
 }
 
 /* ── Invite (admin): create the account if needed, put them on the semester list, email them ── */
@@ -5880,7 +5892,7 @@ function openPoolModal(p, editing){
       ${kvHTML('Selected for',semNames(p.selected))}${kvHTML('Invited for',semNames(p.invited))}${p.notes?kvHTML('Notes',p.notes,'wide'):''}</div>
       <div class="form-actions mt-16">
         ${p.registrationId && C.canEdit!==undefined ? `<button class="btn btn-sm" data-pm="reg">${icon('i-clip')}Open registration form</button>`:''}
-        ${C.canEdit?`<button class="btn btn-sm" data-pm="edit">${icon('i-edit')}Edit</button><button class="btn btn-sm ${p.active===false?'':'btn-danger'}" data-pm="toggle">${p.active===false?'Reactivate':'Mark inactive'}</button>${p.source!=='registration'&&p.source!=='account'&&!acc?`<button class="btn btn-sm btn-danger" data-pm="delete">${icon('i-trash')}Delete</button>`:''}`:''}
+        ${C.canEdit?`<button class="btn btn-sm" data-pm="edit">${icon('i-edit')}Edit</button><button class="btn btn-sm" data-pm="toggle">${p.active===false?'Reactivate':'Mark inactive'}</button><button class="btn btn-sm btn-danger" data-pm="remove">${icon('i-trash')}Remove from pool</button>`:''}
       </div>`;
   } else {
     body.innerHTML=`<p class="modal-desc">${isNew?'For someone approved to supervise outside this system. They get a sign-in account only when invited for a semester.':'Changes here do not change an existing sign-in account; edit that under Supervisor accounts.'}</p>
@@ -5909,9 +5921,8 @@ async function poolModalAct(kind,p,isNew,btn){
     if(kind==='toggle'){
       await updateDoc(doc(db,POOL_COL,p.id),{active:p.active===false, updatedAt:serverTimestamp()});
       logAct(p.active===false?'pool.reactivate':'pool.inactive', poolName(p), p.email, p.id);
-    } else if(kind==='delete'){
-      if(!confirm(`Delete ${poolName(p)} from the pool?`)) return;
-      await deleteDoc(doc(db,POOL_COL,p.id)); logAct('pool.delete', poolName(p), p.email, p.id);
+    } else if(kind==='remove'){
+      return confirmPoolRemove([p]);
     } else if(kind==='save'){
       const f=k=>m.querySelector(`[data-pf="${k}"]`)?.value.trim()||'';
       const d={title:f('title'),firstName:f('firstName'),lastName:f('lastName'),email:f('email'),phone:f('phone'),level:f('level'),institution:f('institution'),position:f('position'),researchAreas:f('researchAreas'),notes:f('notes')};
@@ -5929,6 +5940,48 @@ async function poolModalAct(kind,p,isNew,btn){
     }
     m.classList.add('hidden'); await loadPool(); renderPool(); toast('Saved','success');
   }catch(e){ toast('Error: '+e.message,'error'); if(btn) btn.disabled=false; }
+}
+
+/* ── Remove from the pool (admin) ──
+   Deletes the pool entry. Someone with a sign-in account is flagged
+   (users.poolRemoved) so the pool does not add them back automatically, and
+   their account can be disabled at the same time. A registration-based entry
+   keeps its registration form; the form records that the person was removed. */
+function confirmPoolRemove(list){
+  if(!isAdminUser() || !list.length) return;
+  const m=poolModalEl(), withAcc=list.filter(p=>poolAccount(p) && !poolAccount(p).disabled);
+  const load=uid=>STUDENTS.filter(st=>st.principalSupervisorId===uid||st.coSupervisorId===uid).length;
+  const supervising=withAcc.filter(p=>load(p.uid)>0);
+  m.querySelector('[data-pm-title]').textContent = list.length===1 ? `Remove ${poolName(list[0])} from the pool?` : `Remove ${list.length} supervisors from the pool?`;
+  m.querySelector('[data-pm-body]').innerHTML=`
+    ${list.length>1?`<div class="sem-box mb-16" style="max-height:160px;overflow:auto">${list.map(p=>`<div class="text-sm" style="padding:2px 0">${esc(poolName(p))} <span class="text-xs text-muted">${esc(p.email||'')}</span></div>`).join('')}</div>`:''}
+    <p class="text-sm">They will no longer appear in the supervisor pool, so they cannot be selected or invited for a semester. To bring someone back later, add them again (or, for an approved registration, use <em>Add back to the pool</em> on their form).</p>
+    ${withAcc.length?`<label class="check-row mt-8"><input type="checkbox" id="pr-disable" checked/> <span><strong>Also disable ${withAcc.length===1?'their sign-in account':`the sign-in accounts of the ${withAcc.length} who have one`}</strong> — they will no longer be able to sign in or take on students.</span></label>`:''}
+    ${supervising.length?`<div class="alert alert-warning mt-8">${supervising.map(p=>`${esc(poolName(p))} currently supervises ${load(p.uid)} student(s)`).join('; ')}. Those allocations stay as they are; reassign them under Allocations if needed.</div>`:''}
+    <p class="text-xs text-muted mt-8">Marking someone <em>inactive</em> instead keeps them in the pool but hides them from selection.</p>
+    <div class="form-actions mt-16"><button class="btn btn-danger" id="pr-go">${icon('i-trash')}Remove from pool</button><button class="btn btn-ghost" data-pm-close>Cancel</button></div>`;
+  m.classList.remove('hidden');
+  el('pr-go').onclick=async()=>{
+    const disable=!!el('pr-disable')?.checked; el('pr-go').disabled=true;
+    try{
+      for(let i=0;i<list.length;i+=100){
+        const b=writeBatch(db);
+        list.slice(i,i+100).forEach(p=>{
+          b.delete(doc(db,POOL_COL,p.id));
+          const acc=poolAccount(p) || ALL_USERS.find(u=>p.email && lc(u.email)===lc(p.email) && (u.role||'supervisor')==='supervisor');
+          if(acc) b.update(doc(db,'users',acc.id),{poolRemoved:true, ...(disable?{disabled:true}:{})});
+          const regId=p.registrationId || (p.source==='registration'?p.id:'');
+          if(regId && REGS.some(r=>r.id===regId)) b.update(doc(db,REG_COL,regId),{poolRemovedAt:serverTimestamp(), trail:arrayUnion({at:Timestamp.now(),uid:ME.uid,who:String(PROFILE?.name||ME.email||'').slice(0,60),act:'poolRemove',note:''})});
+        });
+        await b.commit();
+      }
+      list.forEach(p=>logAct('pool.delete', poolName(p), (p.email||'')+(disable&&poolAccount(p)?' · account disabled':''), p.id));
+      m.classList.add('hidden'); POOL_CHECK.clear();
+      await Promise.all([loadPool(), loadAllUsers().catch(()=>{}), loadRegs().catch(()=>{})]);
+      renderPool(); renderSupervisorsList();
+      toast(`${list.length} removed from the supervisor pool${disable&&withAcc.length?` · ${withAcc.length} account(s) disabled`:''}`,'success');
+    }catch(e){ el('pr-go').disabled=false; toast('Error: '+e.message,'error'); }
+  };
 }
 
 /* ── Export ── */
