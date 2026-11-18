@@ -466,6 +466,8 @@ tr.row-mine td:first-child{box-shadow:inset 3px 0 0 var(--primary)}
 .ae-grid .wide{grid-column:1/-1}
 @media(max-width:700px){ .ae-grid{grid-template-columns:1fr} }
 .disc-accounting{background:rgba(52,211,153,.12);color:#6ee7b7;border-color:rgba(52,211,153,.3)}
+.disc-ece{background:rgba(244,114,182,.12);color:#f9a8d4;border-color:rgba(244,114,182,.3)}
+:root[data-theme="light"] .disc-ece{background:#fdf2f8;color:#be185d;border-color:#fbcfe8}
 :root[data-theme="light"] .disc-accounting{background:#ecfdf5;color:#047857;border-color:#a7f3d0}
 /* ───────────── Supervisor registration ───────────── */
 .reg-wrap{max-width:880px;margin:0 auto;padding:44px 16px 24px}
@@ -902,7 +904,7 @@ tr.row-mine td:first-child{box-shadow:inset 3px 0 0 var(--primary)}
     </div>
     <div class="navbar-right">
       <select id="admin-semester-picker" class="ctx-picker" title="Active semester"></select>
-      <select id="admin-discipline-picker" class="ctx-picker disc-picker" title="Discipline: Business, Accounting or IT"></select>
+      <select id="admin-discipline-picker" class="ctx-picker disc-picker" title="Discipline"></select>
       <button class="btn btn-sm" id="goto-sv-btn" title="See what supervisors see"><svg class="ic"><use href="#i-eye"/></svg><span class="btn-lbl-md">Supervisor view</span></button>
       <span class="nav-sep nav-hide-md"></span>
       <button class="icon-btn theme-toggle" title="Switch light / dark" aria-label="Switch light or dark theme"><svg class="ic i-moon"><use href="#i-moon"/></svg><svg class="ic i-sun"><use href="#i-sun"/></svg></button>
@@ -1091,7 +1093,7 @@ tr.row-mine td:first-child{box-shadow:inset 3px 0 0 var(--primary)}
         <div class="grid-2 mt-16" id="pool-admin-tools">
           <div class="card">
             <div class="card-header"><h3><svg class="ic"><use href="#i-upload"/></svg>Import existing supervisors</h3><button class="btn btn-sm" id="pool-template-btn"><svg class="ic"><use href="#i-download"/></svg>CSV template</button></div>
-            <p class="card-sub">For supervisors approved before registrations were kept here. Columns: <code class="chip-code">Title, First Name, Last Name, Email, Phone, Discipline, Supervision Level, Campus, Institution, Position, Research Areas, Notes</code>. Discipline is <em>Business</em>, <em>Accounting</em> and/or <em>IT</em> (separate several with <code>;</code>); Supervision Level is <em>Principal</em>, <em>Associate</em>, <em>Both</em> or <em>Industry</em>; separate several campuses with <code>;</code>. Anyone already in the pool (same email) is skipped.</p>
+            <p class="card-sub">For supervisors approved before registrations were kept here. Columns: <code class="chip-code">Title, First Name, Last Name, Email, Phone, Discipline, Supervision Level, Campus, Institution, Position, Research Areas, Notes</code>. Discipline is <em>Business</em>, <em>Accounting</em>, <em>IT</em> and/or <em>Early Childhood Education</em> (separate several with <code>;</code>); Supervision Level is <em>Principal</em>, <em>Associate</em>, <em>Both</em> or <em>Industry</em>; separate several campuses with <code>;</code>. Anyone already in the pool (same email) is skipped.</p>
             <div id="pool-drop" class="drop-zone"><div class="dz-ic"><svg class="ic ic-lg"><use href="#i-file"/></svg></div><div class="fw-600" style="color:var(--text)">Drop a CSV file here or click to browse</div><div class="text-xs" style="margin-top:2px">You'll see a preview before anything is imported</div></div>
             <input type="file" id="pool-csv" accept=".csv" style="display:none"/>
             <div id="pool-import-preview" class="mt-16 hidden"></div>
@@ -1192,7 +1194,7 @@ tr.row-mine td:first-child{box-shadow:inset 3px 0 0 var(--primary)}
           </div>
           <div class="g4">
             <div class="form-group"><label>Personal email <span class="opt">(optional)</span></label><input type="email" id="s-personal-email" placeholder="personal@email.com"/></div>
-            <div class="form-group"><label>Discipline</label><select id="s-discipline"><option value="">— Select —</option><option value="business">Business</option><option value="accounting">Accounting</option><option value="it">Information Technology (IT)</option></select></div>
+            <div class="form-group"><label>Discipline</label><select id="s-discipline"><option value="">— Select —</option><option value="business">Business</option><option value="accounting">Accounting</option><option value="it">Information Technology (IT)</option><option value="ece">Early Childhood Education</option></select></div>
             <div class="form-group"><label>Campus</label><select id="s-campus"><option value="">— Select Campus —</option></select></div>
             <div class="form-group"><label>Semester</label><select id="s-semester"><option value="">— Active Semester —</option></select></div>
           </div>
@@ -1210,7 +1212,7 @@ tr.row-mine td:first-child{box-shadow:inset 3px 0 0 var(--primary)}
         </div>
         <div class="card mb-16">
           <div class="card-header"><h3><svg class="ic"><use href="#i-upload"/></svg>Bulk import via CSV</h3></div>
-          <p class="text-sm text-muted mb-8" style="margin-top:-8px">Columns: <code class="chip-code">SL. No, Student Name, ID, Email, Personal Email, Proposal Title, Summary, Link, Student's Preferences, Campus, Discipline, Semester</code> <span class="text-xs">(Discipline is <strong>Business</strong>, <strong>Accounting</strong> or <strong>IT</strong> — if blank, the discipline selected at the top is used. Personal Email &amp; Semester are optional — Semester defaults to the active semester.)</span></p>
+          <p class="text-sm text-muted mb-8" style="margin-top:-8px">Columns: <code class="chip-code">SL. No, Student Name, ID, Email, Personal Email, Proposal Title, Summary, Link, Student's Preferences, Campus, Discipline, Semester</code> <span class="text-xs">(Discipline is <strong>Business</strong>, <strong>Accounting</strong>, <strong>IT</strong> or <strong>Early Childhood Education</strong> — if blank, the discipline selected at the top is used. Personal Email &amp; Semester are optional — Semester defaults to the active semester.)</span></p>
           <div id="csv-drop-zone" class="drop-zone mt-8"><div class="dz-ic"><svg class="ic ic-lg"><use href="#i-file"/></svg></div><div class="fw-600" style="color:var(--text)">Drop a CSV file here or click to browse</div><div class="text-xs" style="margin-top:2px">You'll see a preview before anything is imported</div></div>
           <input type="file" id="csv-input" accept=".csv" style="display:none"/>
           <div id="csv-preview" class="hidden mt-16"></div>
@@ -1248,6 +1250,17 @@ tr.row-mine td:first-child{box-shadow:inset 3px 0 0 var(--primary)}
         </div>
         <div class="export-bar" style="margin-top:16px">
           <div class="export-group">
+            <label>File format</label>
+            <select data-export-fmt id="export-fmt-select"><option value="csv">CSV (.csv)</option><option value="xlsx">Excel (.xlsx)</option></select>
+          </div>
+          <div class="export-group">
+            <label>Export by discipline</label>
+            <div class="flex gap-8">
+              <select id="export-disc-select"><option value="">All disciplines</option></select>
+              <button class="btn btn-primary btn-sm" id="export-disc-btn" style="height:38px" onclick="exportByDiscipline()"><svg class="ic"><use href="#i-download"/></svg></button>
+            </div>
+          </div>
+          <div class="export-group">
             <label>Export by campus</label>
             <div class="flex gap-8">
               <select id="export-campus-select"><option value="">— Select campus —</option></select>
@@ -1270,7 +1283,7 @@ tr.row-mine td:first-child{box-shadow:inset 3px 0 0 var(--primary)}
           </div>
           <div class="export-group">
             <label>Export everything</label>
-            <button class="btn" id="export-csv-btn" style="height:38px"><svg class="ic"><use href="#i-download"/></svg>Full CSV</button>
+            <button class="btn" id="export-csv-btn" style="height:38px"><svg class="ic"><use href="#i-download"/></svg>Full export</button>
           </div>
         </div>
       </div>
@@ -1401,7 +1414,7 @@ tr.row-mine td:first-child{box-shadow:inset 3px 0 0 var(--primary)}
 
           <div class="card">
             <div class="card-header"><h3><svg class="ic"><use href="#i-layers"/></svg>Set discipline for students</h3></div>
-            <p class="card-sub">Students added before disciplines existed have none, so any supervisor can be chosen for them. Give them Business, Accounting or IT here, or edit students one by one.</p>
+            <p class="card-sub">Students added before disciplines existed have none, so any supervisor can be chosen for them. Give them a discipline here, or edit students one by one.</p>
             <div id="disc-backfill-count" class="alert alert-info mb-16">Checking…</div>
             <label class="check-row"><input type="checkbox" id="disc-backfill-sem" checked/> <span>Only the semester selected at the top of the page</span></label>
             <div class="form-group mt-8"><label>Set them to</label><select id="disc-backfill-target"></select></div>
@@ -3393,7 +3406,7 @@ function initSupervisorsTab(){
     if(!editId && requireReg()){ toast('New supervisor accounts are created from approved registrations (Registrations tab).','error'); return; }
     const semesters=readSemChecks('sup-sem-box'); // null = every semester
     const disciplines=readDiscChecks('sup-disc');
-    if(!disciplines.length){ toast('Tick the discipline(s) this supervisor covers — Business, Accounting and/or IT','error'); return; }
+    if(!disciplines.length){ toast('Tick the discipline(s) this supervisor covers — tick at least one','error'); return; }
     const campusNm=id=>CAMPUSES.find(c=>c.id===id)?.name||'—';
     let createdNew=null;
     try{
@@ -3511,7 +3524,7 @@ function initStudentsTab(){
     const semesterName = SEMESTERS.find(s=>s.id===semester)?.name || '';
     const editId=el('s-edit-id').value;
     const discipline=el('s-discipline').value;
-    if(!discipline){ toast('Choose the student\'s discipline: Business, Accounting or IT','error'); return; }
+    if(!discipline){ toast('Choose the student\'s discipline','error'); return; }
     const data={ discipline, slNo:parseInt(el('s-slno').value)||0, name, studentId:el('s-id').value.trim(), email:el('s-email').value.trim(), personalEmail:el('s-personal-email').value.trim(), campus, campusName, semester, semesterName, proposalTitle:el('s-title').value.trim(), proposalSummary:el('s-summary').value.trim(), proposalLink:el('s-link').value.trim(), studentPreference:el('s-pref').value };
     if(!editId) data.active = true; // new students are active by default
     try{
@@ -3960,7 +3973,7 @@ async function exportCSV(){
   });
   const semTag = adminSemester ? '_'+safeName(semesterLabel(adminSemester)) : '';
   const campTag = adminAllocCampus==='all' ? '' : '_'+safeName(CAMPUSES.find(c=>c.id===adminAllocCampus)?.name);
-  downloadCSV(rows,`allocations${semTag}${adminDiscipline!=='all'?'_'+adminDiscipline:''}${campTag}.csv`);
+  exportRows(rows,`allocations${semTag}${adminDiscipline!=='all'?'_'+adminDiscipline:''}${campTag}.csv`);
   toast(`Exported ${docs.length} student(s)`,'success');
 }
 
@@ -3984,7 +3997,7 @@ async function exportByCampus(){
   if(adminSemester) students = students.filter(s=>s.semester===adminSemester); if(adminDiscipline!=='all') students=students.filter(s=>s.discipline===adminDiscipline);
   if(!students.length){ toast('No students for this campus in the selected semester','error'); return; }
   const semTag = adminSemester ? '_'+safeName(semesterLabel(adminSemester)) : '';
-  downloadCSV(buildSlimRows(students),`allocations_campus_${safeName(campus?.name)}${semTag}.csv`);
+  exportRows(buildSlimRows(students),`allocations_campus_${safeName(campus?.name)}${semTag}.csv`);
   toast(`Exported ${students.length} student(s) for ${campus?.name||'campus'}`,'success');
 }
 
@@ -3997,7 +4010,7 @@ async function exportBySupervisor(){
   if(adminSemester) students = students.filter(s=>s.semester===adminSemester); if(adminDiscipline!=='all') students=students.filter(s=>s.discipline===adminDiscipline);
   if(!students.length){ toast('No students for this principal supervisor in the selected semester','error'); return; }
   const semTag = adminSemester ? '_'+safeName(semesterLabel(adminSemester)) : '';
-  downloadCSV(buildSlimRows(students),`allocations_supervisor_${safeName(sup?.name)}${semTag}.csv`);
+  exportRows(buildSlimRows(students),`allocations_supervisor_${safeName(sup?.name)}${semTag}.csv`);
   toast(`Exported ${students.length} student(s) for ${sup?.name||'supervisor'}`,'success');
 }
 
@@ -4011,11 +4024,14 @@ async function exportByCoSupervisor(){
   if(!students.length){ toast('No students for this co-supervisor in the selected semester','error'); return; }
   const semTag = adminSemester ? '_'+safeName(semesterLabel(adminSemester)) : '';
   // buildSlimRows already includes both Principal Supervisor and Co-Supervisor columns.
-  downloadCSV(buildSlimRows(students),`allocations_cosupervisor_${safeName(sup?.name)}${semTag}.csv`);
+  exportRows(buildSlimRows(students),`allocations_cosupervisor_${safeName(sup?.name)}${semTag}.csv`);
   toast(`Exported ${students.length} student(s) for co-supervisor ${sup?.name||''}`,'success');
 }
 
 function populateExportDropdowns(){
+  const dSel=el('export-disc-select');
+  if(dSel){ const cur=dSel.value; dSel.innerHTML='<option value="">All disciplines</option>'+DISCIPLINES.map(d=>`<option value="${d.id}">${esc(d.label)}</option>`).join(''); dSel.value=cur||(adminDiscipline!=='all'?adminDiscipline:''); }
+  const fSel=el('export-fmt-select'); if(fSel) fSel.value=EXPORT_FMT;
   const cSel=el('export-campus-select'), sSel=el('export-sup-select'), coSel=el('export-cosup-select');
   if(cSel) cSel.innerHTML='<option value="">— Select campus —</option>'+CAMPUSES.map(c=>`<option value="${c.id}">${esc(c.name)}</option>`).join('');
   if(sSel) sSel.innerHTML='<option value="">— Select supervisor —</option>'+SUPS.map(s=>`<option value="${s.id}">${esc(s.name)}</option>`).join('');
@@ -4150,7 +4166,7 @@ const REG_COL='registrations', REG_STATUS_COL='registrationStatus';
 const RESEARCH_OFFICE_EMAIL='research.office@cihe.edu.au';
 const REGISTER_URL=APP_URL+'#register';
 const REG_OPTS={
-  discipline:['Business','Accounting','Information Technology (IT)'],
+  discipline:['Business','Accounting','Information Technology (IT)','Early Childhood Education'],
   level:['Principal Supervisor','Associate Supervisor (Co-supervisor)','Industry Expert (Additional Member)','Both (Principal and Co-Supervisor) or Any'],
   title:['Dr.','Prof','Assoc Prof','Mr','Ms'],
   mode:['On-site (CIHE campus)','Remote (Online)','Hybrid (on-site+remote)'],
@@ -5054,7 +5070,7 @@ async function regAct(r, act, btn){
       if(!dn || !email){ fail('Display name and sign-in email are required.'); return; }
       if(pass.length<6){ fail('Set a temporary password of at least 6 characters.'); return; }
       const disciplines=readDiscChecks('ra-disc');
-      if(!disciplines.length){ fail('Tick the discipline(s) this supervisor covers — Business, Accounting and/or IT.'); return; }
+      if(!disciplines.length){ fail('Tick the discipline(s) this supervisor covers — Business, Accounting, IT and/or Early Childhood Education.'); return; }
       if(type!=='co' && !campus){ fail('Choose a campus — principal supervisors can only take students from their own campus.'); return; }
       if(Array.isArray(semesters) && !semesters.length && !confirm('No semester is ticked, so this supervisor will not appear in any semester\'s list yet. Continue?')) return;
       const pApp=provisionApp(), pAuth=getAuth(pApp);
@@ -5583,7 +5599,7 @@ async function renderOverview(){
   item(needCo,'amber',`Student${needCo===1?'':'s'} still needing a co-supervisor`,'They have a principal supervisor but no co-supervisor yet.','tab-allocations','Allocations');
   if(SUPS.length && !listed.length) att.push(`<div class="att-row"><span class="att-n t-red">0</span><div><div class="att-t">Nobody is on this semester's supervisor list</div><div class="att-s">Add supervisors to the list, or copy it from another semester.</div></div><button class="btn btn-sm" data-goto-tab="tab-supervisors">Supervisors${icon('i-arrow')}</button></div>`);
   item(atLimit,'red',`Supervisor${atLimit===1?'':'s'} at their limit`,`Principal limit ${maxP}, co-supervisor limit ${maxC} per semester.`,'tab-by-supervisor','By supervisor');
-  item(noDisc,'red',`Student${noDisc===1?'':'s'} without a discipline`,'Set Business, Accounting or IT so only matching supervisors are offered. Settings has a quick fix.','tab-settings','Fix in Settings');
+  item(noDisc,'red',`Student${noDisc===1?'':'s'} without a discipline`,'Set the discipline (Business, Accounting, IT or Early Childhood Education) so only matching supervisors are offered. Settings has a quick fix.','tab-settings','Fix in Settings');
   item(supNoDisc,'amber',`Supervisor${supNoDisc===1?'':'s'} without a discipline`,'Until set, they are offered for both Business and IT students.','tab-supervisors','Supervisors');
   item(orphans,'red',`Student${orphans===1?'':'s'} without a semester`,'They do not appear in any semester view until assigned.','tab-settings','Fix in Settings');
 
@@ -5672,15 +5688,16 @@ window.svViewSummary=id=>{
    accounts) is treated as able to supervise both until an admin sets it.
    Supervisors are only offered for students in a discipline they cover.
 ══════════════════════════════════════════════════════════ */
-const DISCIPLINES=[{id:'business',label:'Business',short:'Business'},{id:'accounting',label:'Accounting',short:'Accounting'},{id:'it',label:'Information Technology (IT)',short:'IT'}];
+const DISCIPLINES=[{id:'business',label:'Business',short:'Business'},{id:'accounting',label:'Accounting',short:'Accounting'},{id:'it',label:'Information Technology (IT)',short:'IT'},{id:'ece',label:'Early Childhood Education',short:'Early Childhood'}];
 /* Which school handles each discipline (Accounting sits in the School of Business). */
-const DISC_SCHOOL={business:'School of Business',accounting:'School of Business',it:'School of IT'};
+const DISC_SCHOOL={business:'School of Business',accounting:'School of Business',it:'School of IT',ece:'School of Education'};
 const discLabel=id=>DISCIPLINES.find(d=>d.id===id)?.short||'';
 const discLong=id=>DISCIPLINES.find(d=>d.id===id)?.label||'';
 function normDiscipline(t){
   const s=String(t||'').trim().toLowerCase();
   if(!s) return '';
   if(s==='it'||s.includes('information tech')||s.includes('computing')||s.includes('computer')||/(^|[^a-z])it([^a-z]|$)/.test(s)) return 'it';
+  if(s==='ece'||s.includes('early childhood')||s.includes('childhood')||s.includes('education')) return 'ece';
   if(s.includes('accounting')||s.includes('accountancy')) return 'accounting';
   if(s.includes('business')||s.includes('management')||s.includes('mba')) return 'business';
   return '';
@@ -5898,10 +5915,10 @@ function renderPool(){
         <select data-pool-sem style="width:auto;min-width:220px">${SEMESTERS.map(s=>`<option value="${s.id}" ${s.id===poolSem?'selected':''}>${esc(semesterLabel(s.id))}${s.isActive?' (Active)':''}</option>`).join('')}</select>
         <div class="spacer"></div>
         ${C.canInvite&&selN?`<button class="btn btn-primary" data-pool-invite-selected>${icon('i-send')}Invite all ${selN} selected for ${esc(semLbl)}</button>`:''}
-        <div class="flex gap-8">
-          <button class="btn btn-sm" data-pool-export="business">${icon('i-download')}Export Business</button>
-          <button class="btn btn-sm" data-pool-export="it">${icon('i-download')}Export IT</button>
-          <button class="btn btn-sm" data-pool-export="">${icon('i-download')}Export all</button>
+        <div class="flex gap-8" style="flex-wrap:wrap;align-items:center">
+          <select data-pool-export-disc title="Which supervisors to export" style="width:auto;min-width:190px;height:34px"><option value="">All disciplines</option>${DISCIPLINES.map(d=>`<option value="${d.id}">${esc(d.label)}</option>`).join('')}</select>
+          ${fmtSelectHTML()}
+          <button class="btn btn-sm" data-pool-export>${icon('i-download')}Export</button>
         </div>
       </div>
     </div>
@@ -5937,7 +5954,7 @@ function renderPool(){
   q('[data-pool-disc]').onchange=e=>{ poolDisc=e.target.value; renderPool(); };
   q('[data-pool-level]').onchange=e=>{ poolLevel=e.target.value; renderPool(); };
   q('[data-pool-campus]').onchange=e=>{ poolCampus=e.target.value; renderPool(); };
-  host.querySelectorAll('[data-pool-export]').forEach(b=>b.onclick=()=>exportPool(b.dataset.poolExport));
+  q('[data-pool-export]').onclick=()=>exportPool(q('[data-pool-export-disc]').value);
   host.querySelectorAll('[data-pool-bulk]').forEach(b=>b.onclick=()=>poolBulk(b.dataset.poolBulk));
   q('[data-pool-invite-selected]')?.addEventListener('click',()=>invitePool(POOL.filter(p=>p.active!==false && poolSemState(p,poolSem)==='selected')));
   q('[data-pool-all]').onchange=e=>{ poolFiltered().forEach(p=>e.target.checked?POOL_CHECK.add(p.id):POOL_CHECK.delete(p.id)); renderPoolRows(); };
@@ -6119,7 +6136,7 @@ async function poolModalAct(kind,p,isNew,btn){
       d.campusNames=d.campusIds.map(id=>campusLabel(CAMPUSES.find(c=>c.id===id)));
       if(!d.firstName||!d.lastName||!d.email){ toast('First name, last name and email are required','error'); return; }
       if(!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(d.email)){ toast('Enter a valid email address','error'); return; }
-      if(!d.disciplines.length){ toast('Tick Business, Accounting and/or IT','error'); return; }
+      if(!d.disciplines.length){ toast('Tick at least one discipline','error'); return; }
       if(POOL.some(x=>x.id!==p.id && lc(x.email)===lc(d.email))){ toast('Someone with that email is already in the pool','error'); return; }
       d.name=[d.title,d.firstName,d.lastName].filter(Boolean).join(' '); d.emailLower=lc(d.email); d.supervisorType=LEVEL_TYPE[d.level]||'both';
       btn.disabled=true;
@@ -6173,16 +6190,32 @@ function confirmPoolRemove(list){
 }
 
 /* ── Export ── */
-function exportPool(disc){
-  const list=POOL.filter(p=>!disc || (p.disciplines||[]).includes(disc));
-  if(!list.length){ toast('Nobody to export','info'); return; }
+function poolRows(list){
   const rows=[['Title','First Name','Last Name','Full Name','Email','Phone','Discipline','Supervision Level','Supervisor Type','Preferred Campus','Institution','Position','Research Areas','ORCID / Google Scholar','HDR Completed','HDR Current','Supervision Mode','Source','Registration Ref','Registration Outcome','Conditions','Has Account','Selected For','Invited For','Status','Notes'].map(csvCell)];
-  list.sort((a,b)=>String(a.lastName||poolName(a)).localeCompare(String(b.lastName||poolName(b)))).forEach(p=>rows.push([
+  [...list].sort((a,b)=>String(a.lastName||poolName(a)).localeCompare(String(b.lastName||poolName(b)))).forEach(p=>rows.push([
     p.title,p.firstName,p.lastName,poolName(p),p.email,p.phone,(p.disciplines||[]).map(discLabel).join(' & ')||'Not set',p.level,({principal:'Principal',co:'Co-supervisor',both:'Principal & co'})[p.supervisorType]||'',
     (p.campusNames||[]).join('; '),p.institution,p.position,p.researchAreas,p.profileLink,p.hdrCompleted,p.hdrCurrent,p.mode,p.source,p.registrationId,p.outcome,p.conditions,
     poolAccount(p)?'Yes':'No',(p.selected||[]).map(semesterLabel).join('; '),(p.invited||[]).map(semesterLabel).join('; '),p.active===false?'Inactive':'Active',p.notes].map(csvCell)));
-  downloadCSV(rows,`supervisor-pool_${disc?discLabel(disc).toLowerCase():'business-and-it'}_${new Date().toISOString().slice(0,10)}.csv`);
-  toast(`Exported ${list.length} supervisor(s)`,'success');
+  return rows;
+}
+function exportPool(disc){
+  const day=new Date().toISOString().slice(0,10);
+  if(disc){
+    const list=POOL.filter(p=>(p.disciplines||[]).includes(disc));
+    if(!list.length){ toast(`No ${discLabel(disc)} supervisors in the pool`,'info'); return; }
+    exportRows(poolRows(list),`supervisor-pool_${safeName(discLabel(disc))}_${day}.csv`,[{name:discLabel(disc),rows:poolRows(list)}]);
+    toast(`Exported ${list.length} ${discLabel(disc)} supervisor(s)`,'success'); return;
+  }
+  if(!POOL.length){ toast('Nobody to export','info'); return; }
+  if(EXPORT_FMT==='xlsx'){
+    const sheets=[{name:'All supervisors',rows:poolRows(POOL)}, ...DISCIPLINES.map(d=>({name:d.short,rows:poolRows(POOL.filter(p=>(p.disciplines||[]).includes(d.id)))}))];
+    const none=POOL.filter(p=>!(p.disciplines||[]).length); if(none.length) sheets.push({name:'Discipline not set',rows:poolRows(none)});
+    exportRows(null,`supervisor-pool_all-disciplines_${day}.xlsx`,sheets);
+    toast(`Exported ${POOL.length} supervisor(s) — one sheet per discipline`,'success');
+  } else {
+    exportRows(poolRows(POOL),`supervisor-pool_all-disciplines_${day}.csv`);
+    toast(`Exported ${POOL.length} supervisor(s)`,'success');
+  }
 }
 
 /* ── Import ── */
@@ -6282,6 +6315,97 @@ async function runDbCheck(){
     : `<div class="alert alert-success"><strong>All checks passed.</strong> The registration form can be submitted with the rules currently in Firebase.</div>`);
   btn.disabled=false;
 }
+
+/* ══════════════════════════════════════════════════════════
+   EXPORTS — CSV or Excel (.xlsx), and by discipline
+   exportRows() is used by every allocation and supervisor-pool export. The
+   format (CSV / Excel) is one shared choice, remembered in this browser.
+   Excel files are written here (an .xlsx is a zip of XML parts), with a bold,
+   frozen header row, filters and sensible column widths; "all disciplines"
+   becomes one workbook with an "All" sheet plus a sheet per discipline.
+══════════════════════════════════════════════════════════ */
+let EXPORT_FMT='csv';
+try{ if(localStorage.getItem('as-export-fmt')==='xlsx') EXPORT_FMT='xlsx'; }catch{}
+function setExportFmt(v){
+  EXPORT_FMT = v==='xlsx' ? 'xlsx' : 'csv';
+  try{ localStorage.setItem('as-export-fmt',EXPORT_FMT); }catch{}
+  document.querySelectorAll('[data-export-fmt]').forEach(s=>{ if(s.value!==EXPORT_FMT) s.value=EXPORT_FMT; });
+}
+const fmtSelectHTML=()=>`<select data-export-fmt title="File format" style="width:auto;min-width:150px;height:34px"><option value="csv" ${EXPORT_FMT==='csv'?'selected':''}>CSV (.csv)</option><option value="xlsx" ${EXPORT_FMT==='xlsx'?'selected':''}>Excel (.xlsx)</option></select>`;
+document.addEventListener('change',e=>{ if(e.target.matches?.('[data-export-fmt]')) setExportFmt(e.target.value); });
+
+/* Rows from the CSV builders hold csvCell()-quoted text; turn them back into plain values. */
+const unCsv=v=>{ const s=String(v??''); return (s.length>=2 && s[0]==='"' && s[s.length-1]==='"') ? s.slice(1,-1).replace(/""/g,'"') : s; };
+function exportRows(rows, filename, sheets){
+  if(EXPORT_FMT==='xlsx'){
+    const list = sheets && sheets.length ? sheets : [{name:/^supervisor-pool/i.test(filename)?'Supervisor pool':/^activity/i.test(filename)?'Activity log':'Allocations', rows}];
+    downloadBlob(xlsxBlob(list.map(sh=>({name:sh.name, rows:sh.rows.map(r=>r.map(unCsv))}))), filename.replace(/\.csv$/i,'')+'.xlsx');
+  } else downloadCSV(rows, filename.replace(/\.xlsx$/i,'').replace(/(\.csv)?$/i,'.csv'));
+}
+function downloadBlob(blob, name){
+  const a=document.createElement('a'); a.href=URL.createObjectURL(blob); a.download=name;
+  document.body.appendChild(a); a.click(); a.remove(); setTimeout(()=>URL.revokeObjectURL(a.href),4000);
+}
+function xlsxBlob(sheets){
+  const enc=new TextEncoder(), X='<?xml version="1.0" encoding="UTF-8" standalone="yes"?>\n';
+  const colName=i=>{ let s=''; i++; while(i>0){ const m=(i-1)%26; s=String.fromCharCode(65+m)+s; i=Math.floor((i-1)/26); } return s; };
+  const used=new Set();
+  const safeSheet=n=>{ let b=String(n||'Sheet').replace(/[\[\]:*?\/\\]/g,' ').trim().slice(0,31)||'Sheet', s=b, k=2; while(used.has(s.toLowerCase())){ s=b.slice(0,28)+' '+(k++); } used.add(s.toLowerCase()); return s; };
+  const parts=sheets.map((sh,si)=>{
+    const rows=sh.rows.length?sh.rows:[['(no rows)']], ncol=Math.max(1,...rows.map(r=>r.length));
+    const widths=Array.from({length:ncol},(_,c)=>Math.min(60,Math.max(8,...rows.slice(0,500).map(r=>String(r[c]??'').split('\n').reduce((m,l)=>Math.max(m,l.length),0)+2))));
+    const cell=(v,r,c)=>{
+      const ref=colName(c)+(r+1), s=String(v??'');
+      if(r>0 && /^-?\d{1,9}(\.\d+)?$/.test(s) && !/^0\d/.test(s)) return `<c r="${ref}"><v>${s}</v></c>`;
+      return `<c r="${ref}" t="inlineStr"${r===0?' s="1"':(s.includes('\n')?' s="2"':'')}><is><t xml:space="preserve">${xesc(s)}</t></is></c>`;
+    };
+    const data=rows.map((r,ri)=>`<row r="${ri+1}">${Array.from({length:ncol},(_,c)=>cell(r[c],ri,c)).join('')}</row>`).join('');
+    const last=colName(ncol-1)+rows.length;
+    return {name:safeSheet(sh.name), xml:`${X}<worksheet xmlns="http://schemas.openxmlformats.org/spreadsheetml/2006/main"><sheetViews><sheetView workbookViewId="0"${si===0?' tabSelected="1"':''}><pane ySplit="1" topLeftCell="A2" activePane="bottomLeft" state="frozen"/></sheetView></sheetViews><sheetFormatPr defaultRowHeight="15"/><cols>${widths.map((w,i)=>`<col min="${i+1}" max="${i+1}" width="${w}" customWidth="1"/>`).join('')}</cols><sheetData>${data}</sheetData>${rows.length>1?`<autoFilter ref="A1:${last}"/>`:''}</worksheet>`};
+  });
+  const files=[
+    {name:'[Content_Types].xml',data:enc.encode(`${X}<Types xmlns="http://schemas.openxmlformats.org/package/2006/content-types"><Default Extension="rels" ContentType="application/vnd.openxmlformats-package.relationships+xml"/><Default Extension="xml" ContentType="application/xml"/><Override PartName="/xl/workbook.xml" ContentType="application/vnd.openxmlformats-officedocument.spreadsheetml.sheet.main+xml"/><Override PartName="/xl/styles.xml" ContentType="application/vnd.openxmlformats-officedocument.spreadsheetml.styles+xml"/>${parts.map((_,i)=>`<Override PartName="/xl/worksheets/sheet${i+1}.xml" ContentType="application/vnd.openxmlformats-officedocument.spreadsheetml.worksheet+xml"/>`).join('')}</Types>`)},
+    {name:'_rels/.rels',data:enc.encode(`${X}<Relationships xmlns="http://schemas.openxmlformats.org/package/2006/relationships"><Relationship Id="rId1" Type="http://schemas.openxmlformats.org/officeDocument/2006/relationships/officeDocument" Target="xl/workbook.xml"/></Relationships>`)},
+    {name:'xl/workbook.xml',data:enc.encode(`${X}<workbook xmlns="http://schemas.openxmlformats.org/spreadsheetml/2006/main" xmlns:r="http://schemas.openxmlformats.org/officeDocument/2006/relationships"><bookViews><workbookView/></bookViews><sheets>${parts.map((p,i)=>`<sheet name="${xesc(p.name)}" sheetId="${i+1}" r:id="rId${i+1}"/>`).join('')}</sheets></workbook>`)},
+    {name:'xl/_rels/workbook.xml.rels',data:enc.encode(`${X}<Relationships xmlns="http://schemas.openxmlformats.org/package/2006/relationships">${parts.map((_,i)=>`<Relationship Id="rId${i+1}" Type="http://schemas.openxmlformats.org/officeDocument/2006/relationships/worksheet" Target="worksheets/sheet${i+1}.xml"/>`).join('')}<Relationship Id="rIdS" Type="http://schemas.openxmlformats.org/officeDocument/2006/relationships/styles" Target="styles.xml"/></Relationships>`)},
+    {name:'xl/styles.xml',data:enc.encode(`${X}<styleSheet xmlns="http://schemas.openxmlformats.org/spreadsheetml/2006/main"><fonts count="2"><font><sz val="11"/><name val="Calibri"/></font><font><b/><sz val="11"/><color rgb="FFFFFFFF"/><name val="Calibri"/></font></fonts><fills count="3"><fill><patternFill patternType="none"/></fill><fill><patternFill patternType="gray125"/></fill><fill><patternFill patternType="solid"><fgColor rgb="FF1F3864"/><bgColor indexed="64"/></patternFill></fill></fills><borders count="1"><border><left/><right/><top/><bottom/><diagonal/></border></borders><cellStyleXfs count="1"><xf numFmtId="0" fontId="0" fillId="0" borderId="0"/></cellStyleXfs><cellXfs count="3"><xf numFmtId="0" fontId="0" fillId="0" borderId="0" xfId="0"/><xf numFmtId="0" fontId="1" fillId="2" borderId="0" xfId="0" applyFont="1" applyFill="1"/><xf numFmtId="0" fontId="0" fillId="0" borderId="0" xfId="0" applyAlignment="1"><alignment wrapText="1" vertical="top"/></xf></cellXfs><cellStyles count="1"><cellStyle name="Normal" xfId="0" builtinId="0"/></cellStyles></styleSheet>`)},
+    ...parts.map((p,i)=>({name:`xl/worksheets/sheet${i+1}.xml`,data:enc.encode(p.xml)})),
+  ];
+  return zipStore(files,'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet');
+}
+
+/* ── Allocations: export by discipline ── */
+function fullAllocRows(list){
+  const rows=[['Sl.No','Student Name','Student ID','Student Email','Personal Email','Campus','Discipline','Semester','Proposal Title','Proposal Summary','Principal Supervisor','Co-Supervisor','Student Preference','Allocated At','Proposal Link']];
+  list.forEach(s=>rows.push([s.slNo||'',s.name,s.studentId,s.email,s.personalEmail,CAMPUSES.find(c=>c.id===s.campus)?.name||s.campusName||'',discLabel(s.discipline)||'Not set',
+    s.semesterName||SEMESTERS.find(x=>x.id===s.semester)?.name||'',s.proposalTitle,s.proposalSummary,s.principalSupervisorName,s.coSupervisorName,s.studentPreference,fmtDate(s.allocatedAt),s.proposalLink].map(csvCell)));
+  return rows;
+}
+async function exportByDiscipline(){
+  const disc=el('export-disc-select')?.value||'';
+  const snap=await getDocs(query(collection(db,'students'),orderBy('slNo')));
+  let docs=snap.docs.map(d=>d.data()).filter(s=>s.active!==false);
+  docs = adminSemester ? docs.filter(s=>s.semester===adminSemester) : docs; // (the discipline is chosen here, not from the top-of-page filter)
+  if(adminAllocCampus!=='all') docs=docs.filter(s=>s.campus===adminAllocCampus);
+  const semTag=adminSemester?'_'+safeName(semesterLabel(adminSemester)):'';
+  if(disc){
+    const list=docs.filter(s=>s.discipline===disc);
+    if(!list.length){ toast(`No ${discLabel(disc)} students for this semester`,'error'); return; }
+    exportRows(fullAllocRows(list),`allocations_${safeName(discLabel(disc))}${semTag}.csv`,[{name:discLabel(disc),rows:fullAllocRows(list)}]);
+    toast(`Exported ${list.length} ${discLabel(disc)} student(s)`,'success'); return;
+  }
+  if(!docs.length){ toast('Nothing to export for this filter','error'); return; }
+  if(EXPORT_FMT==='xlsx'){
+    const sheets=[{name:'All disciplines',rows:fullAllocRows(docs)}, ...DISCIPLINES.map(d=>({name:d.short,rows:fullAllocRows(docs.filter(s=>s.discipline===d.id))}))];
+    const noDisc=docs.filter(s=>!s.discipline); if(noDisc.length) sheets.push({name:'Discipline not set',rows:fullAllocRows(noDisc)});
+    exportRows(null,`allocations_by-discipline${semTag}.xlsx`,sheets);
+    toast(`Exported ${docs.length} student(s) — one sheet per discipline`,'success');
+  } else {
+    exportRows(fullAllocRows([...docs].sort((a,b)=>String(discLabel(a.discipline)).localeCompare(String(discLabel(b.discipline)))||(a.slNo||0)-(b.slNo||0))),`allocations_by-discipline${semTag}.csv`);
+    toast(`Exported ${docs.length} student(s), sorted by discipline (choose Excel for one sheet per discipline)`,'success');
+  }
+}
+window.exportByDiscipline=()=>exportByDiscipline();
 
 </script>
 </body>
