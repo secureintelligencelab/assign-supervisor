@@ -37,23 +37,71 @@ service cloud.firestore {
     function isStudent() {
       return myExists() && myProfile().get('role', 'supervisor') == 'student';
     }
+    // Is the signed-in user a review-only account (registration officer, not a supervisor)?
+    function isOfficerOnly() {
+      return myExists() && myProfile().get('role', 'supervisor') == 'officer';
+    }
+
+    // ── Registration review stages ───────────────────────────
+    // A profile may carry officeRoles: any of 'office' (Research Office),
+    // 'school' (School / Division endorsement), 'adr' (Associate Dean
+    // Research / RSC). Admins can act at every stage.
+    function hasOffice(stage) {
+      return isEnabled() && stage in myProfile().get('officeRoles', []);
+    }
+    function canReview() {
+      return isAdmin() || (isEnabled() && myProfile().get('officeRoles', []).size() > 0);
+    }
+
+    // ── Per-semester supervisor list ─────────────────────────
+    // A profile with no `semesters` field (or null) is listed for every
+    // semester. Otherwise the supervisor may only take on students whose
+    // semester is in their list. They can always manage a student they
+    // already hold (e.g. to release them).
+    function onSemesterList() {
+      return myProfile().get('semesters', null) == null
+        || resource.data.get('semester', '') in myProfile().semesters
+        || resource.data.get('principalSupervisorId', null) == request.auth.uid
+        || resource.data.get('coSupervisorId', null) == request.auth.uid;
+    }
+
+    // ── Disciplines (Business / IT) ──────────────────────────
+    // Students carry `discipline`; supervisors carry `disciplines` (a list).
+    // A supervisor may only take on a student in a discipline they cover.
+    // Not set on either side = no restriction (older records). A supervisor
+    // can always manage a student they already hold.
+    function coversDiscipline() {
+      return resource.data.get('discipline', '') == ''
+        || myProfile().get('disciplines', null) == null
+        || myProfile().disciplines.size() == 0
+        || resource.data.discipline in myProfile().disciplines
+        || resource.data.get('principalSupervisorId', null) == request.auth.uid
+        || resource.data.get('coSupervisorId', null) == request.auth.uid;
+    }
 
     // ── Users collection ─────────────────────────────────────
     // Read: PUBLIC. The student lookup page is unauthenticated and needs to read
     //   supervisor names/emails. (You decided this contact info is not sensitive.)
     // Create own profile: always allowed when authenticated (handles first-login auto-create).
-    // Update own profile or any profile as admin.
+    // Update: admins can change anything. A user can update their own profile
+    //   but NOT the fields that grant access: role, review stages, enabled
+    //   state, semester list, disciplines, supervisor type or campus.
     // Delete: admin only.
     match /users/{userId} {
       allow read: if true;
       allow create: if isAuth() && (request.auth.uid == userId || isAdmin());
-      allow update: if isAuth() && (request.auth.uid == userId || isAdmin());
+      allow update: if isAdmin()
+        || (isAuth() && request.auth.uid == userId
+            && !request.resource.data.diff(resource.data).affectedKeys()
+                 .hasAny(['role', 'officeRoles', 'officeSchool', 'disabled', 'semesters', 'disciplines', 'supervisorType', 'campus', 'poolId']));
       allow delete: if isAdmin();
     }
 
     // ── Campuses ─────────────────────────────────────────────
+    // Read: PUBLIC — the registration form lists the campuses so an applicant
+    //   can say where they can supervise. A campus is only a name and location.
     match /campuses/{campusId} {
-      allow read: if isAuth();
+      allow read: if true;
       allow write: if isAdmin();
     }
 
@@ -82,6 +130,9 @@ service cloud.firestore {
     //   • They may not overwrite a co-supervisor already claimed by someone else
     //     (the slot is locked to the claimer / that student's principal / admin).
     // Disabled accounts cannot write at all.
+    // Review-only (officer) accounts cannot write students.
+    // Supervisors who are not on the student's semester list, or who do not
+    // cover the student's discipline, cannot take the student on.
     match /students/{studentId} {
       // Read: PUBLIC, so the unauthenticated student lookup page works. Writes
       // remain restricted to admins and the relevant supervisors below.
@@ -99,7 +150,8 @@ service cloud.firestore {
       //     following must hold: the slot was empty before, the writer is the
       //     student's principal, the writer previously claimed the slot, or the
       //     writer is assigning THEMSELVES as the co-supervisor.
-      allow update: if isAuth() && isEnabled() && !isCoOnly() && !isStudent()
+      allow update: if isAuth() && isEnabled() && !isCoOnly() && !isStudent() && !isOfficerOnly()
+        && onSemesterList() && coversDiscipline()
         && (
              // co-supervisor unchanged → fine
              request.resource.data.get('coSupervisorId', null)
@@ -118,7 +170,8 @@ service cloud.firestore {
       //   • cannot touch principal fields,
       //   • any co-supervisor they set must be their own uid,
       //   • cannot overwrite a co-supervisor claimed by someone else.
-      allow update: if isAuth() && isEnabled() && isCoOnly() && !isStudent()
+      allow update: if isAuth() && isEnabled() && isCoOnly() && !isStudent() && !isOfficerOnly()
+        && onSemesterList() && coversDiscipline()
         && request.resource.data.get('principalSupervisorId', null)
              == resource.data.get('principalSupervisorId', null)
         && request.resource.data.get('principalSupervisorName', null)
@@ -142,6 +195,251 @@ service cloud.firestore {
     match /settings/{docId} {
       allow read: if isAuth();
       allow write: if isAdmin();
+    }
+
+    // ── Supervisor registrations ─────────────────────────────
+    // The public registration form. It holds personal details (address,
+    // phone), so only staff who review registrations can read it.
+    //
+    // Create: ANYONE (the form is public, no sign-in). The entry must be a
+    //   fresh submission: status 'submitted', real server time, all
+    //   declarations ticked, a drawn signature, at least one preferred campus,
+    //   only the form's own fields, bounded lengths.
+    //   None of the office fields can be set by the applicant.
+    // Read: admins and reviewing officers.
+    // Update: admins, or the officer whose stage the form is at —
+    //   submitted    Research Office → endorsement (forward), returned (to the
+    //                  applicant for changes) or closed
+    //   returned     the APPLICANT resubmits (own answers only) — back to whoever
+    //                  returned it (Course Coordinator → submitted, ADR → approval);
+    //                  or that person takes it back / the Course Coordinator closes it
+    //                (or straight to approval when Head of School endorsement is
+    //                not required for the form's school — an admin setting)
+    //   endorsement  Head of School → approval (endorse) or submitted (return)
+    //   approval /   Associate Dean Research / RSC → approved, deferred, declined,
+    //   deferred       returned (to the applicant) or submitted (back to the
+    //                  Course Coordinator / Research Officer)
+    //   approved /   Research Office may tick the office checklist
+    //   registered     (status unchanged)
+    //   Officers can only touch the office-use fields, never the applicant's
+    //   answers. Officers tied to a school (officeSchool) only act on that
+    //   school's forms at the Research Office and Head of School stages. If an
+    //   admin has ASSIGNED the form to someone, only they (or an admin) can act.
+    //   Moving to 'registered' (account created) is admin-only.
+    // Delete: admins.
+    function regStr(d, key, max) {
+      return d.get(key, '') is string && d.get(key, '').size() <= max;
+    }
+    function regLink(d, key) {
+      return regStr(d, key, 500) && (d.get(key, '') == '' || d.get(key, '').matches('https?://.*'));
+    }
+    function validRegistration(d) {
+      return d.keys().hasOnly(['status', 'submittedAt', 'discipline', 'level', 'title', 'firstName', 'lastName',
+               'citizen', 'phone', 'email', 'address', 'position', 'institution', 'institutionAddress', 'phd',
+               'researchAreas', 'profileLink', 'hdrCompleted', 'hdrCurrent', 'mode',
+               'docCv', 'docPhd', 'docTranscripts', 'docOther', 'docFolder', 'docMethod',
+               'declarations', 'signature', 'signedOn', 'campusIds', 'campusNames', 'signatureImg'])
+        && d.keys().hasAll(['status', 'submittedAt', 'discipline', 'level', 'title', 'firstName', 'lastName',
+               'citizen', 'phone', 'email', 'address', 'position', 'institution', 'researchAreas',
+               'hdrCompleted', 'hdrCurrent', 'mode', 'declarations', 'signature', 'signedOn',
+               'campusNames', 'signatureImg'])
+        && d.status == 'submitted'
+        && d.submittedAt == request.time
+        && validAnswers(d);
+    }
+    // The applicant's answers themselves (checked for a new form and for a resubmission).
+    function validAnswers(d) {
+      return d.declarations == true
+        // drawn signature: a small PNG image
+        && d.signatureImg is string && d.signatureImg.size() <= 100000
+        && d.signatureImg.matches('data:image/png;base64,.*')
+        // preferred campuses: at least one name, short lists
+        && d.campusNames is list && d.campusNames.size() >= 1 && d.campusNames.size() <= 20
+        && d.get('campusIds', []) is list && d.get('campusIds', []).size() <= 20
+        && d.citizen in ['Yes', 'No']
+        && d.firstName is string && d.firstName.size() > 0
+        && d.lastName is string && d.lastName.size() > 0
+        && d.signature is string && d.signature.size() > 0
+        && d.email is string && d.email.matches('.+@.+[.].+')
+        && regStr(d, 'discipline', 60) && regStr(d, 'level', 80) && regStr(d, 'title', 20)
+        && regStr(d, 'firstName', 60) && regStr(d, 'lastName', 60) && regStr(d, 'phone', 40)
+        && regStr(d, 'email', 120) && regStr(d, 'address', 300) && regStr(d, 'position', 120)
+        && regStr(d, 'institution', 160) && regStr(d, 'institutionAddress', 300) && regStr(d, 'phd', 300)
+        && regStr(d, 'researchAreas', 1000) && regStr(d, 'profileLink', 300)
+        && regStr(d, 'hdrCompleted', 10) && regStr(d, 'hdrCurrent', 10) && regStr(d, 'mode', 60)
+        && regLink(d, 'docCv') && regLink(d, 'docPhd') && regLink(d, 'docTranscripts') && regLink(d, 'docOther')
+        && regLink(d, 'docFolder') && d.get('docMethod', 'links') in ['links', 'email']
+        && regStr(d, 'signature', 120) && regStr(d, 'signedOn', 10);
+    }
+    // The school a form belongs to: its forwarding school once chosen, otherwise
+    // its discipline ('Both Business and IT' has none until someone decides).
+    function disciplineSchool(d) {
+      return d.get('discipline', '') == 'Business' ? 'School of Business'
+        : (d.get('discipline', '') == 'Information Technology (IT)' ? 'School of IT' : '');
+    }
+    function regSchool(d) {
+      return ('endorsement' in d && d.endorsement.get('school', '') != '')
+        ? d.endorsement.school
+        : disciplineSchool(d);
+    }
+    // Officers tied to a school only act on that school's forms at the Research
+    // Office and Head of School stages; an officer with no school handles all.
+    function mySchoolOk(d) {
+      return myProfile().get('officeSchool', '') == '' || regSchool(d) == ''
+        || myProfile().officeSchool == regSchool(d);
+    }
+    // Is Head of School endorsement switched on for this school? (admin setting)
+    function hosRequired(school) {
+      return exists(/databases/$(database)/documents/settings/global)
+        && hosFlag(get(/databases/$(database)/documents/settings/global).data, school);
+    }
+    function hosFlag(s, school) {
+      return 'hosRequired' in s && s.hosRequired.get(school, false) == true;
+    }
+    // When an admin has assigned the form to someone, only that person (or an admin) acts on it.
+    // Who a returned form goes back to when the applicant resubmits it.
+    function returnedBy(d) {
+      return d.get('returnedFrom', 'office') == 'adr' ? 'adr' : 'office';
+    }
+    function resubmitStatus(d) {
+      return returnedBy(d) == 'adr' ? 'approval' : 'submitted';
+    }
+    function assignedToMe(d) {
+      return d.get('assignee', '') == '' || d.assignee == request.auth.uid;
+    }
+    match /registrations/{regId} {
+      allow create: if validRegistration(request.resource.data);
+      allow read: if canReview();
+      allow delete: if isAdmin();
+      allow update: if isAdmin()
+        || (
+             // Applicant resubmitting a form returned to them: only their own
+             // answers change, it goes back to whoever returned it, and the
+             // office fields (review, endorsement, decision, history) are untouched.
+             resource.data.status == 'returned'
+             && request.resource.data.status == resubmitStatus(resource.data)
+             && request.resource.data.diff(resource.data).affectedKeys()
+                  .hasOnly(['status', 'resubmittedAt', 'resubmissions', 'discipline', 'level', 'title',
+                            'firstName', 'lastName', 'citizen', 'phone', 'email', 'address', 'position',
+                            'institution', 'institutionAddress', 'phd', 'researchAreas', 'profileLink',
+                            'hdrCompleted', 'hdrCurrent', 'mode', 'docCv', 'docPhd', 'docTranscripts',
+                            'docOther', 'docFolder', 'docMethod', 'declarations', 'signature', 'signedOn',
+                            'campusIds', 'campusNames', 'signatureImg'])
+             && request.resource.data.resubmittedAt == request.time
+             && request.resource.data.resubmissions is list
+             && request.resource.data.resubmissions.size() == resource.data.get('resubmissions', []).size() + 1
+             && request.resource.data.resubmissions.size() <= 20
+             && validAnswers(request.resource.data)
+           )
+        || (
+             request.resource.data.diff(resource.data).affectedKeys()
+               .hasOnly(['status', 'officeReview', 'endorsement', 'decision', 'checklist', 'trail', 'updatedAt', 'assignee', 'assigneeName', 'returnedFrom'])
+             // officers can only clear an assignment (moving the form on), never set one
+             && request.resource.data.get('assignee', '') == ''
+             && assignedToMe(resource.data)
+             && (
+                  (hasOffice('office') && mySchoolOk(resource.data) && resource.data.status == 'submitted'
+                     && (request.resource.data.status in ['endorsement', 'closed']
+                         || (request.resource.data.status == 'returned' && request.resource.data.get('returnedFrom', '') == 'office')
+                         // straight to the ADR / RSC only where Head of School endorsement is not required
+                         || (request.resource.data.status == 'approval'
+                             && 'endorsement' in request.resource.data
+                             && request.resource.data.endorsement.get('skipped', false) == true
+                             && !hosRequired(request.resource.data.endorsement.get('school', '')))))
+                  || (hasOffice('office') && mySchoolOk(resource.data) && resource.data.status == 'returned'
+                     && returnedBy(resource.data) == 'office'
+                     && request.resource.data.status in ['submitted', 'closed'])
+                  || (hasOffice('office') && mySchoolOk(resource.data) && resource.data.status in ['approved', 'registered']
+                     && request.resource.data.status == resource.data.status
+                     && request.resource.data.diff(resource.data).affectedKeys().hasOnly(['checklist', 'trail', 'updatedAt']))
+                  || (hasOffice('school') && mySchoolOk(resource.data) && resource.data.status == 'endorsement'
+                     && request.resource.data.status in ['approval', 'submitted'])
+                  || (hasOffice('adr') && resource.data.status in ['approval', 'deferred']
+                     && (request.resource.data.status in ['approved', 'deferred', 'declined', 'submitted']
+                         || (request.resource.data.status == 'returned' && request.resource.data.get('returnedFrom', '') == 'adr')))
+                  || (hasOffice('adr') && resource.data.status == 'returned'
+                     && returnedBy(resource.data) == 'adr'
+                     && request.resource.data.status == 'approval')
+                )
+           );
+    }
+
+    // ── Registration status (what the applicant can see) ─────
+    // One tiny document per registration, with the same id (the applicant's
+    // reference code): status, applicant name, outcome, time. While a form is
+    // RETURNED to the applicant it also holds the office's note and a copy of
+    // the applicant's own answers, so they can correct and resubmit them; it
+    // is cut back to the bare status as soon as the form moves on.
+    // Get: anyone who knows the reference code. List: staff only, so the
+    //   codes cannot be enumerated.
+    // Create: together with the form (status 'submitted'), or by staff.
+    // Update / delete: staff who review registrations / admins.
+    match /registrationStatus/{regId} {
+      allow get: if true;
+      allow list: if canReview();
+      allow create: if canReview()
+        || (request.resource.data.keys().hasOnly(['status', 'name', 'at'])
+            && request.resource.data.status == 'submitted'
+            && request.resource.data.at == request.time
+            && request.resource.data.get('name', '') is string
+            && request.resource.data.get('name', '').size() <= 80);
+      allow update: if canReview()
+        // the applicant resubmitting a returned form: back to a bare 'submitted' status
+        || (resource.data.status == 'returned'
+            && request.resource.data.keys().hasOnly(['status', 'name', 'at'])
+            && request.resource.data.status == resubmitStatus(get(/databases/$(database)/documents/registrations/$(regId)).data)
+            && request.resource.data.at == request.time
+            && request.resource.data.get('name', '') is string
+            && request.resource.data.get('name', '').size() <= 80);
+      allow delete: if isAdmin();
+    }
+
+    // ── Supervisor pool ──────────────────────────────────────
+    // Everyone approved to supervise, with or without a sign-in account.
+    // Holds contact details, so only staff who review registrations can read it.
+    // Create: admins (import / add), or the Associate Dean Research / RSC when
+    //   they approve a registration (the pool entry has the registration's id).
+    // Update: admins; the ADR / RSC may only change who is SELECTED for a
+    //   semester. Inviting (accounts + semester lists) is admin-only, because it
+    //   writes to other people's user profiles.
+    // Delete: admins.
+    match /supervisorPool/{poolId} {
+      allow read: if canReview();
+      allow create: if isAdmin()
+        || (hasOffice('adr')
+            && request.resource.data.get('source', '') == 'registration'
+            && request.resource.data.get('registrationId', '') == poolId
+            && exists(/databases/$(database)/documents/registrations/$(poolId)));
+      allow update: if isAdmin()
+        || (hasOffice('adr')
+            && request.resource.data.diff(resource.data).affectedKeys().hasOnly(['selected', 'updatedAt'])
+            && request.resource.data.selected is list
+            && request.resource.data.selected.size() <= 100);
+      allow delete: if isAdmin();
+    }
+
+    // ── Activity log ─────────────────────────────────────────
+    // Written by the app whenever someone assigns a supervisor or edits a
+    // record. Entries are small and fixed-shape:
+    //   at (server time), uid, who, act, tgt?, det?, ref?
+    // Create: any signed-in, enabled staff member, but ONLY as themselves,
+    //   stamped with the real server time, with no extra fields and short
+    //   strings — so nobody can forge an entry for someone else or bloat storage.
+    // Read / delete: admins only (the Activity log page, CSV export, cleanup).
+    // Update: never — entries can't be altered after the fact.
+    match /activityLog/{entryId} {
+      allow create: if isAuth() && isEnabled() && !isStudent()
+        && request.resource.data.keys().hasAll(['at', 'uid', 'who', 'act'])
+        && request.resource.data.keys().hasOnly(['at', 'uid', 'who', 'act', 'tgt', 'det', 'ref'])
+        && request.resource.data.uid == request.auth.uid
+        && request.resource.data.at == request.time
+        && request.resource.data.act is string && request.resource.data.act.size() <= 40
+        && request.resource.data.who is string && request.resource.data.who.size() <= 60
+        && request.resource.data.get('tgt', '') is string && request.resource.data.get('tgt', '').size() <= 80
+        && request.resource.data.get('det', '') is string && request.resource.data.get('det', '').size() <= 160
+        && request.resource.data.get('ref', '') is string && request.resource.data.get('ref', '').size() <= 64;
+      allow read, delete: if isAdmin();
+      allow update: if false;
     }
   }
 }
