@@ -1479,6 +1479,7 @@ tr.row-mine td:first-child{box-shadow:inset 3px 0 0 var(--primary)}
       <div id="rg-ref-result" class="mt-8"></div>
     </div>
 
+    <div id="rg-edit-banner" class="hidden"></div>
     <div id="rg-form-wrap">
       <div class="card">
         <div class="card-header"><h3><span class="reg-num">1</span>Registration type</h3></div>
@@ -1564,13 +1565,15 @@ tr.row-mine td:first-child{box-shadow:inset 3px 0 0 var(--primary)}
         <div class="card-header" style="margin-bottom:6px"><h3><span class="reg-num">4</span>Relevant policies</h3></div>
         <p class="text-sm text-muted">As a supervisor at CIHE Australia, you are required to read and comply with the following:</p>
         <ul class="policy-list">
-          <li><svg class="ic ic-sm"><use href="#i-file"/></svg><span><a href="https://crownhe.sharepoint.com/:b:/r/sites/SharedFolders/Shared%20Documents/INTRANET_2024/POLICIES/QA19%20Student%20Academic%20Integrity%20Policy%204.01.pdf?csf=1&amp;web=1&amp;e=BAf77e" target="_blank" rel="noopener">QA19-Student-Academic-Integrity and Honesty Policy</a></span></li>
-          <li><svg class="ic ic-sm"><use href="#i-file"/></svg><span><a href="https://crownhe.sharepoint.com/:b:/r/sites/SharedFolders/Shared%20Documents/INTRANET_2024/POLICIES/QA63%20Research%20and%20Scholarship%20Policy%202.11.pdf?csf=1&amp;web=1&amp;e=5BJ5ot" target="_blank" rel="noopener">QA63 Research and Scholarship Policy</a></span></li>
+          <li><svg class="ic ic-sm"><use href="#i-file"/></svg><span><a href="https://www.cihe.edu.au/document/student-academic-integrity-policy/" target="_blank" rel="noopener">QA19 Student Academic Integrity Policy</a></span></li>
+          <li><svg class="ic ic-sm"><use href="#i-file"/></svg><span><a href="https://www.cihe.edu.au/document/student-academic-integrity-procedure/" target="_blank" rel="noopener">PR19 Student Academic Integrity Procedure</a></span></li>
+          <li><svg class="ic ic-sm"><use href="#i-file"/></svg><span><a href="https://www.cihe.edu.au/document/research-and-scholarship-policy/" target="_blank" rel="noopener">QA63 Research and Scholarship Policy</a></span></li>
+          <li><svg class="ic ic-sm"><use href="#i-file"/></svg><span><a href="https://www.cihe.edu.au/document/scholarships-and-awards-policy/" target="_blank" rel="noopener">QA34 Scholarships and Awards Policy</a></span></li>
+          <li><svg class="ic ic-sm"><use href="#i-file"/></svg><span><a href="https://www.cihe.edu.au/document/responsible-conduct-of-research-policy/" target="_blank" rel="noopener">QA65 Responsible Conduct of Research Policy</a></span></li>
+          <li><svg class="ic ic-sm"><use href="#i-file"/></svg><span><a href="https://www.cihe.edu.au/document/hdr-candidate-coc-policy/" target="_blank" rel="noopener">QA72 Higher Degree by Research (HDR) Candidate Confirmation of Candidature and Thesis Examination Policy</a></span></li>
           <li><svg class="ic ic-sm"><use href="#i-file"/></svg><span><a href="https://crownhe.sharepoint.com/:b:/r/sites/SharedFolders/Shared%20Documents/INTRANET_2024/POLICIES/QA71%20AI%20Governance%20and%20Risk%20Management%20Policy%20v1.0.pdf?csf=1&amp;web=1&amp;e=m9IeS5" target="_blank" rel="noopener">QA71 AI Governance and Risk Management Policy</a></span></li>
-          <li><svg class="ic ic-sm"><use href="#i-file"/></svg><span><a href="https://crownhe.sharepoint.com/:b:/r/sites/SharedFolders/Shared%20Documents/INTRANET_2024/POLICIES/QA65%20Responsible%20Conduct%20of%20Research%20Policy%201.11.pdf?csf=1&amp;web=1&amp;e=8dM4sE" target="_blank" rel="noopener">QA65 Responsible Conduct of Research Policy</a></span></li>
           <li><svg class="ic ic-sm"><use href="#i-file"/></svg><span><a href="https://crownhe.sharepoint.com/:b:/r/sites/SharedFolders/Shared%20Documents/INTRANET_2024/POLICIES/QA60%20Research%20and%20Scholarship%20Funding%20Policy%201.21.pdf?csf=1&amp;web=1&amp;e=7fHKRR" target="_blank" rel="noopener">QA60 Research and Scholarship Funding Policy</a></span></li>
           <li><svg class="ic ic-sm"><use href="#i-file"/></svg><span><a href="https://crownhe.sharepoint.com/:b:/r/sites/SharedFolders/Shared%20Documents/INTRANET_2024/POLICIES/QA55%20Human%20Research%20Ethics%20Policy%202.11.pdf?csf=1&amp;web=1&amp;e=re2IHL" target="_blank" rel="noopener">QA55 Human Research Ethics Policy</a></span></li>
-          <li><svg class="ic ic-sm"><use href="#i-file"/></svg><span>QA72 External Research Supervisor Engagement Policy</span></li>
           <li><svg class="ic ic-sm"><use href="#i-file"/></svg><span><a href="https://www.nhmrc.gov.au/about-us/publications/australian-code-responsible-conduct-research-2018" target="_blank" rel="noopener">NHMRC Australian Code for the Responsible Conduct of Research, 2018</a></span></li>
           <li><svg class="ic ic-sm"><use href="#i-file"/></svg><span><a href="https://www.acgr.edu.au/good-practice/graduate-research-good-practice-principles/" target="_blank" rel="noopener">Australian Council of Graduate Research (ACGR) Good Practice Guidelines for HDR Supervision</a></span></li>
         </ul>
@@ -1775,6 +1778,7 @@ const ACT = {
   'reg.checklist':     {v:'updated the office checklist for',   c:'reg',    i:'i-clip'},
   'reg.account':       {v:'created the supervisor account for', c:'reg',    i:'i-userplus'},
   'reg.reopen':        {v:'reopened the registration of',       c:'reg',    i:'i-refresh'},
+  'reg.returnApplicant':{v:'returned to the applicant for changes the registration of', c:'reg', i:'i-back'},
   'reg.delete':        {v:'deleted the registration of',        c:'reg',    i:'i-trash', t:'danger'},
   'officer.set':       {v:'set registration review stages for', c:'reg',    i:'i-shield'},
   'officer.remove':    {v:'removed registration review from',   c:'reg',    i:'i-x', t:'danger'},
@@ -4089,6 +4093,7 @@ const LEVEL_TYPE={'Principal Supervisor':'principal','Associate Supervisor (Co-s
 const STAGES={office:'Research Office',school:'School / Division',adr:'Associate Dean Research / RSC'};
 const REG_STATUS={
   submitted:  {l:'With Research Office',         b:'badge-amber', stage:'office',  step:1, w:'Research Office'},
+  returned:   {l:'Returned to applicant',        b:'badge-amber', step:1, w:'Applicant (making changes)'},
   endorsement:{l:'Awaiting School endorsement',  b:'badge-blue',  stage:'school',  step:2, w:'School / Division'},
   approval:   {l:'Awaiting ADR / RSC decision',  b:'badge-purple',stage:'adr',     step:3, w:'Associate Dean Research / RSC'},
   deferred:   {l:'Deferred / on hold',           b:'badge-gray',  stage:'adr',     step:3, w:'Associate Dean Research / RSC'},
@@ -4098,7 +4103,7 @@ const REG_STATUS={
   closed:     {l:'Closed',                       b:'badge-gray',  step:1, bad:1, w:'—'},
 };
 const REG_STEPS=['Submitted','Research Office','School / Division endorsement','Associate Dean Research / RSC','Supervisor account'];
-const TRAIL={forward:'Forwarded for School / Division endorsement',close:'Closed by the Research Office',endorse:'Endorsed by the School / Division',return:'Returned to the Research Office',decide:'Decision recorded',checklist:'Office checklist updated',account:'Supervisor account created',reopen:'Reopened'};
+const TRAIL={returnApplicant:'Returned to the applicant for changes',resubmit:'Resubmitted by the applicant',forward:'Forwarded for School / Division endorsement',close:'Closed by the Research Office',endorse:'Endorsed by the School / Division',return:'Returned to the Research Office',decide:'Decision recorded',checklist:'Office checklist updated',account:'Supervisor account created',reopen:'Reopened'};
 const DECLARATIONS=[
   'I confirm that I am actively engaged in research and scholarly activities relevant to the discipline in which I seek to supervise.',
   'I have read and understood the CIHE Australia relevant policies and procedures outlined in Section 4 and agree to supervise research candidates in accordance with these requirements.',
@@ -4122,11 +4127,18 @@ document.querySelectorAll('[data-register-url]').forEach(e=>e.textContent=REGIST
 document.querySelectorAll('[data-register-link]').forEach(a=>a.href=REGISTER_URL);
 document.querySelectorAll('[data-office-mail]').forEach(a=>{ a.href='mailto:'+RESEARCH_OFFICE_EMAIL; a.textContent=RESEARCH_OFFICE_EMAIL; });
 
+const APPLICANT_KEYS=['discipline','level','title','firstName','lastName','citizen','phone','email','address','position','institution','institutionAddress','phd','researchAreas','profileLink','hdrCompleted','hdrCurrent','mode','docMethod','docFolder','docCv','docPhd','docTranscripts','docOther','campusIds','campusNames','signature'];
+/* Office history, plus the applicant's resubmissions (they cannot write to the office trail). */
+function fullTrail(r){
+  const t=[...(r.trail||[])];
+  (r.resubmissions||[]).forEach(at=>t.push({act:'resubmit',at,who:regName(r)}));
+  return t.sort((a,b)=>(tsDate(a.at)?.getTime()||0)-(tsDate(b.at)?.getTime()||0));
+}
 function regStepsHTML(status){
   const st=REG_STATUS[status]||REG_STATUS.submitted;
   return `<div class="steps">${REG_STEPS.map((lbl,i)=>{
     const cls = i<st.step ? 'done' : i===st.step ? (st.bad?'bad':'now') : '';
-    const sub = i<st.step ? 'Done' : i===st.step ? (st.bad ? st.l : status==='deferred' ? 'Deferred / on hold' : 'In progress') : 'To come';
+    const sub = i<st.step ? 'Done' : i===st.step ? (st.bad ? st.l : status==='deferred' ? 'Deferred / on hold' : status==='returned' ? 'Returned to applicant' : 'In progress') : 'To come';
     return `<div class="step ${cls}">${esc(lbl)}<small>${esc(sub)}</small></div>`;
   }).join('')}</div>`;
 }
@@ -4220,6 +4232,25 @@ function regFormError(msg, focusId){
   const e=el('rg-error'); e.textContent=msg; e.classList.remove('hidden');
   const f=focusId && el(focusId); if(f){ f.focus(); f.scrollIntoView({behavior:'smooth',block:'center'}); }
 }
+/* Resubmitting a returned form: RG_EDIT holds {id, form} while the applicant edits it. */
+let RG_EDIT=null;
+async function startRegEdit(id, s){
+  const f=s.form||{};
+  RG_EDIT={id};
+  await loadRegisterCampuses();
+  RG_FIELDS.forEach(([key,elId])=>{ const e=el(elId); if(e && f[key]!==undefined) e.value=f[key]; });
+  document.querySelectorAll('input[name="rg-citizen"]').forEach(r=>r.checked=r.value===f.citizen);
+  document.querySelectorAll('#rg-campus-box [data-campus]').forEach(c=>c.checked=(f.campusIds||[]).includes(c.dataset.campus));
+  if(el('rg-campus-text') && !(f.campusIds||[]).length) el('rg-campus-text').value=(f.campusNames||[]).join(', ');
+  const m=document.querySelector(`input[name="rg-doc-method"][value="${f.docMethod||'links'}"]`); if(m){ m.checked=true; m.onchange(); }
+  el('rg-doc-access').checked=false;
+  document.querySelectorAll('#rg-declarations [data-decl]').forEach(c=>c.checked=false);
+  SIG['rg-sig']?.clear();
+  el('rg-edit-banner').innerHTML=`<div class="alert alert-warning"><strong>You are updating registration <code>${esc(id)}</code>.</strong> The Research Office asked for these changes:<div style="white-space:pre-wrap;margin-top:4px">${esc(s.note||'')}</div><div class="text-sm" style="margin-top:6px">Make the changes, tick the declarations, sign again and press <strong>Resubmit registration</strong>.</div></div>`;
+  show('rg-edit-banner'); show('rg-form-wrap'); hide('rg-done');
+  el('rg-submit-btn').innerHTML=`${icon('i-send')}Resubmit registration`;
+  el('rg-edit-banner').scrollIntoView({behavior:'smooth',block:'start'});
+}
 async function submitRegistration(){
   el('rg-error').classList.add('hidden');
   if(el('rg-website').value) return; // honeypot: only bots fill this hidden field
@@ -4256,18 +4287,22 @@ async function submitRegistration(){
   const signatureImg=readSig('rg-sig', regFormError); if(!signatureImg) return;
   const btn=el('rg-submit-btn'); btn.disabled=true;
   try{
-    const ref=doc(collection(db,REG_COL));
+    const editing=RG_EDIT;
+    const ref=editing ? doc(db,REG_COL,editing.id) : doc(collection(db,REG_COL));
+    const answers={...data, docMethod, citizen, campusIds, campusNames, signatureImg, declarations:true, signedOn:todayISO(), status:'submitted'};
     const b=writeBatch(db);
-    b.set(ref,{...data, docMethod, citizen, campusIds, campusNames, signatureImg, declarations:true, signedOn:todayISO(), status:'submitted', submittedAt:serverTimestamp()});
+    if(editing) b.update(ref,{...answers, resubmittedAt:serverTimestamp(), resubmissions:arrayUnion(Timestamp.now())});
+    else b.set(ref,{...answers, submittedAt:serverTimestamp()});
     b.set(doc(db,REG_STATUS_COL,ref.id),{status:'submitted', name:`${data.firstName} ${data.lastName}`.slice(0,80), at:serverTimestamp()});
     await b.commit();
+    RG_EDIT=null; hide('rg-edit-banner'); el('rg-submit-btn').innerHTML=`${icon('i-send')}Submit registration`;
     const docsSent=docMethod==='links';
     const mail=`mailto:${RESEARCH_OFFICE_EMAIL}?subject=${encodeURIComponent('Supervisor registration documents – ref '+ref.id)}&body=${encodeURIComponent(`Dear Research Office,\n\nPlease find attached my supporting documents (CV, PhD certificate, academic transcripts) for my supervisor registration.\n\nReference: ${ref.id}\nName: ${regName(data)}\n\nKind regards,\n${data.firstName} ${data.lastName}`)}`;
     hide('rg-form-wrap');
     el('rg-done').innerHTML=`<div class="card" style="text-align:center;padding:34px 22px">
         <span class="share-ic" style="margin:0 auto 12px;background:var(--green)">${icon('i-check')}</span>
-        <h2>Registration submitted</h2>
-        <p class="text-muted" style="margin:6px auto 16px;max-width:520px">Thank you, ${esc(data.firstName)}. Your form is now with the Research Office. Keep this reference code — you need it to check your status.</p>
+        <h2>Registration ${editing?'resubmitted':'submitted'}</h2>
+        <p class="text-muted" style="margin:6px auto 16px;max-width:520px">Thank you, ${esc(data.firstName)}. Your ${editing?'updated ':''}form is now with the Research Office. Keep this reference code — you need it to check your status.</p>
         <div><span class="ref-code" id="rg-done-ref">${esc(ref.id)}</span></div>
         <div class="form-actions" style="justify-content:center;margin-top:14px">
           <button class="btn" id="rg-done-copy">${icon('i-copy')}Copy reference</button>
@@ -4305,7 +4340,17 @@ async function checkRegStatus(refRaw){
       registered:'Your registration is complete and your Assign Supervisor account has been created. Sign-in details were sent to your email address.',
       declined:'Your registration was not approved. The Research Office will contact you with the details.',
       closed:'This registration was closed by the Research Office. Please contact them for details.',
+      returned:'The Research Office has returned your form for changes. Update it below and submit it again.',
     }[s.status]||'';
+    if(s.status==='returned'){
+      out.innerHTML=`<div style="margin-top:6px"><div class="flex items-center gap-8" style="flex-wrap:wrap"><span class="fw-600">${esc(s.name||'Registration')}</span><span class="badge badge-amber">Returned to you for changes</span><span class="text-xs text-muted">returned ${esc(fmtDate(s.at))}</span></div>
+        ${regStepsHTML('returned')}
+        <div class="alert alert-warning" style="margin-top:10px"><strong>What the Research Office needs you to change:</strong><div style="white-space:pre-wrap;margin-top:4px">${esc(s.note||'(no note)')}</div></div>
+        <button class="btn btn-primary" id="rg-edit-btn">${icon('i-edit')}Update my registration</button>
+        <span class="text-xs text-muted" style="margin-left:8px">Your earlier answers are filled in. You will need to tick the declarations and sign again.</span></div>`;
+      el('rg-edit-btn').onclick=()=>startRegEdit(ref,s);
+      return;
+    }
     out.innerHTML=`<div style="margin-top:6px"><div class="flex items-center gap-8" style="flex-wrap:wrap"><span class="fw-600">${esc(s.name||'Registration')}</span><span class="badge ${st.b}">${esc(s.outcome && ['approved','registered'].includes(s.status) ? s.outcome : st.l)}</span><span class="text-xs text-muted">updated ${esc(fmtDate(s.at))}</span></div>
       ${regStepsHTML(s.status)}<p class="text-sm" style="margin-top:8px">${esc(msg)}</p></div>`;
   }catch(e){ out.innerHTML=`<div class="alert alert-danger">Could not check the status: ${esc(e.message)}</div>`; }
@@ -4406,7 +4451,7 @@ function renderRegRows(){
   const term=(host.querySelector('[data-reg-search]')?.value||'').trim().toLowerCase();
   const rows=REGS.filter(r=>{
     if(REG_FILTER==='mine' && !regAwaitsMe(r)) return false;
-    if(REG_FILTER==='open' && !['submitted','endorsement','approval','deferred'].includes(r.status)) return false;
+    if(REG_FILTER==='open' && !['submitted','returned','endorsement','approval','deferred'].includes(r.status)) return false;
     if(REG_FILTER==='approved' && r.status!=='approved') return false;
     if(REG_FILTER==='registered' && r.status!=='registered') return false;
     if(REG_FILTER==='ended' && !['declined','closed'].includes(r.status)) return false;
@@ -4462,7 +4507,7 @@ function regDetailHTML(r){
     ${sec('Section 6 · Faculty / School endorsement',`<div class="kv">${kvHTML('Forwarding School / Division',e.school)}${kvHTML('Endorsed by',e.by)}${kvHTML('Date of endorsement',dmy(e.date))}${sigKV('Signature',e.sig)}${e.note?kvHTML('Comment',e.note,'wide'):''}</div>`)}
     ${sec('Section 7 · Approval by Associate Dean Research or RSC',`<div class="kv">${kvHTML('Name',d.name)}${kvHTML('Registration outcome',d.outcome)}${kvHTML('Date of decision',dmy(d.date))}${kvHTML('RSC decision / date',d.rsc)}${sigKV('Signature',d.sig)}${kvHTML('Comments / conditions',d.comments,'wide')}</div>`)}
     ${sec('Checklist · office use only',CHECKLIST.map(([k,l])=>`<div class="text-sm" style="padding:3px 0;color:${ck[k]?'var(--text)':'var(--text3)'}">${ck[k]?'☑':'☐'} ${esc(l)}</div>`).join('')+(r.account?.uid?`<div class="text-sm" style="padding:3px 0">☑ Assign Supervisor account created ${esc(fmtDate(r.account.at))}</div>`:''))}
-    ${(r.trail||[]).length?sec('History',[...r.trail].reverse().map(t=>`<div class="text-sm" style="padding:4px 0"><strong>${esc(TRAIL[t.act]||t.act)}</strong> <span class="text-muted">· ${esc(t.who||'')} · ${esc(fmtDate(t.at))}</span>${t.note?`<div class="text-muted" style="white-space:pre-wrap">${esc(t.note)}</div>`:''}</div>`).join('')):''}
+    ${fullTrail(r).length?sec('History',fullTrail(r).reverse().map(t=>`<div class="text-sm" style="padding:4px 0"><strong>${esc(TRAIL[t.act]||t.act)}</strong> <span class="text-muted">· ${esc(t.who||'')} · ${esc(fmtDate(t.at))}</span>${t.note?`<div class="text-muted" style="white-space:pre-wrap">${esc(t.note)}</div>`:''}</div>`).join('')):''}
     ${isAdminUser()?`<div class="reg-sec flex gap-8" style="flex-wrap:wrap">${['declined','closed'].includes(r.status)?`<button class="btn btn-sm" data-ra="reopen">${icon('i-refresh')}Reopen (back to Research Office)</button>`:''}<div class="spacer"></div><button class="btn btn-sm btn-danger" data-ra="delete">${icon('i-trash')}Delete registration</button></div>`:''}`;
 }
 function regActionHTML(r){
@@ -4479,8 +4524,15 @@ function regActionHTML(r){
       <p class="text-sm text-muted">Confirm the supporting documents, then send the form to the School / Division for endorsement.${r.docMethod==='email'?' <strong>The applicant chose to email the documents</strong> — check your inbox for the reference <code>'+esc(r.id)+'</code>.':' Open each link to check it works without signing in.'}</p>
       ${[['cv','CV received'],['phd','PhD certificate received'],['tr','Transcripts received']].map(([k,l])=>`<label class="check-row"><input type="checkbox" id="ra-doc-${k}" ${docs[k]?'checked':''}/> <span>${l}</span></label>`).join('')}
       <div class="g2 mt-8"><div class="form-group"><label>Forwarding School / Division <span class="req">*</span></label><select id="ra-school"><option value="">— Select —</option>${optsHTML(REG_OPTS.school,guess)}</select></div></div>
-      <div class="form-group"><label>Note <span class="opt">(optional — required if you close the registration)</span></label><textarea id="ra-note" rows="2"></textarea></div>
-      <div class="form-actions"><button class="btn btn-primary" data-ra="forward">${icon('i-arrow')}Forward for endorsement</button><button class="btn btn-danger" data-ra="close">Close without progressing</button></div>`);
+      <div class="form-group"><label>Note <span class="opt">(required to return or close — a return note is shown to the applicant)</span></label><textarea id="ra-note" rows="3" maxlength="600" placeholder="e.g. Your transcripts link asks for sign-in — please set it to 'Anyone with the link'."></textarea></div>
+      <div class="form-actions"><button class="btn btn-primary" data-ra="forward">${icon('i-arrow')}Forward for endorsement</button><button class="btn" data-ra="returnApplicant">${icon('i-back')}Return to applicant</button><button class="btn btn-danger" data-ra="close">Close without progressing</button></div>`);
+  } else if(st==='returned'){
+    if(!mine.includes('office')) return waiting('the applicant to update and resubmit the form');
+    const last=[...(r.trail||[])].reverse().find(t=>t.act==='returnApplicant');
+    h=box('Returned to the applicant',`
+      <div class="alert alert-warning" style="margin-bottom:12px">Waiting for ${esc(regName(r))} to update and resubmit the form. It comes back to you automatically when they do.${last?`<div style="margin-top:6px"><strong>Your note${last.at?` (${esc(fmtDate(last.at))})`:''}:</strong> ${esc(last.note)}</div>`:''}</div>
+      <div class="form-group"><label>Note <span class="opt">(required to close)</span></label><textarea id="ra-note" rows="2"></textarea></div>
+      <div class="form-actions"><button class="btn" data-ra="mail-applicant">${icon('i-mail')}Remind applicant</button><button class="btn" data-ra="takeBack">Continue without changes</button><button class="btn btn-danger" data-ra="closeReturned">Close registration</button></div>`);
   } else if(st==='endorsement'){
     if(!regAwaitsMe(r)) return waiting(r.endorsement?.school||'the School / Division');
     h=box(`${esc(r.endorsement?.school||'School / Division')} · endorsement (Section 6)`,`
@@ -4543,13 +4595,13 @@ el('reg-modal').addEventListener('click',e=>{ if(e.target===el('reg-modal')) clo
 document.addEventListener('keydown',e=>{ if(e.key==='Escape') closeReg(); });
 
 /* Write the change to the form and mirror the stage to the public status doc. */
-async function regSave(r, patch, act, note, logDet){
+async function regSave(r, patch, act, note, logDet, pubExtra){
   const entry={at:Timestamp.now(), uid:ME.uid, who:String(PROFILE?.name||ME.email||'').slice(0,60), act, note:String(note||'').slice(0,400)};
   const b=writeBatch(db);
   b.update(doc(db,REG_COL,r.id),{...patch, updatedAt:serverTimestamp(), trail:arrayUnion(entry)});
-  const pub={status:patch.status||r.status, name:`${r.firstName} ${r.lastName}`.slice(0,80), at:serverTimestamp()};
-  if(patch.decision?.outcome) pub.outcome=patch.decision.outcome;
-  b.set(doc(db,REG_STATUS_COL,r.id),pub,{merge:true});
+  const pub={status:patch.status||r.status, name:`${r.firstName} ${r.lastName}`.slice(0,80), at:serverTimestamp(), ...(pubExtra||{})};
+  const outcome=(patch.decision||r.decision)?.outcome; if(outcome) pub.outcome=outcome;
+  b.set(doc(db,REG_STATUS_COL,r.id),pub); // full rewrite, so a returned form's copy never lingers
   await b.commit();
   logAct('reg.'+act, regName(r), logDet||note||'', r.id);
   await loadRegs(); renderRegQueue();
@@ -4583,6 +4635,7 @@ async function regAct(r, act, btn){
         registered:'Your supervisor registration is complete and your Assign Supervisor account has been created.',
         declined:'We are writing about the outcome of your supervisor registration.',
         closed:'We are writing about your supervisor registration.',
+        returned:'This is a reminder that your supervisor registration was returned to you for changes. Please open the link below, choose "Update my registration", make the changes and submit it again.',
       }[r.status]||'';
       closeReg();
       openRouteEmail([{name,email:r.email}], name, `Your CIHE supervisor registration (ref ${r.id})`,
@@ -4601,6 +4654,28 @@ async function regAct(r, act, btn){
       closeReg(); await loadRegs(); renderRegQueue(); toast('Registration deleted','info'); return;
     }
     if(btn) btn.disabled=true;
+    if(act==='returnApplicant'){
+      const note=v('ra-note');
+      if(!note){ fail('Write what the applicant needs to change — they will see this note.'); return; }
+      if(!confirm(`Return the form to ${name} for changes?\n\nThey will see your note, can open their form with their answers filled in, and resubmit it. It comes back to the Research Office when they do.`)) return;
+      const docs={cv:el('ra-doc-cv').checked, phd:el('ra-doc-phd').checked, tr:el('ra-doc-tr').checked};
+      const form={}; APPLICANT_KEYS.forEach(k=>{ if(r[k]!==undefined) form[k]=r[k]; });
+      await regSave(r,{status:'returned',officeReview:{docs,by:ME.uid}},'returnApplicant',note,'',{note:note.slice(0,600),form});
+      closeReg(); toast('Returned to the applicant','success');
+      openRouteEmail([{name,email:r.email}], name, `Your CIHE supervisor registration needs changes (ref ${r.id})`,
+        `Dear ${studentFirstName({name})},\n\nThank you for your supervisor registration. The Research Office has returned it to you for the following changes:\n\n${note}\n\nPlease open the link below, choose "Update my registration", make the changes and submit it again. Your earlier answers are already filled in.\n${REGISTER_URL}/${r.id}\n\nBest regards,\n${myDisplayName()}`);
+      return;
+    }
+    if(act==='takeBack' || act==='closeReturned'){
+      const note=v('ra-note');
+      if(act==='closeReturned'){
+        if(!note){ fail('Add a note saying why the registration is being closed.'); return; }
+        if(!confirm(`Close the registration of ${name}?`)) return;
+        await regSave(r,{status:'closed'},'close',note); closeReg(); toast('Registration closed','info'); return;
+      }
+      if(!confirm(`Take the form back from ${name} and continue reviewing it as it is?\n\nThey will no longer be able to edit it.`)) return;
+      await regSave(r,{status:'submitted'},'reopen',note||'Continued without the applicant\'s changes'); toast('Back with the Research Office','success'); openReg(r.id); return;
+    }
     if(act==='forward' || act==='close'){
       const docs={cv:el('ra-doc-cv').checked, phd:el('ra-doc-phd').checked, tr:el('ra-doc-tr').checked};
       const note=v('ra-note');
@@ -4919,7 +4994,7 @@ function buildRegDocx(r){
   body+=wTable([{head:'SECTION 7: Approval by Associate Dean Research or RSC'},['Name',d.name],['Registration Outcome',d.outcome],['Date of Decision',dmy(d.date)],['Comments / Conditions',d.comments],
     ['Signature',sigCell(d.sig,d.name,dmy(d.date),dAcct?`Recorded in Assign Supervisor by the signed-in account of ${dAcct}.`:'')],['RSC decision / date',d.rsc]]);
   body+=wTable([{head:'Checklist – Office Use Only'},{full:CHECKLIST.map(([k,l])=>wP(wRun(`${tick(ck[k])}  ${l}`),{before:30,after:30})).join('')+(r.account?.uid?wP(wRun(`☑  Assign Supervisor account created ${fmtDate(r.account.at)}`),{before:30,after:30}):'')}]);
-  if((r.trail||[]).length) body+=wTable([{head:'Electronic Record'},{full:r.trail.map(t=>wP(wRun(`${fmtDate(t.at)}  ·  ${TRAIL[t.act]||t.act}  ·  ${t.who||''}${t.note?'\n'+t.note:''}`,{sz:18}),{before:30,after:30})).join('')}]);
+  if(fullTrail(r).length) body+=wTable([{head:'Electronic Record'},{full:fullTrail(r).map(t=>wP(wRun(`${fmtDate(t.at)}  ·  ${TRAIL[t.act]||t.act}  ·  ${t.who||''}${t.note?'\n'+t.note:''}`,{sz:18}),{before:30,after:30})).join('')}]);
   body+=wP(wRun(`Generated from Assign Supervisor on ${fmtDate(new Date())} by ${PROFILE?.name||ME?.email||''}. Signatures were captured electronically at each step.`,{i:1,color:'777777',sz:16}),{before:120});
 
   const NS='xmlns:w="http://schemas.openxmlformats.org/wordprocessingml/2006/main" xmlns:r="http://schemas.openxmlformats.org/officeDocument/2006/relationships" xmlns:wp="http://schemas.openxmlformats.org/drawingml/2006/wordprocessingDrawing"';
