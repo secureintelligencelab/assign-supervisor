@@ -1231,7 +1231,27 @@ tr.row-mine td:first-child{box-shadow:inset 3px 0 0 var(--primary)}
           <div id="csv-preview" class="hidden mt-16"></div>
         </div>
         <div class="card">
-          <div class="card-header"><h3>All students</h3><div id="admin-campus-pills" class="campus-pills"></div></div>
+          <div class="card-header"><h3>All students <span id="st-f-count" class="text-xs text-muted" style="font-weight:500;margin-left:6px"></span></h3><div id="admin-campus-pills" class="campus-pills"></div></div>
+          <div class="toolbar" id="students-filters">
+            <div class="search-wrap">
+              <span class="search-icon"><svg class="ic"><use href="#i-search"/></svg></span>
+              <input type="text" id="st-f-search" class="search-input" placeholder="Search name, ID, email or proposal…" style="width:280px" autocomplete="off"/>
+            </div>
+            <select id="st-f-disc" title="Filter by discipline" style="width:auto;min-width:170px;height:34px">
+              <option value="">All disciplines</option><option value="business">Business</option><option value="accounting">Accounting</option><option value="it">Information Technology (IT)</option><option value="ece">Early Childhood Education</option><option value="__none">Discipline not set</option>
+            </select>
+            <select id="st-f-sup" title="Filter by supervisor" style="width:auto;min-width:190px;height:34px"><option value="">Any supervisor</option></select>
+            <select id="st-f-role" title="Which supervisor role to match" style="width:auto;min-width:170px;height:34px">
+              <option value="any">As principal or co</option><option value="principal">As principal</option><option value="co">As co-supervisor</option><option value="pref">As student's preference ⭐</option>
+            </select>
+            <select id="st-f-alloc" title="Filter by allocation" style="width:auto;min-width:170px;height:34px">
+              <option value="">Any allocation</option><option value="none">No principal yet</option><option value="noco">Principal, no co-supervisor</option><option value="full">Principal &amp; co assigned</option><option value="prefmet">Got their preference</option>
+            </select>
+            <select id="st-f-status" title="Filter by status" style="width:auto;min-width:130px;height:34px">
+              <option value="">All statuses</option><option value="active">Active</option><option value="inactive">Inactive</option>
+            </select>
+            <button class="btn btn-sm btn-ghost hidden" id="st-f-clear">Clear filters</button>
+          </div>
           <div id="students-list"><div class="text-muted text-sm">Loading…</div></div>
         </div>
       </div>
@@ -1734,6 +1754,8 @@ let CAMPUSES  = [];
 let SEMESTERS = [];     // [{id,name,year,term,isActive}]
 let SUPS      = [];
 let STUDENTS  = [];
+// Admin › Students tab filters (search, campus, discipline, supervisor, allocation, status)
+const STF = { q:'', campus:'all', disc:'', sup:'', role:'any', alloc:'', status:'' };
 let SETTINGS  = { allocationMode: 'fcfs', maxPrincipal: 6, maxCo: 6, activeSemesterId: null };
 let svUnsub   = null;
 let svCampus  = 'all';
@@ -3404,12 +3426,12 @@ function refreshCampusDropdowns(){
   ['sup-campus','s-campus'].forEach(id=>{ const e=el(id); if(e) e.innerHTML=opts; });
   const pEl=el('admin-campus-pills');
   if(pEl){
-    pEl.innerHTML=`<button class="campus-pill active" data-campus="all">All</button>`+CAMPUSES.map(c=>`<button class="campus-pill" data-campus="${c.id}">${esc(c.name)}</button>`).join('');
+    if(STF.campus!=='all' && !CAMPUSES.some(c=>c.id===STF.campus)) STF.campus='all';
+    pEl.innerHTML=`<button class="campus-pill ${STF.campus==='all'?'active':''}" data-campus="all">All</button>`+CAMPUSES.map(c=>`<button class="campus-pill ${STF.campus===c.id?'active':''}" data-campus="${c.id}">${esc(c.name)}</button>`).join('');
     pEl.querySelectorAll('.campus-pill').forEach(p=>p.addEventListener('click',()=>{
       pEl.querySelectorAll('.campus-pill').forEach(x=>x.classList.remove('active')); p.classList.add('active');
-      const f=p.dataset.campus;
-      const base = scopedStudentsForAdmin();
-      renderStudentsList(f==='all'?base:base.filter(s=>s.campus===f));
+      STF.campus=p.dataset.campus;
+      renderStudentsList(scopedStudentsForAdmin());
     }));
   }
 }
@@ -3571,14 +3593,81 @@ function initStudentsTab(){
     }catch(e){ toast('Error: '+e.message,'error'); }
   };
   el('student-cancel-btn').onclick=()=>{ ['s-slno','s-name','s-id','s-email','s-personal-email','s-title','s-summary','s-link'].forEach(id=>{const e=el(id);if(e)e.value='';}); el('s-campus').value=''; el('s-pref').value=''; el('s-edit-id').value=''; el('student-form-title').textContent='Add Student'; el('student-save-btn').textContent='Add Student'; hide('student-cancel-btn'); };
+  // Filters for the "All students" table
+  const rerender=()=>renderStudentsList(scopedStudentsForAdmin());
+  el('st-f-search').oninput=deb(e=>{ STF.q=e.target.value; rerender(); },150);
+  [['st-f-disc','disc'],['st-f-sup','sup'],['st-f-role','role'],['st-f-alloc','alloc'],['st-f-status','status']].forEach(([id,k])=>{ el(id).onchange=e=>{ STF[k]=e.target.value; rerender(); }; });
+  el('st-f-clear').onclick=()=>{
+    Object.assign(STF,{q:'',campus:'all',disc:'',sup:'',role:'any',alloc:'',status:''});
+    el('st-f-search').value=''; ['st-f-disc','st-f-sup','st-f-alloc','st-f-status'].forEach(id=>el(id).value=''); el('st-f-role').value='any';
+    el('admin-campus-pills')?.querySelectorAll('.campus-pill').forEach(p=>p.classList.toggle('active',p.dataset.campus==='all'));
+    rerender();
+  };
   const dz=el('csv-drop-zone'); dz.addEventListener('click',()=>el('csv-input').click()); dz.addEventListener('dragover',e=>{e.preventDefault();dz.classList.add('dragging');}); dz.addEventListener('dragleave',()=>dz.classList.remove('dragging')); dz.addEventListener('drop',e=>{e.preventDefault();dz.classList.remove('dragging');handleCSV(e.dataTransfer.files[0]);}); el('csv-input').addEventListener('change',e=>handleCSV(e.target.files[0]));
 }
 function renderPrefDropdown(){ const e=el('s-pref'); if(!e) return; e.innerHTML=`<option value="">— No preference —</option>`+SUPS.map(s=>`<option value="${esc(s.name)}">${esc(s.name)}</option>`).join(''); }
-function renderStudentsList(students){
+/* Keep the supervisor filter's options in step with SUPS (and any names only found on students). */
+function refreshStudentSupFilter(students){
+  const sel=el('st-f-sup'); if(!sel) return;
+  const opts=new Map(); // value -> label
+  SUPS.forEach(s=>opts.set('id:'+s.id, s.name||s.email||'Unnamed'));
+  const known=new Set(SUPS.map(s=>(s.name||'').trim().toLowerCase()));
+  students.forEach(s=>[s.principalSupervisorName,s.coSupervisorName,s.studentPreference].forEach(n=>{
+    const t=(n||'').trim(); if(t && !known.has(t.toLowerCase())){ known.add(t.toLowerCase()); opts.set('name:'+t, t); }
+  }));
+  const sorted=[...opts.entries()].sort((a,b)=>a[1].localeCompare(b[1]));
+  if(STF.sup && !opts.has(STF.sup)) STF.sup='';
+  sel.innerHTML=`<option value="">Any supervisor</option>`+sorted.map(([v,l])=>`<option value="${esc(v)}" ${STF.sup===v?'selected':''}>${esc(l)}</option>`).join('');
+}
+function studentMatchesSup(s, key, role){
+  let id=null, name='';
+  if(key.startsWith('id:')){ id=key.slice(3); name=(SUPS.find(x=>x.id===id)?.name||''); } else name=key.slice(5);
+  name=name.trim().toLowerCase();
+  const is=(sid,sname)=> (id && sid===id) || (!!name && (sname||'').trim().toLowerCase()===name);
+  const p=is(s.principalSupervisorId,s.principalSupervisorName), c=is(s.coSupervisorId,s.coSupervisorName);
+  const pref=!!name && (s.studentPreference||'').trim().toLowerCase()===name;
+  return role==='principal'?p : role==='co'?c : role==='pref'?pref : (p||c);
+}
+function filterStudents(students){
+  const q=STF.q.trim().toLowerCase();
+  const discOn = adminDiscipline==='all'; // the top-of-page discipline picker already narrows the list otherwise
+  return students.filter(s=>{
+    if(STF.campus!=='all' && s.campus!==STF.campus) return false;
+    if(discOn && STF.disc){ if(STF.disc==='__none' ? !!s.discipline : s.discipline!==STF.disc) return false; }
+    if(STF.status==='active' && s.active===false) return false;
+    if(STF.status==='inactive' && s.active!==false) return false;
+    const hasP=!!(s.principalSupervisorId||s.principalSupervisorName), hasC=!!(s.coSupervisorId||s.coSupervisorName);
+    if(STF.alloc==='none' && hasP) return false;
+    if(STF.alloc==='noco' && !(hasP && !hasC)) return false;
+    if(STF.alloc==='full' && !(hasP && hasC)) return false;
+    if(STF.alloc==='prefmet'){
+      const pr=(s.studentPreference||'').trim().toLowerCase();
+      if(!pr || ![s.principalSupervisorName,s.coSupervisorName].some(n=>(n||'').trim().toLowerCase()===pr)) return false;
+    }
+    if(STF.sup && !studentMatchesSup(s,STF.sup,STF.role)) return false;
+    if(q){
+      const hay=[s.name,s.studentId,s.email,s.personalEmail,s.proposalTitle,String(s.slNo||'')].join(' \u0001 ').toLowerCase();
+      if(!q.split(/\s+/).every(w=>hay.includes(w))) return false;
+    }
+    return true;
+  });
+}
+function renderStudentsList(all){
   const e=el('students-list');
-  if(!students.length){
+  const discSel=el('st-f-disc'); if(discSel){ discSel.classList.toggle('hidden', adminDiscipline!=='all'); }
+  refreshStudentSupFilter(all);
+  const roleSel=el('st-f-role'); if(roleSel) roleSel.disabled=!STF.sup;
+  const students=filterStudents(all);
+  const active = !!(STF.q.trim()||STF.campus!=='all'||(adminDiscipline==='all'&&STF.disc)||STF.sup||STF.alloc||STF.status);
+  el('st-f-clear')?.classList.toggle('hidden',!active);
+  const cnt=el('st-f-count'); if(cnt) cnt.textContent = all.length ? (active ? `· ${students.length} of ${all.length}` : `· ${all.length}`) : '';
+  if(!all.length){
     const ctx = adminSemester ? ` for <strong>${esc(semesterLabel(adminSemester))}</strong>` : '';
     e.innerHTML=`<div class="text-muted text-sm" style="padding:12px">No students yet${ctx}.</div>`;
+    return;
+  }
+  if(!students.length){
+    e.innerHTML=`<div class="text-muted text-sm" style="padding:12px">No students match these filters. <button class="read-more-btn" onclick="document.getElementById('st-f-clear').click()">Clear filters</button></div>`;
     return;
   }
   e.innerHTML=`<div class="tw"><table><thead><tr><th>#</th><th>Student</th><th>ID</th><th>Email</th><th>Campus</th><th>Discipline</th><th>Semester</th><th>Status</th><th>Proposal Title</th><th>Principal</th><th>Co-Sup</th><th>Preference</th><th>Link</th><th>Actions</th></tr></thead><tbody>${students.map(s=>{
