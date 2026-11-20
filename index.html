@@ -4432,7 +4432,7 @@ const REG_STATUS={
   closed:     {l:'Closed',                       b:'badge-gray',  step:1, bad:1, w:'—'},
 };
 const REG_STEPS=['Submitted','Course Coordinator / Research Officer','Head of School endorsement','Associate Dean Research / RSC','Supervisor pool'];
-const TRAIL={review:'Reviewer comments saved',adrReturn:'Returned by the Associate Dean Research / RSC to the Course Coordinator / Research Officer',adminEdit:'Answers corrected by an administrator',poolRemove:'Removed from the supervisor pool by an administrator',forwardAdr:'Forwarded to the Associate Dean Research / RSC (Head of School endorsement not required)',assign:'Assigned by an administrator',returnApplicant:'Returned to the applicant for changes',resubmit:'Resubmitted by the applicant',forward:'Forwarded for School / Division endorsement',close:'Closed by the Research Office',endorse:'Endorsed by the School / Division',return:'Returned to the Research Office',decide:'Decision recorded',checklist:'Office checklist updated',account:'Supervisor account created',reopen:'Reopened'};
+const TRAIL={review:'Reviewer comments saved',adrReturn:'Returned by the Associate Dean Research / RSC to the Course Coordinator / Research Officer',adminEdit:'Answers corrected by an administrator',poolRemove:'Removed from the supervisor pool by an administrator',forwardAdr:'Forwarded to the Associate Dean Research / RSC (Head of School endorsement not required)',assign:'Assigned by an administrator',returnApplicant:'Returned to the applicant for changes',resubmit:'Resubmitted by the applicant',forward:'Forwarded for School / Division endorsement',close:'Closed by the Research Office',endorse:'Endorsed by the School / Division',return:'Returned to the Research Office',decide:'Decision recorded',checklist:'Office checklist updated',account:'Supervisor account created',reopen:'Reopened',adminMove:'Moved by an administrator',withdraw:'Withdrawn by an administrator'};
 const DECLARATIONS=[
   'I confirm that I am actively engaged in research and scholarly activities relevant to the discipline in which I seek to supervise.',
   'I have read and understood the CIHE Australia relevant policies and procedures outlined in Section 4 and agree to supervise research candidates in accordance with these requirements.',
@@ -4862,7 +4862,7 @@ el('goto-register-link')?.addEventListener('click',e=>{ e.preventDefault(); open
 window.addEventListener('hashchange',()=>{ if(window.location.hash.startsWith('#register')) openRegisterPortal(); });
 
 /* ── Review queue (admin tab + review page share this) ───── */
-let REGS=[], OFFICERS=[], REG_HOST=null, REG_FILTER='mine', REG_LEVEL='', REG_CAMPUS='', REG_DISC=null;
+let REGS=[], OFFICERS=[], REG_HOST=null, REG_FILTER=null, REG_LEVEL='', REG_CAMPUS='', REG_DISC=null;
 /* Filter by the supervision level the applicant asked for. "Can be …" includes Both / Any. */
 const LEVEL_FILTERS=[['','All supervision levels'],['can-p','Can be Principal (incl. Both / Any)'],['can-a','Can be Associate (incl. Both / Any)'],['p','Principal only'],['a','Associate only'],['b','Both / Any'],['i','Industry Expert']];
 function levelMatch(level,f){
@@ -4891,6 +4891,8 @@ function regAwaitsMe(r){
   if(isAdminUser() && r.assignee && r.assignee!==PROFILE?.uid) return false; // assigned to someone else: theirs, not every admin's
   return canActStage(r, stage);
 }
+const regIsOpen=r=>['submitted','returned','endorsement','approval','deferred'].includes(r.status);
+const regAssignedOpen=r=>!!r.assignee && regIsOpen(r);
 const retFrom=r=>r?.returnedFrom==='adr'?'adr':'office';
 const stageOfReg=r=>REG_STATUS[r.status]?.stage || (r.status==='returned'?retFrom(r):'');
 const RET_WHO={office:'the Course Coordinator / Research Officer',adr:'the Associate Dean Research / RSC'};
@@ -4942,7 +4944,10 @@ function renderRegQueue(){
   const host=el(REG_HOST); if(!host) return;
   const n=k=>REGS.filter(r=>r.status===k).length;
   const mine=REGS.filter(regAwaitsMe).length;
-  const pills=[['mine',`Awaiting my action (${mine})`],['open','In progress'],['approved','Approved'],['ended','Not approved / closed'],['all',`All (${REGS.length})`]];
+  // Admins oversee every form, so they start on everything in progress (including forms assigned to someone else).
+  if(REG_FILTER===null) REG_FILTER = isAdminUser() ? 'open' : 'mine';
+  const assignedN=REGS.filter(regAssignedOpen).length;
+  const pills=[['mine',`Awaiting my action (${mine})`],['open',`In progress (${REGS.filter(regIsOpen).length})`],...(isAdminUser()?[['assigned',`Assigned to reviewers (${assignedN})`]]:[]),['approved','Approved'],['ended','Not approved / closed'],['all',`All (${REGS.length})`]];
   const term=host.querySelector('[data-reg-search]')?.value||'';
   host.innerHTML=`
     <div class="stats-strip">
@@ -4978,7 +4983,8 @@ function renderRegRows(){
   const term=(host.querySelector('[data-reg-search]')?.value||'').trim().toLowerCase();
   const rows=REGS.filter(r=>{
     if(REG_FILTER==='mine' && !regAwaitsMe(r)) return false;
-    if(REG_FILTER==='open' && !['submitted','returned','endorsement','approval','deferred'].includes(r.status)) return false;
+    if(REG_FILTER==='open' && !regIsOpen(r)) return false;
+    if(REG_FILTER==='assigned' && !regAssignedOpen(r)) return false;
     if(REG_FILTER==='approved' && !['approved','registered'].includes(r.status)) return false;
     if(REG_FILTER==='ended' && !['declined','closed'].includes(r.status)) return false;
     if(!levelMatch(r.level,REG_LEVEL)) return false;
@@ -5000,7 +5006,7 @@ function renderRegRows(){
       <td class="text-sm">${esc(r.discipline)}<div class="text-xs text-muted">${esc(r.level)}</div>${regCampusText(r)?`<div class="text-xs" style="margin-top:2px">${icon('i-building','ic-sm')} ${esc(regCampusText(r))}</div>`:''}</td>
       <td><span class="badge ${st.b}">${esc(st.l)}</span>${r.decision?.outcome?`<div class="text-xs text-muted" style="margin-top:3px">${esc(r.decision.outcome)}</div>`:''}${['office','adr'].map(k=>revSummary(r.reviews?.[k])?`<div class="text-xs text-muted" style="margin-top:2px" title="${esc(REV_STAGES[k])}">${REV_SHORT[k]}: ${esc(revSummary(r.reviews[k]))}</div>`:'').join('')}</td>
       <td class="text-sm">${esc(withWho)}${r.assignee?' <span class="badge badge-gray" title="Assigned by an administrator">Assigned</span>':''}</td>
-      <td><button class="btn btn-sm ${regAwaitsMe(r)?'btn-primary':''}" data-reg-open="${r.id}">${regAwaitsMe(r)?'Review':'Open'}</button></td>
+      <td><button class="btn btn-sm ${regAwaitsMe(r)?'btn-primary':''}" data-reg-open="${r.id}">${regAwaitsMe(r)?'Review':isAdminUser()&&regIsOpen(r)?'Manage':'Open'}</button></td>
     </tr>`;
   }).join('');
   body.querySelectorAll('[data-reg-open]').forEach(b=>b.onclick=()=>openReg(b.dataset.regOpen));
@@ -5036,7 +5042,26 @@ function regDetailHTML(r){
     ${sec(`Section ${adrSec(r)} · Approval by Associate Dean Research or RSC`,`<div class="kv">${kvHTML('Name',d.name)}${kvHTML('Registration outcome',d.outcome)}${kvHTML('Date of decision',dmy(d.date))}${kvHTML('RSC decision / date',d.rsc)}${sigKV('Signature',d.sig)}${kvHTML('Comments / conditions',d.comments,'wide')}</div>`)}
     ${sec('Checklist · office use only',CHECKLIST.map(([k,l])=>`<div class="text-sm" style="padding:3px 0;color:${ck[k]?'var(--text)':'var(--text3)'}">${ck[k]?'☑':'☐'} ${esc(l)}</div>`).join('')+(r.account?.uid?`<div class="text-sm" style="padding:3px 0">☑ Assign Supervisor account created ${esc(fmtDate(r.account.at))}</div>`:''))}
     ${fullTrail(r).length?sec('History',fullTrail(r).reverse().map(t=>`<div class="text-sm" style="padding:4px 0"><strong>${esc(TRAIL[t.act]||t.act)}</strong> <span class="text-muted">· ${esc(t.who||'')} · ${esc(fmtDate(t.at))}</span>${t.note?`<div class="text-muted" style="white-space:pre-wrap">${esc(t.note)}</div>`:''}</div>`).join('')):''}
-    ${isAdminUser()?`<div class="reg-sec flex gap-8" style="flex-wrap:wrap">${['declined','closed'].includes(r.status)?`<button class="btn btn-sm" data-ra="reopen">${icon('i-refresh')}Reopen (back to Research Office)</button>`:''}<div class="spacer"></div><button class="btn btn-sm btn-danger" data-ra="delete">${icon('i-trash')}Delete registration</button></div>`:''}`;
+    ${adminCtlHTML(r)}`;
+}
+/* ── Admin override: move a form to any stage, whoever it is with or assigned to ── */
+const ADMIN_MOVES=[
+  ['submitted','Course Coordinator / Research Officer (check and forward)'],
+  ['endorsement','Head of School / Division (endorsement)'],
+  ['approval','Associate Dean Research / RSC (decision)'],
+  ['deferred','Deferred / on hold with the Associate Dean Research / RSC'],
+  ['returned','Return to the applicant for changes'],
+  ['closed','Withdraw / close the registration'],
+];
+function adminCtlHTML(r){
+  if(!isAdminUser()) return '';
+  const pooled=['approved','registered'].includes(r.status);
+  return `<div class="reg-sec" id="reg-admin-ctl"><h4>${icon('i-shield','ic-sm')} Administrator controls</h4>
+    <p class="text-xs text-muted" style="margin:-4px 0 10px">Forward this form, pull it back to an earlier stage, send it to the applicant, or withdraw it — whoever it is currently with or assigned to. Every move is recorded in the history and clears any assignment. To amend the applicant's answers use <strong>Correct answers</strong> at the top; the reviewer assessment panels above are always editable by administrators.${pooled?' <strong>This person is already approved:</strong> moving the form does not remove them from the supervisor pool — remove them there if needed.':''}</p>
+    <div class="g2"><div class="form-group"><label for="ra-adm-to">Move the form to</label><select id="ra-adm-to"><option value="">— Choose —</option>${ADMIN_MOVES.filter(([k])=>k!==r.status).map(([k,l])=>`<option value="${k}">${esc(l)}</option>`).join('')}</select></div>
+    <div class="form-group"><label for="ra-adm-school">School / Division <span class="opt">(used for Head of School / ADR)</span></label><select id="ra-adm-school"><option value="">— Select —</option>${optsHTML(REG_OPTS.school,regSchool(r))}</select></div></div>
+    <div class="form-group"><label for="ra-adm-note">Reason / note <span class="opt">(required to return or withdraw — a return note is shown to the applicant)</span></label><textarea id="ra-adm-note" rows="2" maxlength="600"></textarea></div>
+    <div class="form-actions"><button class="btn btn-primary" data-ra="adminMove">${icon('i-arrow')}Move the form</button><div class="spacer"></div><button class="btn btn-danger" data-ra="delete">${icon('i-trash')}Delete registration</button></div></div>`;
 }
 /* Admins can hand the current stage to a specific person (an officer for that stage, or another admin). */
 function assignCtlHTML(r){
@@ -5285,6 +5310,39 @@ async function regAct(r, act, btn){
       toast('Reviewer comments saved','success'); openReg(r.id); return;
     }
     const RC=collectReviews(r), revP=RC?RC.patch:{}; // unsaved reviewer comments travel with the action
+    if(act==='adminMove'){
+      if(!isAdminUser()){ fail('Only an administrator can move a form between stages.'); return; }
+      const to=v('ra-adm-to'), note=v('ra-adm-note'), school=v('ra-adm-school');
+      if(!to){ fail('Choose where to move the form.'); return; }
+      if(to==='returned' && !note){ fail('Write what the applicant needs to change — they will see this note.'); return; }
+      if(to==='closed' && !note){ fail('Add the reason for withdrawing the registration.'); return; }
+      if(to==='endorsement' && !school){ fail('Choose the School / Division that should endorse the form.'); return; }
+      if(to==='approval' && !r.endorsement?.school && !school){ fail('Choose the School / Division for the form.'); return; }
+      const label=ADMIN_MOVES.find(m=>m[0]===to)[1];
+      if(!confirm(`Move the registration of ${name} to:\n${label}?`
+        +(r.assignee?`\n\nIt is currently assigned to ${r.assigneeName||'someone else'}; that assignment will be cleared.`:'')
+        +(['approved','registered'].includes(r.status)?'\n\nThey stay in the supervisor pool until you remove them there.':''))) return;
+      const patch={status:to, ...revP};
+      let pubExtra;
+      if(to==='endorsement') patch.endorsement={school}; // fresh endorsement (any earlier signature is cleared)
+      if(to==='approval' && (!r.endorsement?.school || (school && school!==r.endorsement.school))) patch.endorsement={school:school||r.endorsement.school, skipped:true};
+      if(to==='returned'){
+        const from=['approval','deferred'].includes(r.status)?'adr':'office';
+        const form={}; APPLICANT_KEYS.forEach(k=>{ if(r[k]!==undefined) form[k]=r[k]; });
+        patch.returnedFrom=from;
+        pubExtra={note:note.slice(0,600), form, returnedFrom:from};
+      }
+      const trailAct = to==='returned' ? 'returnApplicant' : to==='closed' ? 'withdraw' : 'adminMove';
+      await regSave(r, patch, trailAct, ['returned','closed'].includes(to) ? note : `${label}${note?' — '+note:''}`, label, pubExtra);
+      closeReg(); toast(`Moved to: ${label}`,'success');
+      const sch=patch.endorsement?.school||regSchool(r), lead=`An administrator has moved this supervisor registration to you.${note?'\n\nNote: '+note:''}`;
+      if(to==='submitted') openRouteEmail(officersFor('office',sch), 'Course Coordinator / Research Officer', `Supervisor registration – ${name}`, routeBody(r,lead));
+      else if(to==='endorsement') openRouteEmail(officersFor('school',school), school, `Supervisor registration for endorsement – ${name}`, routeBody(r,lead));
+      else if(to==='approval') openRouteEmail(officersFor('adr'), 'Associate Dean Research / RSC', `Supervisor registration for approval – ${name}`, routeBody(r,lead));
+      else if(to==='returned') openRouteEmail([{name,email:r.email}], name, `Your CIHE supervisor registration needs changes (ref ${r.id})`,
+        `Dear ${studentFirstName({name})},\n\nThank you for your supervisor registration. It has been returned to you for the following changes:\n\n${note}\n\nPlease open the link below, choose "Update my registration", make the changes and submit it again. Your earlier answers are already filled in.\n${REGISTER_URL}/${r.id}\n\nBest regards,\n${myDisplayName()}`);
+      return;
+    }
     if(act==='returnApplicant'){
       const note=v('ra-note');
       if(!note){ fail('Write what the applicant needs to change — they will see this note.'); return; }
@@ -5422,7 +5480,10 @@ async function regAct(r, act, btn){
       if(confirm(`${dn} can now sign in.\n\nOpen an email to send them the Assign Supervisor link? (Send the temporary password separately.)`)) openEmailComposer([{name:dn,email}], dn, 'invite');
     }
   }catch(e){
-    toast(e.code==='permission-denied' ? 'The database refused this change — your role may not cover this stage, or the form has already moved on. Refresh and try again.' : 'Error: '+e.message,'error',6000);
+    console.error('Registration action refused:', act, e.code, e.message, e);
+    toast(e.code!=='permission-denied' ? 'Error: '+e.message
+      : isAdminUser() ? 'The database refused this change (permission-denied). Publish the latest Firestore rules, then refresh and try again.'
+      : 'You are set up for this stage in the app, but the database (Firestore security rules) refused the save. Ask an administrator to add the registration-reviewer rules in Firebase, then refresh and try again. If the form has just moved on, refresh first.','error',9000);
   }finally{ if(btn) btn.disabled=false; }
 }
 
@@ -5929,6 +5990,8 @@ async function renderOverview(){
   if(!SEMESTERS.length) att.push(`<div class="att-row"><span class="att-n t-red">!</span><div><div class="att-t">No semester yet</div><div class="att-s">Create a semester before adding students.</div></div><button class="btn btn-sm" data-goto-tab="tab-semesters">Semesters${icon('i-arrow')}</button></div>`);
   if(!CAMPUSES.length) att.push(`<div class="att-row"><span class="att-n t-red">!</span><div><div class="att-t">No campus yet</div><div class="att-s">Principal supervisors are matched to students by campus.</div></div><button class="btn btn-sm" data-goto-tab="tab-campuses">Campuses${icon('i-arrow')}</button></div>`);
   item(mine,'blue',`Registration${mine===1?'':'s'} waiting for you`,'Supervisor registration forms at a stage you handle.','tab-registrations','Review');
+  const withOthers=REGS.filter(r=>regIsOpen(r) && !regAwaitsMe(r)).length, assignedOthers=REGS.filter(regAssignedOpen).length;
+  item(withOthers,'amber',`Registration${withOthers===1?'':'s'} in progress with reviewers`,`With a Course Coordinator / Research Officer, Head of School, ADR / RSC or the applicant${assignedOthers?` (${assignedOthers} assigned to a named person)`:''}. As administrator you can open any of them to forward, return, withdraw or amend.`,'tab-registrations','Manage');
   item(poolSelected,'blue',`Supervisor${poolSelected===1?'':'s'} selected but not yet invited`,`Selected for ${adminSemester?semesterLabel(adminSemester):'this semester'} in the supervisor pool.`,'tab-pool','Send invitations');
   const hiddenSup=adminSemester?listed.filter(s=>!accessState(s,adminSemester).open).length:0;
   item(hiddenSup,'amber',`Invited supervisor${hiddenSup===1?'':'s'} who cannot see students yet`,`On hold or scheduled for ${adminSemester?semesterLabel(adminSemester):'this semester'}. Release them in the supervisor pool when you are ready.`,'tab-pool','Student access');
