@@ -240,6 +240,27 @@ tbody tr:hover td{background:var(--bg-hover)!important}
 .progress-bar{height:5px;background:var(--bg3);border-radius:99px;overflow:hidden;margin-top:8px}
 .progress-fill{height:100%;background:linear-gradient(90deg,#6366f1,#a855f7);border-radius:99px;transition:width .5s cubic-bezier(.2,.8,.2,1)}
 
+/* ───────────── Student notes (admin) ───────────── */
+.note-write{display:grid;grid-template-columns:minmax(0,1.15fr) minmax(0,1fr);gap:20px}
+@media(max-width:860px){.note-write{grid-template-columns:1fr}}
+.np-list{border:1px solid var(--border);border-radius:10px;max-height:340px;overflow-y:auto;background:var(--bg3)}
+label.np-row{display:flex;align-items:center;gap:8px;padding:8px 12px;border-bottom:1px solid var(--border);cursor:pointer;margin:0;font-weight:400;font-size:13px;color:var(--text)}
+label.np-row:last-child{border-bottom:none}
+label.np-row:hover{background:var(--bg2)}
+.np-row input{width:16px;height:16px;margin:0;flex:none;accent-color:var(--primary)}
+.np-main{flex:1;min-width:0;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.np-chosen{display:flex;flex-wrap:wrap;gap:6px;min-height:34px;align-items:center}
+.np-chip button{border:none;background:none;color:inherit;cursor:pointer;font-size:14px;line-height:1;padding:0 2px;opacity:.7;font-family:var(--font)}
+.np-chip button:hover{opacity:1}
+.note-item{border:1px solid var(--border);border-radius:10px;padding:10px 12px;margin-bottom:8px;background:var(--bg3)}
+.note-meta{display:flex;align-items:center;gap:8px;flex-wrap:wrap;margin-bottom:6px}
+.note-text,.note-cell{white-space:pre-wrap;word-break:break-word;font-size:13px;line-height:1.5}
+.note-cell{max-width:420px;min-width:220px}
+.note-peek{display:flex;flex-direction:column;align-items:flex-start;gap:3px;background:none;border:none;padding:0;cursor:pointer;text-align:left;width:200px;color:var(--text);font-family:var(--font)}
+.note-peek:hover .note-snip{color:var(--primary)}
+.note-snip{font-size:12px;line-height:1.4;display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical;overflow:hidden}
+.nm-form{border-top:1px solid var(--border);padding-top:14px;margin-top:6px}
+
 /* ───────────── Toolbar / search ───────────── */
 .toolbar{display:flex;align-items:center;gap:10px;flex-wrap:wrap;margin-bottom:16px}
 .table-toolbar{display:flex;align-items:center;gap:10px;flex-wrap:wrap;padding:12px 14px;border-bottom:1px solid var(--border)}
@@ -652,6 +673,21 @@ tr.row-mine td:first-child{box-shadow:inset 3px 0 0 var(--primary)}
   </div>
 </div>
 
+<!-- Student notes modal (admin) -->
+<div id="notes-modal" class="modal-overlay hidden">
+  <div class="modal-box" style="max-width:640px">
+    <button class="modal-close" id="notes-close-btn" aria-label="Close"><svg class="ic"><use href="#i-x"/></svg></button>
+    <span class="eyebrow"><svg class="ic ic-sm"><use href="#i-file"/></svg>Student notes · admins only</span>
+    <div class="modal-title" id="nm-title" style="margin-top:4px">—</div>
+    <p class="modal-desc" id="nm-sub"></p>
+    <div id="nm-list" style="max-height:42vh;overflow-y:auto"></div>
+    <div class="nm-form" id="nm-form">
+      <div class="form-group"><label id="nm-form-lbl">Add a note</label><select id="nm-cat" style="margin-bottom:8px"></select><textarea id="nm-text" rows="4" maxlength="2000" placeholder="e.g. Failed RES501 in Semester 1, re-enrolled this semester."></textarea></div>
+      <div class="form-actions"><button class="btn btn-ghost hidden" id="nm-cancel">Cancel edit</button><button class="btn btn-primary" id="nm-save">Add note</button></div>
+    </div>
+  </div>
+</div>
+
 <!-- Supervisor registration detail / review modal -->
 <div id="reg-modal" class="modal-overlay hidden">
   <div class="modal-box" style="max-width:860px">
@@ -936,6 +972,7 @@ tr.row-mine td:first-child{box-shadow:inset 3px 0 0 var(--primary)}
       <div class="sidebar-item" data-tab="tab-supervisors"><svg class="ic"><use href="#i-user"/></svg>Supervisor accounts</div>
       <div class="sidebar-section">Students &amp; allocation</div>
       <div class="sidebar-item" data-tab="tab-students"><svg class="ic"><use href="#i-cap"/></svg>Students</div>
+      <div class="sidebar-item" data-tab="tab-notes"><svg class="ic"><use href="#i-file"/></svg>Student notes</div>
       <div class="sidebar-item" data-tab="tab-allocations"><svg class="ic"><use href="#i-clip"/></svg>Allocations</div>
       <div class="sidebar-item" data-tab="tab-by-supervisor"><svg class="ic"><use href="#i-layers"/></svg>By supervisor</div>
       <div class="sidebar-section">Settings</div>
@@ -1250,9 +1287,57 @@ tr.row-mine td:first-child{box-shadow:inset 3px 0 0 var(--primary)}
             <select id="st-f-status" title="Filter by status" style="width:auto;min-width:130px;height:34px">
               <option value="">All statuses</option><option value="active">Active</option><option value="inactive">Inactive</option>
             </select>
+            <select id="st-f-notes" title="Filter by notes" style="width:auto;min-width:150px;height:34px"><option value="">Any notes</option></select>
             <button class="btn btn-sm btn-ghost hidden" id="st-f-clear">Clear filters</button>
           </div>
           <div id="students-list"><div class="text-muted text-sm">Loading…</div></div>
+        </div>
+      </div>
+
+      <!-- STUDENT NOTES (admin only) -->
+      <div id="tab-notes" class="tab-panel">
+        <div class="page-head"><div>
+          <span class="eyebrow" data-sem-eyebrow>Per semester</span>
+          <h2>Student notes</h2>
+          <p>Short private notes about students, such as a failed unit or something to follow up. Only admins can see them. Supervisors and the student portal can't.</p>
+        </div></div>
+        <div id="notes-rules" class="hidden"></div>
+        <div class="card mb-16">
+          <div class="card-header"><h3><svg class="ic"><use href="#i-edit"/></svg>Write a note</h3></div>
+          <div class="note-write">
+            <div>
+              <div class="search-wrap" style="margin-bottom:8px">
+                <span class="search-icon"><svg class="ic"><use href="#i-search"/></svg></span>
+                <input type="text" id="np-search" class="search-input" style="width:100%" placeholder="Find students by name or ID…" autocomplete="off"/>
+              </div>
+              <div class="flex items-center gap-8" style="margin-bottom:8px;flex-wrap:wrap">
+                <button class="btn btn-sm" id="np-all">Select all shown</button>
+                <button class="btn btn-sm btn-ghost" id="np-none">Clear selection</button>
+                <div class="spacer"></div>
+                <span class="text-xs text-muted" id="np-count">0 selected</span>
+              </div>
+              <div id="np-list" class="np-list"><div class="text-muted text-sm" style="padding:12px">Loading…</div></div>
+            </div>
+            <div>
+              <div class="form-group"><label>Selected students</label><div id="np-chosen" class="np-chosen text-sm text-muted">Tick students in the list.</div></div>
+              <div class="form-group"><label>Type of note</label><select id="np-cat"></select></div>
+              <div class="form-group"><label>Note</label><textarea id="np-text" rows="5" maxlength="2000" placeholder="e.g. Failed RES501 in Semester 1, re-enrolled this semester."></textarea></div>
+              <div class="form-actions"><button class="btn btn-primary" id="np-save">Save note</button></div>
+            </div>
+          </div>
+        </div>
+        <div class="card">
+          <div class="card-header"><h3>All notes <span id="nl-count" class="text-xs text-muted" style="font-weight:500;margin-left:6px"></span></h3><div id="nl-scope" class="campus-pills"></div></div>
+          <div class="toolbar">
+            <div class="search-wrap">
+              <span class="search-icon"><svg class="ic"><use href="#i-search"/></svg></span>
+              <input type="text" id="nl-search" class="search-input" placeholder="Search student, ID or note text…" autocomplete="off"/>
+            </div>
+            <select id="nl-cat" title="Filter by type" style="width:auto;min-width:190px;height:34px"></select>
+            <div class="spacer"></div>
+            <button class="btn btn-sm" id="nl-csv"><svg class="ic"><use href="#i-download"/></svg>Download CSV</button>
+          </div>
+          <div id="notes-list"><div class="text-muted text-sm">Loading…</div></div>
         </div>
       </div>
 
@@ -1755,7 +1840,9 @@ let SEMESTERS = [];     // [{id,name,year,term,isActive}]
 let SUPS      = [];
 let STUDENTS  = [];
 // Admin › Students tab filters (search, campus, discipline, supervisor, allocation, status)
-const STF = { q:'', campus:'all', disc:'', sup:'', role:'any', alloc:'', status:'' };
+const STF = { q:'', campus:'all', disc:'', sup:'', role:'any', alloc:'', status:'', notes:'' };
+// Admin-only student notes (own collection — the public student portal reads the students collection)
+let NOTES = [], NOTES_STATE = 'idle'; // idle | loading | ok | denied | error
 let SETTINGS  = { allocationMode: 'fcfs', maxPrincipal: 6, maxCo: 6, activeSemesterId: null };
 let svUnsub   = null;
 let svCampus  = 'all';
@@ -1854,6 +1941,9 @@ const ACT = {
   'student.deactivate':{v:'deactivated student',                c:'student',i:'i-x'},
   'student.import':    {v:'imported',                           c:'student',i:'i-upload'},
   'student.backfill':  {v:'assigned a semester to',             c:'student',i:'i-cal'},
+  'note.add':          {v:'added a note for',                   c:'student',i:'i-file'},
+  'note.edit':         {v:'edited a note for',                  c:'student',i:'i-edit'},
+  'note.delete':       {v:'deleted a note for',                 c:'student',i:'i-trash', t:'danger'},
   'sup.add':           {v:'added supervisor',                   c:'sup',    i:'i-userplus'},
   'sup.edit':          {v:'edited supervisor',                  c:'sup',    i:'i-edit'},
   'sup.delete':        {v:'deleted supervisor',                 c:'sup',    i:'i-trash', t:'danger'},
@@ -2139,7 +2229,7 @@ el('history-modal').addEventListener('click',e=>{ if(e.target===el('history-moda
 // Summary modal
 el('modal-close-btn').addEventListener('click',()=>el('summary-modal').classList.add('hidden'));
 el('summary-modal').addEventListener('click',e=>{ if(e.target===el('summary-modal')) el('summary-modal').classList.add('hidden'); });
-document.addEventListener('keydown',e=>{ if(e.key==='Escape'){ ['summary-modal','contacts-modal','history-modal','email-modal','sup-pick-modal'].forEach(id=>el(id)?.classList.add('hidden')); } });
+document.addEventListener('keydown',e=>{ if(e.key==='Escape'){ ['summary-modal','contacts-modal','history-modal','email-modal','sup-pick-modal','notes-modal'].forEach(id=>el(id)?.classList.add('hidden')); } });
 
 /* ── My Students & Contacts ─────────────────────────────────
    Shows every student the signed-in supervisor is connected to (as principal
@@ -3162,6 +3252,7 @@ async function mountAdmin(){
     console.error('mountAdmin loadShared failed:', e);
     // Still show the page; tabs will be empty but not broken
   }
+  await loadNotes(); // never throws; records whether the rules allow it
   // Admin names, so the log and "assigned by" can show who an admin was.
   try{
     const aSnap=await getDocs(query(collection(db,'users'),where('role','==','admin')));
@@ -3189,6 +3280,7 @@ async function mountAdmin(){
       if(item.dataset.tab==='tab-allocations') renderAllocations();
       if(item.dataset.tab==='tab-by-supervisor') renderBySupervisor();
       if(item.dataset.tab==='tab-students') renderStudentsList(scopedStudentsForAdmin());
+      if(item.dataset.tab==='tab-notes') renderNotesTab();
       if(item.dataset.tab==='tab-semesters') renderSemestersList();
       if(item.dataset.tab==='tab-activity') openActivityTab();
       if(item.dataset.tab==='tab-supervisors') openSupervisorsTab();
@@ -3224,7 +3316,7 @@ async function mountAdmin(){
   document.querySelector('.sidebar-item[data-tab="tab-overview"]')?.classList.add('active');
   el('tab-overview')?.classList.add('active');
 
-  initSemestersTab(); initCampusesTab(); initSupervisorsTab(); initStudentsTab(); initSettingsTab(); initRegistrationsTab(); initAdminDisciplinePicker(); initDiscBackfill(); renderOverview();
+  initSemestersTab(); initCampusesTab(); initSupervisorsTab(); initStudentsTab(); initNotesTab(); initSettingsTab(); initRegistrationsTab(); initAdminDisciplinePicker(); initDiscBackfill(); renderOverview();
 }
 
 /* Helpers used across admin tabs */
@@ -3256,6 +3348,7 @@ function refreshAdminSemesterPicker(){
     if(el('tab-allocations').classList.contains('active')) renderAllocations();
     if(el('tab-by-supervisor').classList.contains('active')) renderBySupervisor();
     openSupervisorsTab(); renderSemestersList(); syncSemEyebrows(); refreshDiscBackfill();
+    if(el('tab-notes').classList.contains('active')) renderNotesTab();
     if(el('tab-overview').classList.contains('active')) renderOverview();
     toast('Switched to '+semesterLabel(adminSemester),'info',2000);
   };
@@ -3596,10 +3689,11 @@ function initStudentsTab(){
   // Filters for the "All students" table
   const rerender=()=>renderStudentsList(scopedStudentsForAdmin());
   el('st-f-search').oninput=deb(e=>{ STF.q=e.target.value; rerender(); },150);
-  [['st-f-disc','disc'],['st-f-sup','sup'],['st-f-role','role'],['st-f-alloc','alloc'],['st-f-status','status']].forEach(([id,k])=>{ el(id).onchange=e=>{ STF[k]=e.target.value; rerender(); }; });
+  el('st-f-notes').innerHTML=`<option value="">Any notes</option><option value="has">Has notes</option><option value="none">No notes</option>`+NOTE_CATS.map(c=>`<option value="cat:${c.id}">Note: ${esc(c.label)}</option>`).join('');
+  [['st-f-disc','disc'],['st-f-sup','sup'],['st-f-role','role'],['st-f-alloc','alloc'],['st-f-status','status'],['st-f-notes','notes']].forEach(([id,k])=>{ el(id).onchange=e=>{ STF[k]=e.target.value; rerender(); }; });
   el('st-f-clear').onclick=()=>{
-    Object.assign(STF,{q:'',campus:'all',disc:'',sup:'',role:'any',alloc:'',status:''});
-    el('st-f-search').value=''; ['st-f-disc','st-f-sup','st-f-alloc','st-f-status'].forEach(id=>el(id).value=''); el('st-f-role').value='any';
+    Object.assign(STF,{q:'',campus:'all',disc:'',sup:'',role:'any',alloc:'',status:'',notes:''});
+    el('st-f-search').value=''; ['st-f-disc','st-f-sup','st-f-alloc','st-f-status','st-f-notes'].forEach(id=>el(id).value=''); el('st-f-role').value='any';
     el('admin-campus-pills')?.querySelectorAll('.campus-pill').forEach(p=>p.classList.toggle('active',p.dataset.campus==='all'));
     rerender();
   };
@@ -3645,6 +3739,12 @@ function filterStudents(students){
       if(!pr || ![s.principalSupervisorName,s.coSupervisorName].some(n=>(n||'').trim().toLowerCase()===pr)) return false;
     }
     if(STF.sup && !studentMatchesSup(s,STF.sup,STF.role)) return false;
+    if(STF.notes){
+      const ns=notesFor(s);
+      if(STF.notes==='has' && !ns.length) return false;
+      if(STF.notes==='none' && ns.length) return false;
+      if(STF.notes.startsWith('cat:') && !ns.some(n=>(n.category||'general')===STF.notes.slice(4))) return false;
+    }
     if(q){
       const hay=[s.name,s.studentId,s.email,s.personalEmail,s.proposalTitle,String(s.slNo||'')].join(' \u0001 ').toLowerCase();
       if(!q.split(/\s+/).every(w=>hay.includes(w))) return false;
@@ -3658,7 +3758,7 @@ function renderStudentsList(all){
   refreshStudentSupFilter(all);
   const roleSel=el('st-f-role'); if(roleSel) roleSel.disabled=!STF.sup;
   const students=filterStudents(all);
-  const active = !!(STF.q.trim()||STF.campus!=='all'||(adminDiscipline==='all'&&STF.disc)||STF.sup||STF.alloc||STF.status);
+  const active = !!(STF.q.trim()||STF.campus!=='all'||(adminDiscipline==='all'&&STF.disc)||STF.sup||STF.alloc||STF.status||STF.notes);
   el('st-f-clear')?.classList.toggle('hidden',!active);
   const cnt=el('st-f-count'); if(cnt) cnt.textContent = all.length ? (active ? `· ${students.length} of ${all.length}` : `· ${all.length}`) : '';
   if(!all.length){
@@ -3670,7 +3770,7 @@ function renderStudentsList(all){
     e.innerHTML=`<div class="text-muted text-sm" style="padding:12px">No students match these filters. <button class="read-more-btn" onclick="document.getElementById('st-f-clear').click()">Clear filters</button></div>`;
     return;
   }
-  e.innerHTML=`<div class="tw"><table><thead><tr><th>#</th><th>Student</th><th>ID</th><th>Email</th><th>Campus</th><th>Discipline</th><th>Semester</th><th>Status</th><th>Proposal Title</th><th>Principal</th><th>Co-Sup</th><th>Preference</th><th>Link</th><th>Actions</th></tr></thead><tbody>${students.map(s=>{
+  e.innerHTML=`<div class="tw"><table><thead><tr><th>#</th><th>Student</th><th>ID</th><th>Email</th><th>Campus</th><th>Discipline</th><th>Semester</th><th>Status</th><th>Notes</th><th>Proposal Title</th><th>Principal</th><th>Co-Sup</th><th>Preference</th><th>Link</th><th>Actions</th></tr></thead><tbody>${students.map(s=>{
     const cn=CAMPUSES.find(c=>c.id===s.campus)?.name||'—';
     const sn=s.semesterName || SEMESTERS.find(x=>x.id===s.semester)?.name || '—';
     const isInactive = s.active===false;
@@ -3684,6 +3784,7 @@ function renderStudentsList(all){
     <td>${s.discipline?discBadge(s.discipline):'<span class="badge badge-amber">Not set</span>'}</td>
     <td><span class="badge badge-purple">${esc(sn)}</span></td>
     <td>${statusBadge}</td>
+    <td>${noteCellHTML(s)}</td>
     <td class="pc text-sm" title="${esc(s.proposalTitle)}">${esc(s.proposalTitle||'—')}</td>
     <td>${s.principalSupervisorName?`<span class="badge badge-blue">${esc(s.principalSupervisorName)}</span>`:'<span class="text-xs text-muted">—</span>'}</td>
     <td>${s.coSupervisorName?`<span class="badge badge-purple">${esc(s.coSupervisorName)}</span>`:'<span class="text-xs text-muted">—</span>'}</td>
@@ -3693,7 +3794,22 @@ function renderStudentsList(all){
   }).join('')}</tbody></table></div>`;
 }
 window.editStudent=id=>{ const s=STUDENTS.find(x=>x.id===id); if(!s) return; el('s-slno').value=s.slNo||''; el('s-name').value=s.name||''; el('s-id').value=s.studentId||''; el('s-email').value=s.email||''; el('s-personal-email').value=s.personalEmail||''; el('s-campus').value=s.campus||''; el('s-discipline').value=s.discipline||''; el('s-semester').value=s.semester||''; el('s-title').value=s.proposalTitle||''; el('s-summary').value=s.proposalSummary||''; el('s-link').value=s.proposalLink||''; el('s-pref').value=s.studentPreference||''; el('s-edit-id').value=id; el('student-form-title').textContent='Edit Student'; el('student-save-btn').textContent='Update Student'; show('student-cancel-btn'); el('student-form-title').scrollIntoView({behavior:'smooth'}); };
-window.delStudent=async id=>{ const s=STUDENTS.find(x=>x.id===id); if(!confirm(`Delete ${s?.name}?`)) return; try{ await deleteDoc(doc(db,'students',id)); logAct('student.delete', s?.name, [s?.studentId, s?.campusName].filter(Boolean).join(' · '), id); STUDENTS=STUDENTS.filter(x=>x.id!==id); renderStudentsList(scopedStudentsForAdmin()); toast('Deleted','info'); }catch(e){ toast('Error: '+e.message,'error'); } };
+window.delStudent=async id=>{
+  const s=STUDENTS.find(x=>x.id===id);
+  const k=idKey(s?.studentId), shared=!!k && STUDENTS.some(x=>x.id!==id && idKey(x.studentId)===k);
+  const own=shared ? [] : notesFor(s); // keep notes if another semester's record has the same Student ID
+  if(!confirm(`Delete ${s?.name}?${own.length?`\n\nTheir ${own.length} note${own.length===1?'':'s'} will be deleted too.`:''}`)) return;
+  try{
+    await deleteDoc(doc(db,'students',id));
+    logAct('student.delete', s?.name, [s?.studentId, s?.campusName].filter(Boolean).join(' · '), id);
+    STUDENTS=STUDENTS.filter(x=>x.id!==id);
+    if(own.length){
+      try{ const b=writeBatch(db); own.forEach(n=>b.delete(doc(db,NOTE_COL,n.id))); await b.commit(); const gone=new Set(own.map(n=>n.id)); NOTES=NOTES.filter(n=>!gone.has(n.id)); }
+      catch(err){ console.warn('Notes not removed:',err.code||err.message); }
+    }
+    renderStudentsList(scopedStudentsForAdmin()); toast('Deleted','info');
+  }catch(e){ toast('Error: '+e.message,'error'); }
+};
 window.toggleStudentActive=async(id,activate)=>{
   const s=STUDENTS.find(x=>x.id===id);
   if(!confirm(`${activate?'Activate':'Deactivate'} student "${s?.name||''}"?`)) return;
@@ -3706,6 +3822,267 @@ window.toggleStudentActive=async(id,activate)=>{
   }catch(e){ toast('Error: '+e.message,'error'); }
 };
 window.clearAlloc=async id=>{ const s=STUDENTS.find(x=>x.id===id); if(!confirm(`Clear allocation for ${s?.name}?`)) return; try{ await updateDoc(doc(db,'students',id),{principalSupervisorId:null,principalSupervisorName:null,coSupervisorId:null,coSupervisorName:null,coAllocatedBy:null,coAllocatedAt:null,allocatedAt:null,allocatedBy:null}); logAct('alloc.clear', s?.name, `Principal: ${s?.principalSupervisorName||'—'} · Co: ${s?.coSupervisorName||'—'}`, id); const snap=await getDocs(query(collection(db,'students'),orderBy('slNo'))); STUDENTS=snap.docs.map(d=>({id:d.id,...d.data()})); renderStudentsList(scopedStudentsForAdmin()); toast('Cleared','info'); }catch(e){ toast('Error: '+e.message,'error'); } };
+
+/* ══════════════════════════════════════════════════════════
+   STUDENT NOTES (admin only)
+   Kept in their own collection, NOT on the student record, because the
+   public student portal reads the students collection without signing in.
+   A note is tied to one student record, and also shows on that student's
+   records in other semesters (matched by Student ID).
+══════════════════════════════════════════════════════════ */
+const NOTE_COL='studentNotes', NOTE_MAX=2000;
+const NOTE_CATS=[
+  {id:'general',   label:'General',                         cls:'badge-gray'},
+  {id:'failed',    label:'Failed unit',                     cls:'badge-red'},
+  {id:'academic',  label:'Academic concern',                cls:'badge-amber'},
+  {id:'attendance',label:'Attendance',                      cls:'badge-amber'},
+  {id:'extension', label:'Extension / special consideration', cls:'badge-blue'},
+  {id:'followup',  label:'Follow-up needed',                cls:'badge-purple'},
+];
+const noteCat=id=>NOTE_CATS.find(c=>c.id===id)||NOTE_CATS[0];
+const noteBadge=id=>{ const c=noteCat(id); return `<span class="badge ${c.cls}">${esc(c.label)}</span>`; };
+const catOptions=sel=>NOTE_CATS.map(c=>`<option value="${c.id}" ${c.id===sel?'selected':''}>${esc(c.label)}</option>`).join('');
+const idKey=v=>String(v||'').trim().toLowerCase();
+const whoAmI=()=>String(PROFILE?.name||ME?.email||'Admin').slice(0,60);
+const NOTE_RULES_HINT=`<div style="text-align:left">
+  <div class="fw-600" style="color:var(--text);margin-bottom:6px">The database doesn't allow student notes yet</div>
+  <div class="text-sm text-muted">Add this inside <code class="chip-code">match /databases/{database}/documents { … }</code> in your Firestore rules (Firebase Console → Firestore → Rules), press Publish, then refresh. Only admins can read or write notes.</div>
+  <pre class="chip-code" style="display:block;white-space:pre;overflow-x:auto;padding:12px;margin-top:10px;font-size:12px;line-height:1.5">match /studentNotes/{id} {
+  allow read, write: if request.auth != null &&
+    get(/databases/$(database)/documents/users/$(request.auth.uid)).data.role == 'admin';
+}</pre></div>`;
+
+function sortNotes(){ NOTES.sort((a,b)=>(tsDate(b.at)?.getTime()||Date.now())-(tsDate(a.at)?.getTime()||Date.now())); }
+async function loadNotes(){
+  NOTES_STATE='loading';
+  try{
+    const snap=await getDocs(collection(db,NOTE_COL));
+    NOTES=snap.docs.map(d=>({id:d.id,...d.data()})); sortNotes(); NOTES_STATE='ok';
+  }catch(e){
+    NOTES=[]; NOTES_STATE=e.code==='permission-denied'?'denied':'error';
+    console.warn('Student notes not loaded:',e.code||e.message);
+  }
+}
+function notesFor(s){
+  if(!s) return [];
+  const k=idKey(s.studentId);
+  return NOTES.filter(n=>n.studentDocId===s.id || (k && idKey(n.studentId)===k));
+}
+function noteStudent(n){ return STUDENTS.find(s=>s.id===n.studentDocId) || (n.studentId ? STUDENTS.find(s=>idKey(s.studentId)===idKey(n.studentId)) : null); }
+function noteErr(e){
+  if(e.code==='permission-denied'){ NOTES_STATE='denied'; afterNotesChange(); }
+  toast(e.code==='permission-denied'?'The database refused this (student notes). Add the studentNotes rule shown on the Student notes tab.':'Error: '+e.message,'error',7000);
+}
+function afterNotesChange(){
+  renderStudentsList(scopedStudentsForAdmin());
+  if(el('tab-notes')?.classList.contains('active')) renderNotesTab();
+  if(!el('notes-modal').classList.contains('hidden')) renderNoteModal();
+}
+async function addNotes(students, category, text){
+  const local=[];
+  for(let i=0;i<students.length;i+=400){
+    const b=writeBatch(db);
+    students.slice(i,i+400).forEach(s=>{
+      const ref=doc(collection(db,NOTE_COL));
+      const d={ studentDocId:s.id, studentId:s.studentId||'', studentName:s.name||'', semester:s.semester||'',
+                semesterName:s.semesterName||SEMESTERS.find(x=>x.id===s.semester)?.name||'',
+                category, text:text.slice(0,NOTE_MAX), uid:ME.uid, by:whoAmI() };
+      b.set(ref,{...d, at:serverTimestamp()}); local.push({id:ref.id,...d,at:Timestamp.now()});
+    });
+    await b.commit();
+  }
+  NOTES.push(...local); sortNotes(); NOTES_STATE='ok';
+  logAct('note.add', students.length===1?students[0].name:`${students.length} students`, noteCat(category).label, students.length===1?students[0].id:undefined);
+}
+
+/* Cell in the "All students" table */
+function noteCellHTML(s){
+  if(NOTES_STATE==='denied'||NOTES_STATE==='error') return `<span class="text-xs text-muted" title="Student notes could not be loaded">—</span>`;
+  const ns=notesFor(s);
+  if(!ns.length) return `<button class="btn btn-sm btn-ghost" onclick="openNotes('${s.id}')" title="Add a note for this student">${icon('i-edit')}Add</button>`;
+  return `<button class="note-peek" onclick="openNotes('${s.id}')" title="${esc(ns[0].text)}">${noteBadge(ns[0].category)}<span class="note-snip">${esc(ns[0].text)}</span>${ns.length>1?`<span class="text-xs text-muted">+${ns.length-1} more</span>`:''}</button>`;
+}
+
+/* ── Notes for one student (modal) ── */
+let NM={sid:null, editId:null};
+window.openNotes=(sid, editId)=>{
+  const s=STUDENTS.find(x=>x.id===sid); if(!s) return;
+  NM={sid, editId:null};
+  el('nm-title').textContent=s.name||'Student';
+  el('nm-sub').textContent=[s.studentId, s.campusName||CAMPUSES.find(c=>c.id===s.campus)?.name, s.semesterName||SEMESTERS.find(x=>x.id===s.semester)?.name].filter(Boolean).join(' · ');
+  resetNoteForm(); renderNoteModal();
+  el('notes-modal').classList.remove('hidden');
+  if(editId) startEditNote(editId); else setTimeout(()=>el('nm-text').focus(),60);
+};
+function resetNoteForm(){
+  NM.editId=null; el('nm-cat').innerHTML=catOptions('general'); el('nm-text').value='';
+  el('nm-form-lbl').textContent='Add a note'; el('nm-save').textContent='Add note'; hide('nm-cancel');
+}
+function noteItemHTML(n, s){
+  const elsewhere = s && n.studentDocId!==s.id && n.semesterName ? ` · from ${esc(n.semesterName)}` : '';
+  return `<div class="note-item"><div class="note-meta">${noteBadge(n.category)}<span class="text-xs text-muted">${esc(fmtDate(n.at))} · ${esc(n.by||'Admin')}${n.editedAt?' · edited':''}${elsewhere}</span><div class="spacer"></div>
+    <button class="btn btn-sm btn-ghost" onclick="startEditNote('${n.id}')" title="Edit note">${icon('i-edit')}</button>
+    <button class="btn btn-sm btn-ghost" onclick="delNote('${n.id}')" title="Delete note">${icon('i-trash')}</button></div>
+    <div class="note-text">${esc(n.text)}</div></div>`;
+}
+function renderNoteModal(){
+  const box=el('nm-list');
+  if(NOTES_STATE==='denied'){ box.innerHTML=NOTE_RULES_HINT; el('nm-form').classList.add('hidden'); return; }
+  if(NOTES_STATE==='error'){ box.innerHTML=`<div class="text-sm text-muted" style="padding:6px 0 12px">Notes could not be loaded. Refresh the page and try again.</div>`; el('nm-form').classList.add('hidden'); return; }
+  el('nm-form').classList.remove('hidden');
+  const s=STUDENTS.find(x=>x.id===NM.sid), list=notesFor(s);
+  box.innerHTML = list.length ? list.map(n=>noteItemHTML(n,s)).join('') : `<div class="text-sm text-muted" style="padding:2px 0 12px">No notes yet for this student.</div>`;
+}
+window.startEditNote=id=>{
+  const n=NOTES.find(x=>x.id===id); if(!n) return;
+  NM.editId=id; el('nm-cat').innerHTML=catOptions(n.category); el('nm-text').value=n.text||'';
+  el('nm-form-lbl').textContent='Edit note'; el('nm-save').textContent='Update note'; show('nm-cancel');
+  el('nm-text').focus();
+};
+async function saveNoteFromModal(){
+  const s=STUDENTS.find(x=>x.id===NM.sid); if(!s) return;
+  const text=el('nm-text').value.trim(), category=el('nm-cat').value;
+  if(!text){ toast('Write the note first','error'); el('nm-text').focus(); return; }
+  const btn=el('nm-save'); btn.disabled=true;
+  try{
+    if(NM.editId){
+      const n=NOTES.find(x=>x.id===NM.editId);
+      await updateDoc(doc(db,NOTE_COL,NM.editId),{text:text.slice(0,NOTE_MAX),category,editedAt:serverTimestamp(),editedBy:whoAmI()});
+      if(n) Object.assign(n,{text:text.slice(0,NOTE_MAX),category,editedAt:Timestamp.now(),editedBy:whoAmI()});
+      logAct('note.edit', s.name, noteCat(category).label, s.id);
+      toast('Note updated','success');
+    } else {
+      await addNotes([s], category, text);
+      toast('Note added','success');
+    }
+    resetNoteForm(); afterNotesChange();
+  }catch(e){ noteErr(e); }
+  finally{ btn.disabled=false; }
+}
+window.delNote=async id=>{
+  const n=NOTES.find(x=>x.id===id); if(!n) return;
+  const who=noteStudent(n)?.name||n.studentName||'this student';
+  if(!confirm(`Delete this ${noteCat(n.category).label.toLowerCase()} note for ${who}?`)) return;
+  try{
+    await deleteDoc(doc(db,NOTE_COL,id));
+    NOTES=NOTES.filter(x=>x.id!==id);
+    logAct('note.delete', who, noteCat(n.category).label, n.studentDocId);
+    if(NM.editId===id) resetNoteForm();
+    afterNotesChange(); toast('Note deleted','info');
+  }catch(e){ noteErr(e); }
+};
+window.editNoteFromList=id=>{
+  const n=NOTES.find(x=>x.id===id), s=n&&noteStudent(n);
+  if(s) openNotes(s.id, id);
+  else toast('That student record no longer exists, so the note can only be deleted','info');
+};
+
+/* ── Student notes tab ── */
+const NP={q:'', sel:new Set(), shown:[]};
+const NL={q:'', cat:'', scope:'view'};
+function initNotesTab(){
+  el('np-cat').innerHTML=catOptions('general');
+  el('nl-cat').innerHTML=`<option value="">All types</option>`+catOptions('__');
+  el('np-search').oninput=deb(e=>{ NP.q=e.target.value; renderNotePicker(); },120);
+  el('np-all').onclick=()=>{ NP.shown.forEach(id=>NP.sel.add(id)); renderNotePicker(); };
+  el('np-none').onclick=()=>{ NP.sel.clear(); renderNotePicker(); };
+  el('np-save').onclick=async()=>{
+    const chosen=STUDENTS.filter(s=>NP.sel.has(s.id));
+    const text=el('np-text').value.trim(), category=el('np-cat').value;
+    if(!chosen.length){ toast('Tick at least one student','error'); return; }
+    if(!text){ toast('Write the note first','error'); el('np-text').focus(); return; }
+    if(chosen.length>1 && !confirm(`Add this note to ${chosen.length} students?\n\nEach student gets their own copy, which you can edit or delete separately.`)) return;
+    const btn=el('np-save'); btn.disabled=true;
+    try{
+      await addNotes(chosen, category, text);
+      el('np-text').value=''; NP.sel.clear();
+      toast(chosen.length===1?'Note added':`Note added for ${chosen.length} students`,'success');
+      afterNotesChange();
+    }catch(e){ noteErr(e); }
+    finally{ btn.disabled=false; }
+  };
+  el('nl-search').oninput=deb(e=>{ NL.q=e.target.value; renderNotesList(); },150);
+  el('nl-cat').onchange=e=>{ NL.cat=e.target.value; renderNotesList(); };
+  el('nl-csv').onclick=()=>{
+    const list=visibleNotes();
+    if(!list.length){ toast('No notes to download','info'); return; }
+    const rows=[['Date','Student','Student ID','Semester','Type','Note','Added by'].map(csvCell)];
+    list.forEach(n=>{ const s=noteStudent(n); rows.push([fmtDate(n.at), s?.name||n.studentName, n.studentId, n.semesterName, noteCat(n.category).label, n.text, n.by].map(csvCell)); });
+    downloadCSV(rows, `student-notes-${new Date().toISOString().slice(0,10)}.csv`);
+  };
+  el('nm-save').onclick=saveNoteFromModal;
+  el('nm-cancel').onclick=resetNoteForm;
+  el('notes-close-btn').onclick=()=>el('notes-modal').classList.add('hidden');
+  el('notes-modal').onclick=e=>{ if(e.target===el('notes-modal')) el('notes-modal').classList.add('hidden'); };
+}
+function renderNotesTab(){
+  const hint=el('notes-rules');
+  if(NOTES_STATE==='denied'){ hint.innerHTML=`<div class="card mb-16">${NOTE_RULES_HINT}</div>`; show('notes-rules'); }
+  else { hint.innerHTML=''; hide('notes-rules'); }
+  renderNotePicker(); renderNotesList();
+}
+function renderNotePicker(){
+  const base=scopedStudentsForAdmin(), inScope=new Set(base.map(s=>s.id));
+  [...NP.sel].forEach(id=>{ if(!inScope.has(id)) NP.sel.delete(id); });
+  const words=NP.q.trim().toLowerCase().split(/\s+/).filter(Boolean);
+  const shown=words.length ? base.filter(s=>{ const hay=[s.name,s.studentId,s.email,s.personalEmail].join(' ').toLowerCase(); return words.every(w=>hay.includes(w)); }) : base;
+  NP.shown=shown.map(s=>s.id);
+  const box=el('np-list');
+  if(!base.length) box.innerHTML=`<div class="text-muted text-sm" style="padding:12px">No students${adminSemester?` in <strong>${esc(semesterLabel(adminSemester))}</strong>`:''} yet.</div>`;
+  else if(!shown.length) box.innerHTML=`<div class="text-muted text-sm" style="padding:12px">No students match “${esc(NP.q.trim())}”.</div>`;
+  else box.innerHTML=shown.map(s=>{
+    const nc=notesFor(s).length, cn=CAMPUSES.find(c=>c.id===s.campus)?.name||s.campusName||'';
+    return `<label class="np-row"><input type="checkbox" data-np="${s.id}" ${NP.sel.has(s.id)?'checked':''}/>
+      <span class="np-main"><span class="fw-600">${esc(s.name)}</span> <span class="text-xs text-muted">${esc(s.studentId||'')}</span></span>
+      ${s.active===false?'<span class="badge badge-red">Inactive</span>':''}${cn?`<span class="badge badge-gray">${esc(cn)}</span>`:''}${nc?`<span class="badge badge-blue" title="Notes so far">${nc} note${nc===1?'':'s'}</span>`:''}</label>`;
+  }).join('');
+  box.querySelectorAll('[data-np]').forEach(cb=>cb.onchange=()=>{ cb.checked?NP.sel.add(cb.dataset.np):NP.sel.delete(cb.dataset.np); renderNoteChosen(); });
+  renderNoteChosen();
+}
+function renderNoteChosen(){
+  const chosen=STUDENTS.filter(s=>NP.sel.has(s.id)), c=el('np-chosen');
+  el('np-count').textContent=`${chosen.length} selected`;
+  c.classList.toggle('text-muted',!chosen.length);
+  c.innerHTML = chosen.length
+    ? chosen.slice(0,12).map(s=>`<span class="badge badge-blue np-chip">${esc(s.name)}<button type="button" data-np-x="${s.id}" aria-label="Remove ${esc(s.name)}">×</button></span>`).join('')+(chosen.length>12?`<span class="text-xs text-muted">+${chosen.length-12} more</span>`:'')
+    : 'Tick students in the list.';
+  c.querySelectorAll('[data-np-x]').forEach(b=>b.onclick=()=>{ NP.sel.delete(b.dataset.npX); renderNotePicker(); });
+  el('np-save').textContent = chosen.length>1 ? `Save note for ${chosen.length} students` : 'Save note';
+}
+function scopedNotes(){
+  if(NL.scope==='all') return NOTES;
+  const base=scopedStudentsForAdmin(), docIds=new Set(base.map(s=>s.id)), sids=new Set(base.map(s=>idKey(s.studentId)).filter(Boolean));
+  return NOTES.filter(n=>docIds.has(n.studentDocId) || (n.studentId && sids.has(idKey(n.studentId))));
+}
+function visibleNotes(){
+  let list=scopedNotes();
+  if(NL.cat) list=list.filter(n=>(n.category||'general')===NL.cat);
+  const words=NL.q.trim().toLowerCase().split(/\s+/).filter(Boolean);
+  if(words.length) list=list.filter(n=>{ const hay=[noteStudent(n)?.name,n.studentName,n.studentId,n.text,n.by].join(' ').toLowerCase(); return words.every(w=>hay.includes(w)); });
+  return list;
+}
+function renderNotesList(){
+  const box=el('notes-list'), scopeEl=el('nl-scope');
+  const viewLbl = adminSemester ? `${semesterLabel(adminSemester)}${adminDiscipline!=='all'?' · '+discLabel(adminDiscipline):''}` : (adminDiscipline!=='all'?discLabel(adminDiscipline):'Current view');
+  scopeEl.innerHTML=`<button class="campus-pill ${NL.scope==='view'?'active':''}" data-nl-scope="view" title="Notes for the students in the semester / discipline selected at the top">${esc(viewLbl)}</button><button class="campus-pill ${NL.scope==='all'?'active':''}" data-nl-scope="all">All notes (${NOTES.length})</button>`;
+  scopeEl.querySelectorAll('[data-nl-scope]').forEach(b=>b.onclick=()=>{ NL.scope=b.dataset.nlScope; renderNotesList(); });
+  if(NOTES_STATE==='loading'||NOTES_STATE==='idle'){ box.innerHTML=`<div class="text-muted text-sm" style="padding:12px">Loading…</div>`; el('nl-count').textContent=''; return; }
+  if(NOTES_STATE==='denied'){ box.innerHTML=`<div class="text-muted text-sm" style="padding:12px">Notes can't be shown until the database rule above is added.</div>`; el('nl-count').textContent=''; return; }
+  if(NOTES_STATE==='error'){ box.innerHTML=`<div class="text-muted text-sm" style="padding:12px">Notes could not be loaded. Refresh the page and try again.</div>`; el('nl-count').textContent=''; return; }
+  const all=scopedNotes(), list=visibleNotes();
+  el('nl-count').textContent = all.length ? (list.length===all.length?`· ${all.length}`:`· ${list.length} of ${all.length}`) : '';
+  if(!all.length){ box.innerHTML=`<div class="text-muted text-sm" style="padding:12px">No notes yet${NL.scope==='view'?' for these students':''}. Tick students above, or use <strong>Add</strong> in the Notes column on the Students tab.</div>`; return; }
+  if(!list.length){ box.innerHTML=`<div class="text-muted text-sm" style="padding:12px">No notes match these filters.</div>`; return; }
+  box.innerHTML=`<div class="tw"><table><thead><tr><th>Date</th><th>Student</th><th>Type</th><th>Note</th><th>Added by</th><th>Actions</th></tr></thead><tbody>${list.map(n=>{
+    const s=noteStudent(n);
+    return `<tr><td class="text-xs text-muted" style="white-space:nowrap">${esc(fmtDate(n.at))}${n.editedAt?'<div>edited</div>':''}</td>
+      <td><div class="fw-600">${esc(s?.name||n.studentName||'—')}</div><div class="text-xs text-muted">${esc([n.studentId,n.semesterName].filter(Boolean).join(' · '))}${s?'':' · record removed'}</div></td>
+      <td>${noteBadge(n.category)}</td>
+      <td class="note-cell">${esc(n.text)}</td>
+      <td class="text-xs">${esc(n.by||'—')}</td>
+      <td><div class="flex gap-8">${s?`<button class="btn btn-sm" onclick="editNoteFromList('${n.id}')">${icon('i-edit')}Edit</button>`:''}<button class="btn btn-sm btn-danger" onclick="delNote('${n.id}')" title="Delete note">${icon('i-trash')}</button></div></td></tr>`;
+  }).join('')}</tbody></table></div>`;
+}
 
 async function handleCSV(file){
   if(!file) return;
@@ -6230,6 +6607,7 @@ function initAdminDisciplinePicker(){
     if(el('tab-allocations').classList.contains('active')) renderAllocations();
     if(el('tab-by-supervisor').classList.contains('active')) renderBySupervisor();
     renderSupervisorsList(); syncSemEyebrows(); refreshDiscBackfill();
+    if(el('tab-notes').classList.contains('active')) renderNotesTab();
     if(el('s-discipline') && !el('s-edit-id').value && adminDiscipline!=='all') el('s-discipline').value=adminDiscipline;
     if(el('tab-overview').classList.contains('active')) renderOverview();
     toast(adminDiscipline==='all'?'Showing all disciplines':'Showing '+discLabel(adminDiscipline)+' only','info',2000);
@@ -6815,6 +7193,7 @@ async function runDbCheck(){
   await step('Read campuses (public — used by the registration form)',()=>getDocs(collection(db,'campuses')));
   await step('Read registrations (staff)',()=>getDocs(query(collection(db,REG_COL),limit(1))));
   await step('Read the supervisor pool (staff)',()=>getDocs(query(collection(db,POOL_COL),limit(1))));
+  await step('Read student notes (admin)',()=>getDocs(query(collection(db,NOTE_COL),limit(1))));
   let testId=null;
   const formOk=await step('Public registration form: submit a test form',async()=>{
     const SAMPLE={discipline:'Business',level:REG_OPTS.level[0],title:'Dr.',firstName:'Rules',lastName:'Check',phone:'0000',email:'rules-check@example.com',address:'Test address',position:'Test',institution:'Test',researchAreas:'Test',hdrCompleted:REG_OPTS.hdrCompleted[0],hdrCurrent:REG_OPTS.hdrCurrent[0],mode:REG_OPTS.mode[0],docFolder:'https://example.com/folder',signature:'Rules Check'};
