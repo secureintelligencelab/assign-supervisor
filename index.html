@@ -274,6 +274,8 @@ label.pick-row.on{background:color-mix(in srgb,var(--primary) 9%,transparent)}
 .ps-s{font-size:12px;color:var(--text2);line-height:1.4}
 .ps-arrow{display:flex;align-items:center;color:var(--text3)}
 @media(max-width:760px){.ps-arrow{display:none}}
+.pool-links{display:flex;gap:12px;margin-top:3px}
+.pool-links a{display:inline-flex;align-items:center;gap:3px}
 .pool-note{display:flex;gap:7px;align-items:flex-start;margin-top:7px;padding:7px 10px;border-radius:9px;background:var(--b-amber-bg);color:var(--b-amber-fg);border:1px solid var(--b-amber-bd);font-size:12px;line-height:1.45;max-width:420px}
 .pool-note .ic{flex:none;margin-top:2px}
 select.sel-as{width:auto;min-width:150px;height:32px;font-size:12.5px}
@@ -1190,7 +1192,7 @@ tr.row-mine td:first-child{box-shadow:inset 3px 0 0 var(--primary)}
         <div class="grid-2 mt-16" id="pool-admin-tools">
           <div class="card">
             <div class="card-header"><h3><svg class="ic"><use href="#i-upload"/></svg>Import existing supervisors</h3><button class="btn btn-sm" id="pool-template-btn"><svg class="ic"><use href="#i-download"/></svg>CSV template</button></div>
-            <p class="card-sub">For supervisors approved before registrations were kept here. Columns: <code class="chip-code">Title, First Name, Last Name, Email, Phone, Discipline, Supervision Level, Campus, Institution, Position, Research Areas, Notes</code>. Discipline is <em>Business</em>, <em>Accounting</em>, <em>IT</em> and/or <em>Early Childhood Education</em> (separate several with <code>;</code>); Supervision Level is <em>Principal</em>, <em>Associate</em>, <em>Both</em> or <em>Industry</em>; separate several campuses with <code>;</code>. Anyone already in the pool (same email) is skipped.</p>
+            <p class="card-sub">For supervisors approved before registrations were kept here. Columns: <code class="chip-code">Title, First Name, Last Name, Email, Phone, Discipline, Supervision Level, Campus, Institution, Position, Research Areas, CV Link, ORCID / Google Scholar, HDR Completed, HDR Current, Notes</code>. Only names and email are required. Discipline is <em>Business</em>, <em>Accounting</em>, <em>IT</em> and/or <em>Early Childhood Education</em> (separate several with <code>;</code>); Supervision Level is <em>Principal</em>, <em>Associate</em>, <em>Both</em> or <em>Industry</em>; separate several campuses with <code>;</code>. HDR Completed / HDR Current take a number (e.g. <em>4</em>) or a range as on the registration form (<em>0, 1–2, 3–5, 6–10, 10+</em> / <em>0, 1–2, 3–5, 5+</em>). Anyone already in the pool (same email) is skipped.</p>
             <div id="pool-drop" class="drop-zone"><div class="dz-ic"><svg class="ic ic-lg"><use href="#i-file"/></svg></div><div class="fw-600" style="color:var(--text)">Drop a CSV file here or click to browse</div><div class="text-xs" style="margin-top:2px">You'll see a preview before anything is imported</div></div>
             <input type="file" id="pool-csv" accept=".csv" style="display:none"/>
             <div id="pool-import-preview" class="mt-16 hidden"></div>
@@ -5902,7 +5904,7 @@ function openAdminEdit(r){
         const nr={...r,...patch}, pp={};
         if(patch.title!==undefined||patch.firstName!==undefined||patch.lastName!==undefined){ pp.title=nr.title||''; pp.firstName=nr.firstName; pp.lastName=nr.lastName; pp.name=regName(nr); }
         if(patch.email!==undefined){ pp.email=nr.email; pp.emailLower=lc(nr.email); }
-        ['phone','institution','position','researchAreas','profileLink','mode','hdrCompleted','hdrCurrent'].forEach(k=>{ if(patch[k]!==undefined) pp[k]=patch[k]; });
+        ['phone','institution','position','researchAreas','profileLink','mode','hdrCompleted','hdrCurrent','docCv','docFolder'].forEach(k=>{ if(patch[k]!==undefined) pp[k]=patch[k]; });
         if(patch.discipline!==undefined) pp.disciplines=regDisciplines(nr.discipline);
         if(patch.level!==undefined){ pp.level=nr.level; pp.supervisorType=LEVEL_TYPE[nr.level]||'both'; }
         if(patch.campusIds){ pp.campusIds=patch.campusIds; pp.campusNames=patch.campusNames; }
@@ -7007,6 +7009,21 @@ function normLevel(t){
   if(s.includes('princ')) return REG_OPTS.level[0];
   return '';
 }
+/* HDR counts: keep the registration form's ranges ("1–2", "3–5" …); a plain number is put in its range. */
+function normHdr(t, opts){
+  const s=String(t||'').trim().replace(/-/g,'–').replace(/\s+/g,'');
+  if(!s) return '';
+  const hit=opts.find(o=>o.replace(/\s+/g,'')===s); if(hit) return hit;
+  const n=/^\d+$/.test(s)?parseInt(s,10):NaN;
+  if(isNaN(n)) return String(t).trim().slice(0,10);
+  for(const o of opts){
+    if(o.endsWith('+')){ if(n>=parseInt(o)) return o; continue; }
+    const [a,b]=o.split('–').map(x=>parseInt(x,10));
+    if(b===undefined ? n===a : (n>=a && n<=b)) return o;
+  }
+  return opts[opts.length-1];
+}
+const hdrSelectHTML=(key,opts,val)=>`<select data-pf="${key}"><option value="">— Not given —</option>${(val&&!opts.includes(val)?[val,...opts]:opts).map(o=>`<option value="${esc(o)}" ${o===val?'selected':''}>${esc(o)}</option>`).join('')}</select>`;
 function normDiscList(t){ const s=lc(t); if(s==='both'||s.includes('both business and it')) return ['business','it']; if(s==='all') return DISCIPLINES.map(d=>d.id); return regDisciplines(t); }
 function matchCampuses(text){
   const parts=String(text||'').split(/[;|\/]+/).map(x=>x.trim()).filter(Boolean);
@@ -7034,6 +7051,19 @@ async function syncPoolWithAccounts(){
   await b.commit(); await loadPool();
   return missing.length;
 }
+/* Admin: copy the CV / documents folder links from approved registrations into
+   pool entries made before the pool kept them. Runs once per session. */
+let poolDocsBackfilled=false;
+async function backfillPoolDocs(){
+  if(!isAdminUser() || poolDocsBackfilled) return 0;
+  poolDocsBackfilled=true;
+  if(!REGS.length) await loadRegs();
+  const todo=POOL.map(p=>{ const r=p.registrationId&&REGS.find(x=>x.id===p.registrationId); if(!r) return null;
+    const patch={}; if(!p.docCv && r.docCv) patch.docCv=r.docCv; if(!p.docFolder && r.docFolder) patch.docFolder=r.docFolder;
+    return Object.keys(patch).length?[p,patch]:null; }).filter(Boolean);
+  for(let i=0;i<todo.length;i+=400){ const b=writeBatch(db); todo.slice(i,i+400).forEach(([p,patch])=>{ b.update(doc(db,POOL_COL,p.id),patch); Object.assign(p,patch); }); await b.commit(); }
+  return todo.length;
+}
 /* Called when the ADR / an admin approves a registration. */
 async function addRegToPool(r, decision, reviews){
   const id=r.id, rv=reviews||r.reviews||{};
@@ -7044,6 +7074,7 @@ async function addRegToPool(r, decision, reviews){
     disciplines:regDisciplines(r.discipline), level:r.level||'', supervisorType:type, review:poolReview(rv),
     campusIds:r.campusIds||[], campusNames:r.campusNames||[], institution:r.institution||'', position:r.position||'',
     researchAreas:r.researchAreas||'', profileLink:r.profileLink||'', hdrCompleted:r.hdrCompleted||'', hdrCurrent:r.hdrCurrent||'', mode:r.mode||'',
+    docCv:r.docCv||'', docFolder:r.docFolder||'',
     outcome:decision?.outcome||r.decision?.outcome||'', conditions:decision?.comments||r.decision?.comments||'',
     source:'registration', registrationId:id, active:true, selected:[], invited:[], addedAt:serverTimestamp(), addedBy:ME.uid
   });
@@ -7060,6 +7091,7 @@ async function openPool(hostId, ctx){
   try{
     await Promise.all([loadPool(), loadAllUsers().catch(()=>{})]);
     const added=await syncPoolWithAccounts().catch(e=>{ console.warn('pool sync',e); return 0; });
+    await backfillPoolDocs().catch(e=>console.warn('pool CV backfill',e));
     if(added) toast(`${added} existing supervisor account(s) added to the pool`,'info',4000);
     renderPool();
   }catch(e){
@@ -7095,6 +7127,8 @@ function poolRecType(p){
   return ROLE_TYPE[r] || LEVEL_TYPE[p.level] || '';
 }
 const poolSelRole=(p,sem)=>(p.selRole||{})[sem]||'';
+/* CV link: the pool's own, else the one on their registration form (if loaded). */
+const poolCv=p=>p.docCv || (p.registrationId && REGS.find(r=>r.id===p.registrationId)?.docCv) || '';
 function poolNoteHTML(p){
   const n=p.adminNote; if(!n || !(n.text||n.rec)) return '';
   return `<div class="pool-note">${icon('i-edit','ic-sm')}<div><strong>Admin note for the ADR</strong>${n.rec?` · recommends <strong>${esc(ROLE_WORD[n.rec]||n.rec)}</strong>`:''}${n.text?`<div>${esc(n.text)}</div>`:''}<div class="text-muted" style="font-size:10.5px">${esc(n.by||'')}${n.at?' · '+esc(fmtDate(n.at)):''}</div></div></div>`;
@@ -7195,7 +7229,7 @@ function renderPoolRows(){
     actions.push(`<button class="btn btn-sm btn-ghost" data-pool-act="view" data-id="${p.id}" title="Details">${icon('i-eye')}Details</button>`);
     return `<tr class="${st==='selected'?'row-sel':st==='invited'?'row-inv':''}" style="${p.active===false?'opacity:.55':''}">
       <td><input type="checkbox" data-pool-check="${p.id}" ${POOL_CHECK.has(p.id)?'checked':''} style="width:auto"/></td>
-      <td style="min-width:240px"><div class="fw-600">${esc(poolName(p))}</div><div class="text-xs text-muted">${esc(p.email||'no email')}${p.institution?' · '+esc(p.institution):''}</div>
+      <td style="min-width:240px"><div class="fw-600">${esc(poolName(p))}</div><div class="text-xs text-muted">${esc(p.email||'no email')}${p.institution?' · '+esc(p.institution):''}</div>${(()=>{ const cv=safeUrl(poolCv(p)), fo=!cv&&safeUrl(p.docFolder), pr=safeUrl(p.profileLink); return cv||fo||pr?`<div class="text-xs pool-links">${cv?`<a href="${esc(cv)}" target="_blank" rel="noopener noreferrer">${icon('i-file','ic-sm')}CV</a>`:''}${fo?`<a href="${esc(fo)}" target="_blank" rel="noopener noreferrer">${icon('i-file','ic-sm')}Documents</a>`:''}${pr?`<a href="${esc(pr)}" target="_blank" rel="noopener noreferrer">${icon('i-ext','ic-sm')}Profile</a>`:''}</div>`:''; })()}
         <div class="text-xs text-muted">${esc(srcLbl[p.source]||p.source||'')}${p.outcome==='Conditionally Approved'?' · <span class="c-amber">Conditional</span>':''}${acc?(acc.disabled?' · account disabled':(p.source==='account'?'':' · has an account')):' · no account yet'}</div>${poolNoteHTML(p)}</td>
       <td>${disc}<div class="text-xs text-muted" style="margin-top:3px">Applied as ${esc(LEVEL_SHORT[p.level]||p.level||'—')}</div>${poolRecHTML(p)}</td>
       <td class="text-sm">${esc((p.campusNames||[]).join(', ')||'—')}</td>
@@ -7363,7 +7397,8 @@ function openPoolModal(p, editing){
     body.innerHTML=`<div class="kv" style="margin-top:8px">
       ${kvHTML('Email',p.email)}${kvHTML('Phone',p.phone)}${kvHTML('Discipline',(p.disciplines||[]).map(discLong).join(', ')||'Not set')}${kvHTML('Supervision level',p.level)}
       ${kvHTML('Preferred campus',(p.campusNames||[]).join(', '))}${kvHTML('Institution',p.institution)}${kvHTML('Position',p.position)}${kvHTML('Sign-in account',acc?(acc.disabled?'Disabled':'Yes'):'Not yet — created when added to a semester')}
-      ${kvHTML('Research areas',p.researchAreas,'wide')}${p.profileLink?kvHTML('ORCID / Google Scholar',p.profileLink,'wide'):''}
+      ${kvHTML('Research areas',p.researchAreas,'wide')}${kvHTML('CV',poolCv(p),'wide')}${p.docFolder?kvHTML('Documents folder',p.docFolder,'wide'):''}${kvHTML('ORCID / Google Scholar',p.profileLink,'wide')}
+      ${kvHTML('HDR supervised to completion',p.hdrCompleted)}${kvHTML('HDR currently supervising',p.hdrCurrent)}
       ${p.outcome?kvHTML('Registration outcome',p.outcome+(p.conditions?' — '+p.conditions:''),'wide'):''}
       ${['office','adr'].filter(k=>hasRev(p.review?.[k])).map(k=>kvHTML(`${REV_STAGES[k]} — reviewer comments`,`${revSummary(p.review[k])||'—'}${p.review[k].by?' ('+p.review[k].by+')':''}${p.review[k].comment?'\n'+p.review[k].comment:''}`,'wide')).join('')}
       ${acc&&poolSem?kvHTML(`Sees students · ${semesterLabel(poolSem)}`,accessText(acc,poolSem)):''}
@@ -7386,6 +7421,10 @@ function openPoolModal(p, editing){
       <div class="form-group"><label>Preferred campus</label><div class="sem-box"><div class="sem-list" style="border:none;margin:0;padding:0">${CAMPUSES.map(c=>`<label class="check-row"><input type="checkbox" data-pf-campus="${c.id}" ${(p.campusIds||[]).includes(c.id)?'checked':''}/> <span>${esc(campusLabel(c))}</span></label>`).join('')}</div></div></div>
       <div class="g2"><div class="form-group"><label>Position</label><input type="text" data-pf="position" value="${esc(p.position||'')}"/></div>
         <div class="form-group"><label>Research areas</label><input type="text" data-pf="researchAreas" value="${esc(p.researchAreas||'')}"/></div></div>
+      <div class="form-group"><label>CV link <span class="opt">(optional — Google Drive, OneDrive, etc.)</span></label><input type="url" data-pf="docCv" placeholder="https://drive.google.com/…" value="${esc(p.docCv||'')}"/>${p.docFolder?`<div class="text-xs text-muted" style="margin-top:4px">Documents folder from their registration: <a href="${esc(safeUrl(p.docFolder)||'#')}" target="_blank" rel="noopener noreferrer">${esc(p.docFolder)}</a></div>`:''}</div>
+      <div class="form-group"><label>ORCID iD / Google Scholar profile link <span class="opt">(optional)</span></label><input type="text" data-pf="profileLink" placeholder="https://orcid.org/0000-0000-0000-0000 or https://scholar.google.com/…" value="${esc(p.profileLink||'')}"/></div>
+      <div class="g2"><div class="form-group"><label>HDR students supervised to completion <span class="opt">(optional)</span></label>${hdrSelectHTML('hdrCompleted',REG_OPTS.hdrCompleted,p.hdrCompleted||'')}</div>
+        <div class="form-group"><label>HDR students currently supervising <span class="opt">(optional)</span></label>${hdrSelectHTML('hdrCurrent',REG_OPTS.hdrCurrent,p.hdrCurrent||'')}</div></div>
       <div class="form-group"><label>Notes</label><textarea data-pf="notes" rows="2">${esc(p.notes||'')}</textarea></div>
       <div class="form-actions"><button class="btn btn-primary" data-pm="save">${isNew?'Add to the pool':'Save changes'}</button><button class="btn btn-ghost" data-pm-close>Cancel</button></div>`;
   }
@@ -7404,12 +7443,13 @@ async function poolModalAct(kind,p,isNew,btn){
       return confirmPoolRemove([p]);
     } else if(kind==='save'){
       const f=k=>m.querySelector(`[data-pf="${k}"]`)?.value.trim()||'';
-      const d={title:f('title'),firstName:f('firstName'),lastName:f('lastName'),email:f('email'),phone:f('phone'),level:f('level'),institution:f('institution'),position:f('position'),researchAreas:f('researchAreas'),notes:f('notes')};
+      const d={title:f('title'),firstName:f('firstName'),lastName:f('lastName'),email:f('email'),phone:f('phone'),level:f('level'),institution:f('institution'),position:f('position'),researchAreas:f('researchAreas'),notes:f('notes'),profileLink:f('profileLink').slice(0,300),hdrCompleted:f('hdrCompleted'),hdrCurrent:f('hdrCurrent'),docCv:f('docCv').slice(0,500)};
       d.disciplines=readDiscChecks('pf-disc');
       d.campusIds=[...m.querySelectorAll('[data-pf-campus]:checked')].map(c=>c.dataset.pfCampus);
       d.campusNames=d.campusIds.map(id=>campusLabel(CAMPUSES.find(c=>c.id===id)));
       if(!d.firstName||!d.lastName||!d.email){ toast('First name, last name and email are required','error'); return; }
       if(!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(d.email)){ toast('Enter a valid email address','error'); return; }
+      if(d.docCv && !safeUrl(d.docCv)){ toast('The CV link must start with http:// or https://','error'); return; }
       if(!d.disciplines.length){ toast('Tick at least one discipline','error'); return; }
       if(POOL.some(x=>x.id!==p.id && lc(x.email)===lc(d.email))){ toast('Someone with that email is already in the pool','error'); return; }
       d.name=[d.title,d.firstName,d.lastName].filter(Boolean).join(' '); d.emailLower=lc(d.email); d.supervisorType=LEVEL_TYPE[d.level]||'both';
@@ -7493,10 +7533,10 @@ function confirmPoolRemove(list){
 
 /* ── Export ── */
 function poolRows(list){
-  const rows=[['Title','First Name','Last Name','Full Name','Email','Phone','Discipline','Supervision Level','Supervisor Type','Preferred Campus','Institution','Position','Research Areas','ORCID / Google Scholar','HDR Completed','HDR Current','Supervision Mode','Source','Registration Ref','Registration Outcome','Conditions','Approved / Recommended Role','Reviewer Comments','Admin Recommends','Admin Note for ADR','Has Account','Selected For','On the List For','Status','Notes'].map(csvCell)];
+  const rows=[['Title','First Name','Last Name','Full Name','Email','Phone','Discipline','Supervision Level','Supervisor Type','Preferred Campus','Institution','Position','Research Areas','CV Link','Documents Folder','ORCID / Google Scholar','HDR Completed','HDR Current','Supervision Mode','Source','Registration Ref','Registration Outcome','Conditions','Approved / Recommended Role','Reviewer Comments','Admin Recommends','Admin Note for ADR','Has Account','Selected For','On the List For','Status','Notes'].map(csvCell)];
   [...list].sort((a,b)=>String(a.lastName||poolName(a)).localeCompare(String(b.lastName||poolName(b)))).forEach(p=>rows.push([
     p.title,p.firstName,p.lastName,poolName(p),p.email,p.phone,(p.disciplines||[]).map(discLabel).join(' & ')||'Not set',p.level,({principal:'Principal',co:'Co-supervisor',both:'Principal & co'})[p.supervisorType]||'',
-    (p.campusNames||[]).join('; '),p.institution,p.position,p.researchAreas,p.profileLink,p.hdrCompleted,p.hdrCurrent,p.mode,p.source,p.registrationId,p.outcome,p.conditions,
+    (p.campusNames||[]).join('; '),p.institution,p.position,p.researchAreas,poolCv(p),p.docFolder,p.profileLink,p.hdrCompleted,p.hdrCurrent,p.mode,p.source,p.registrationId,p.outcome,p.conditions,
     roleOpt((hasRev(p.review?.adr)?p.review.adr:p.review?.office)?.role)?.[2]||'',
     ['office','adr'].filter(k=>hasRev(p.review?.[k])).map(k=>`${REV_SHORT[k]}: ${revSummary(p.review[k])}${p.review[k].comment?' — '+p.review[k].comment:''}`).join(' | '),
     ROLE_WORD[p.adminNote?.rec]||'', p.adminNote?.text||'',
@@ -7535,9 +7575,9 @@ function initPoolTools(){
   el('pool-csv').onchange=e=>{ previewPoolImport(e.target.files[0]); e.target.value=''; };
   el('pool-add-btn').onclick=()=>openPoolModal(null,true);
   el('pool-template-btn').onclick=()=>downloadCSV([
-    ['Title','First Name','Last Name','Email','Phone','Discipline','Supervision Level','Campus','Institution','Position','Research Areas','Notes'].map(csvCell),
-    ['Dr.','Jane','Citizen','jane.citizen@example.edu.au','+61 400 000 000','IT; Accounting','Both','Sydney Campus; Canberra Campus','Example University','Senior Lecturer','Cyber security; machine learning','Approved by RSC 2025'].map(csvCell),
-    ['Prof','Sam','Lee','sam.lee@example.edu.au','','Business','Principal','Sydney Campus','Example University','Professor','Accounting; corporate governance',''].map(csvCell)],'supervisor-pool-template.csv');
+    ['Title','First Name','Last Name','Email','Phone','Discipline','Supervision Level','Campus','Institution','Position','Research Areas','CV Link','ORCID / Google Scholar','HDR Completed','HDR Current','Notes'].map(csvCell),
+    ['Dr.','Jane','Citizen','jane.citizen@example.edu.au','+61 400 000 000','IT; Accounting','Both','Sydney Campus; Canberra Campus','Example University','Senior Lecturer','Cyber security; machine learning','https://drive.google.com/file/d/EXAMPLE/view','https://orcid.org/0000-0002-1825-0097','3–5','1–2','Approved by RSC 2025'].map(csvCell),
+    ['Prof','Sam','Lee','sam.lee@example.edu.au','','Business','Principal','Sydney Campus','Example University','Professor','Accounting; corporate governance','','','','',''].map(csvCell)],'supervisor-pool-template.csv');
 }
 async function previewPoolImport(file){
   if(!file) return;
@@ -7558,7 +7598,11 @@ async function previewPoolImport(file){
     const cm=matchCampuses(g(r,'Campus','Campuses','Preferred Campus','Location'));
     out.push({title,firstName:first,lastName:last,name,email,emailLower:lc(email),phone:g(r,'Phone','Mobile','Phone Number'),disciplines:normDiscList(g(r,'Discipline','Disciplines','School','Program')),
       level,supervisorType:LEVEL_TYPE[level]||'both',campusIds:cm.ids,campusNames:cm.names,institution:g(r,'Institution','Organisation','Organization','University'),
-      position:g(r,'Position','Position Title','Title / Position'),researchAreas:g(r,'Research Areas','Research Area','Expertise'),notes:g(r,'Notes','Comments')});
+      position:g(r,'Position','Position Title','Title / Position'),researchAreas:g(r,'Research Areas','Research Area','Expertise'),notes:g(r,'Notes','Comments'),
+      docCv:(u=>safeUrl(u)?u.slice(0,500):'')(g(r,'CV Link','CV','CV URL','Curriculum Vitae','Resume','Résumé')),
+      profileLink:g(r,'ORCID / Google Scholar','ORCID','Google Scholar','ORCID iD','Profile Link','Research Profile','Research Profile Link','Scholar Profile').slice(0,300),
+      hdrCompleted:normHdr(g(r,'HDR Completed','HDR Completions','HDR Supervised to Completion','HDR Students Supervised to Completion','Completed HDR','HDR Completion'),REG_OPTS.hdrCompleted),
+      hdrCurrent:normHdr(g(r,'HDR Current','Current HDR','Current Supervision','HDR Current Supervision','HDR Students Currently Supervising','Current HDR Students'),REG_OPTS.hdrCurrent)});
   });
   const pv=el('pool-import-preview'); pv.classList.remove('hidden');
   const noDisc=out.filter(p=>!p.disciplines.length).length;
@@ -7566,7 +7610,7 @@ async function previewPoolImport(file){
       <button class="btn btn-sm btn-primary" id="pool-import-go" style="margin-left:8px">Import ${out.length}</button><button class="btn btn-sm" id="pool-import-cancel" style="margin-left:6px">Cancel</button></div>`:`<div class="alert alert-warning">Nothing to import.</div>`}
     ${noDisc?`<div class="alert alert-warning">${noDisc} row(s) have no recognisable discipline. Import them and set it with Edit, or add a Discipline column (Business / IT / Both).</div>`:''}
     ${skipped.length?`<details class="text-sm mb-8"><summary>Skipped rows</summary><ul style="margin:6px 0 0 18px">${skipped.map(s=>`<li>${esc(s)}</li>`).join('')}</ul></details>`:''}
-    ${out.length?`<div class="tw"><table><thead><tr><th>Name</th><th>Email</th><th>Discipline</th><th>Level</th><th>Campus</th></tr></thead><tbody>${out.slice(0,10).map(p=>`<tr><td>${esc(p.name)}</td><td class="text-xs">${esc(p.email)}</td><td>${p.disciplines.map(d=>discBadge(d)).join(' ')||'<span class="badge badge-amber">Not set</span>'}</td><td class="text-xs">${esc(LEVEL_SHORT[p.level]||'—')}</td><td class="text-xs">${esc(p.campusNames.join(', ')||'—')}</td></tr>`).join('')}${out.length>10?`<tr><td colspan="5" class="text-xs text-muted" style="text-align:center">…and ${out.length-10} more</td></tr>`:''}</tbody></table></div>`:''}`;
+    ${out.length?`<div class="tw"><table><thead><tr><th>Name</th><th>Email</th><th>Discipline</th><th>Level</th><th>Campus</th><th>CV</th><th>Profile</th><th>HDR done / now</th></tr></thead><tbody>${out.slice(0,10).map(p=>`<tr><td>${esc(p.name)}</td><td class="text-xs">${esc(p.email)}</td><td>${p.disciplines.map(d=>discBadge(d)).join(' ')||'<span class="badge badge-amber">Not set</span>'}</td><td class="text-xs">${esc(LEVEL_SHORT[p.level]||'—')}</td><td class="text-xs">${esc(p.campusNames.join(', ')||'—')}</td><td class="text-xs">${p.docCv?'✓':'—'}</td><td class="text-xs">${p.profileLink?'✓':'—'}</td><td class="text-xs">${esc(p.hdrCompleted||'—')} / ${esc(p.hdrCurrent||'—')}</td></tr>`).join('')}${out.length>10?`<tr><td colspan="8" class="text-xs text-muted" style="text-align:center">…and ${out.length-10} more</td></tr>`:''}</tbody></table></div>`:''}`;
   el('pool-import-cancel')?.addEventListener('click',()=>pv.classList.add('hidden'));
   el('pool-import-go')?.addEventListener('click',async()=>{
     try{
