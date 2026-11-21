@@ -1157,8 +1157,9 @@ tr.row-mine td:first-child{box-shadow:inset 3px 0 0 var(--primary)}
                 <option value="co">Co-Supervisor Only</option>
               </select>
             </div>
+            <div class="form-group"><label>Affiliation <span class="opt">(Internal = CIHE Australia full-time or sessional staff)</span></label><select id="sup-aff"></select></div>
           </div>
-          <div class="form-group"><label>Discipline(s) this supervisor covers</label><div id="sup-disc-box"></div></div>
+          <div class="form-group"><label>Discipline(s) this supervisor covers</label><div id="sup-disc-box"></div><p class="hint" style="margin-top:4px">IT supervisors take IT students and Early Childhood supervisors take Early Childhood students. Business and Accounting supervisors can take students from both Business and Accounting. To make an exception, tick another discipline here. To make a one-off exception for a single student, assign them under Allocations.</p></div>
           <div class="form-group"><label>On the supervisor list for</label><div class="sem-box" id="sup-sem-box"></div></div>
           <input type="hidden" id="sup-edit-id"/>
           <div class="form-actions">
@@ -1192,7 +1193,7 @@ tr.row-mine td:first-child{box-shadow:inset 3px 0 0 var(--primary)}
         <div class="grid-2 mt-16" id="pool-admin-tools">
           <div class="card">
             <div class="card-header"><h3><svg class="ic"><use href="#i-upload"/></svg>Import existing supervisors</h3><button class="btn btn-sm" id="pool-template-btn"><svg class="ic"><use href="#i-download"/></svg>CSV template</button></div>
-            <p class="card-sub">For supervisors approved before registrations were kept here. Columns: <code class="chip-code">Title, First Name, Last Name, Email, Phone, Discipline, Supervision Level, Campus, Institution, Position, Research Areas, CV Link, ORCID / Google Scholar, HDR Completed, HDR Current, Notes</code>. Only names and email are required. Discipline is <em>Business</em>, <em>Accounting</em>, <em>IT</em> and/or <em>Early Childhood Education</em> (separate several with <code>;</code>); Supervision Level is <em>Principal</em>, <em>Associate</em>, <em>Both</em> or <em>Industry</em>; separate several campuses with <code>;</code>. HDR Completed / HDR Current take a number (e.g. <em>4</em>) or a range as on the registration form (<em>0, 1–2, 3–5, 6–10, 10+</em> / <em>0, 1–2, 3–5, 5+</em>). Anyone already in the pool (same email) is skipped.</p>
+            <p class="card-sub">For supervisors approved before registrations were kept here. Columns: <code class="chip-code">Title, First Name, Last Name, Email, Phone, Discipline, Supervision Level, Campus, Institution, Position, Research Areas, Affiliation, CV Link, ORCID / Google Scholar, HDR Completed, HDR Current, Notes</code>. Only names and email are required. Discipline is <em>Business</em>, <em>Accounting</em>, <em>IT</em> and/or <em>Early Childhood Education</em> (separate several with <code>;</code>); Supervision Level is <em>Principal</em>, <em>Associate</em>, <em>Both</em> or <em>Industry</em>; separate several campuses with <code>;</code>. Affiliation is <em>Internal full-time</em>, <em>Internal sessional</em>, <em>Internal</em> or <em>External</em>. HDR Completed / HDR Current take a number (e.g. <em>4</em>) or a range as on the registration form (<em>0, 1–2, 3–5, 6–10, 10+</em> / <em>0, 1–2, 3–5, 5+</em>). Anyone already in the pool (same email) is skipped.</p>
             <div id="pool-drop" class="drop-zone"><div class="dz-ic"><svg class="ic ic-lg"><use href="#i-file"/></svg></div><div class="fw-600" style="color:var(--text)">Drop a CSV file here or click to browse</div><div class="text-xs" style="margin-top:2px">You'll see a preview before anything is imported</div></div>
             <input type="file" id="pool-csv" accept=".csv" style="display:none"/>
             <div id="pool-import-preview" class="mt-16 hidden"></div>
@@ -2834,7 +2835,7 @@ async function mountSupervisor(){
   setTxt('sv-eyebrow', isAdm ? 'Supervisor view · previewing as admin' : 'Supervisor workspace');
   setTxt('sv-greeting', `${greet}, ${isAdm ? (p.name||'Admin') : (studentFirstName({name:p.name||p.email}))}`);
   const roleTxt = {principal:'Principal supervisor', co:'Co-supervisor', both:'Principal & co-supervisor'}[p.supervisorType] || (isAdm?'Admin':'Supervisor');
-  const myDisc=isAdm?null:supDisc(p);
+  const myDisc=isAdm?null:supCovers(p);
   setTxt('sv-sub', `${roleTxt} · ${cn}${myDisc?' · '+myDisc.map(discLabel).join(' & '):''}${svSemester?` · ${semesterLabel(svSemester)}`:''}`);
   buildSVDiscPills();
   const mEl=el('alloc-mode-badge');
@@ -2888,9 +2889,9 @@ async function mountSupervisor(){
     if(isCoOnly){
       banner.innerHTML = `As a <strong>Co-Supervisor</strong>, you may only assign <strong>yourself</strong> in the Co-Supervisor column. Principal Supervisor allocations and assignments for other Co-Supervisors cannot be modified through this system.`;
     } else if(p.supervisorType==='both'){
-      banner.innerHTML = `You may act as a <strong>Principal Supervisor</strong> for students at <strong>your own campus</strong>, and as a <strong>Co-Supervisor</strong> for students at <strong>any campus</strong>${supDisc(p)?`, in <strong>${supDisc(p).map(discLong).join(' and ')}</strong>`:''}. Use the campus tabs to browse students across campuses.`;
+      banner.innerHTML = `You may act as a <strong>Principal Supervisor</strong> for students at <strong>your own campus</strong>, and as a <strong>Co-Supervisor</strong> for students at <strong>any campus</strong>${supCovers(p)?`, in <strong>${supCovers(p).map(discLong).join(' and ')}</strong>`:''}. Use the campus tabs to browse students across campuses.`;
     } else {
-      banner.innerHTML = `Select your name in the <strong>Principal Supervisor</strong> column to claim a student. Principal supervisors can only be assigned to students of their own campus${supDisc(p)?` and discipline (<strong>${supDisc(p).map(discLong).join(' and ')}</strong>)`:''}.`;
+      banner.innerHTML = `Select your name in the <strong>Principal Supervisor</strong> column to claim a student. Principal supervisors can only be assigned to students of their own campus${supCovers(p)?` and discipline (<strong>${supCovers(p).map(discLong).join(' and ')}</strong>)`:''}.`;
     }
   }
 
@@ -3598,7 +3599,7 @@ function initSupervisorsTab(){
   el('sup-save-btn').onclick=async()=>{
     const name=el('sup-name').value.trim(), email=el('sup-email').value.trim(), pass=el('sup-password').value,
           altEmail=el('sup-alt-email').value.trim(),
-          campus=el('sup-campus').value, type=el('sup-type').value, editId=el('sup-edit-id').value;
+          campus=el('sup-campus').value, type=el('sup-type').value, editId=el('sup-edit-id').value, affiliation=el('sup-aff').value;
     if(!name||!email){ toast('Name and email required','error'); return; }
     if(!editId && requireReg()){ toast('New supervisor accounts are created from approved registrations (Registrations tab).','error'); return; }
     const semesters=readSemChecks('sup-sem-box'); // null = every semester
@@ -3609,11 +3610,12 @@ function initSupervisorsTab(){
     try{
       if(editId){
         const before=SUPS.find(x=>x.id===editId);
-        await updateDoc(doc(db,'users',editId),{name,campus,supervisorType:type,altEmail,semesters,disciplines});
+        await updateDoc(doc(db,'users',editId),{name,campus,supervisorType:type,altEmail,semesters,disciplines,affiliation});
         logAct('sup.edit', name, describeChanges(
-          {...before, campus:campusNm(before?.campus), supervisorType:before?.supervisorType||'both', semList:semListLabel(before||{}), discList:(supDisc(before)||[]).map(discLabel).join(' & ')||'not set'},
-          {name, altEmail, campus:campusNm(campus), supervisorType:type, semList:semListLabel({semesters}), discList:disciplines.map(discLabel).join(' & ')},
-          [['name','Name',1],['campus','Campus',1],['supervisorType','Type',1],['altEmail','Alternative email'],['semList','Semesters',1],['discList','Discipline',1]]), editId);
+          {...before, campus:campusNm(before?.campus), supervisorType:before?.supervisorType||'both', semList:semListLabel(before||{}), discList:(supDisc(before)||[]).map(discLabel).join(' & ')||'not set', aff:affLabel(before?.affiliation)||'not set'},
+          {name, altEmail, campus:campusNm(campus), supervisorType:type, semList:semListLabel({semesters}), discList:disciplines.map(discLabel).join(' & '), aff:affLabel(affiliation)||'not set'},
+          [['name','Name',1],['campus','Campus',1],['supervisorType','Type',1],['altEmail','Alternative email'],['semList','Semesters',1],['discList','Discipline',1],['aff','Affiliation',1]]), editId);
+        if((before?.affiliation||'')!==affiliation) syncPoolAffiliation(editId, affiliation);
       }
       else{
         if(!pass){ toast('Password required for new supervisor','error'); return; }
@@ -3621,7 +3623,7 @@ function initSupervisorsTab(){
         // then write the profile as the new user (same permissions as before).
         const pApp=provisionApp(), pAuth=getAuth(pApp);
         const cred=await createUserWithEmailAndPassword(pAuth,email,pass);
-        const profile={name,email,altEmail,campus,supervisorType:type,role:'supervisor',semesters,disciplines};
+        const profile={name,email,altEmail,campus,supervisorType:type,role:'supervisor',semesters,disciplines,affiliation};
         try{
           await setDoc(doc(getFirestore(pApp),'users',cred.user.uid),profile);
         }catch(err){
@@ -3650,7 +3652,7 @@ function initSupervisorsTab(){
 window.editSup=(id)=>{
   const s=SUPS.find(x=>x.id===id); if(!s) return;
   el('sup-name').value=s.name||''; el('sup-email').value=s.email||''; el('sup-email').disabled=true; el('sup-alt-email').value=s.altEmail||''; el('sup-password').value='';
-  el('sup-campus').value=s.campus||''; el('sup-type').value=s.supervisorType||'both'; el('sup-edit-id').value=id;
+  el('sup-campus').value=s.campus||''; el('sup-type').value=s.supervisorType||'both'; el('sup-edit-id').value=id; el('sup-aff').innerHTML=affOptionsHTML(s.affiliation||'');
   el('sup-form-title').textContent='Edit supervisor account'; el('sup-save-btn').textContent='Update Supervisor'; show('sup-cancel-btn');
   renderSemChecks('sup-sem-box', Array.isArray(s.semesters)?s.semesters:null); el('sup-disc-box').innerHTML=discChecksHTML('sup-disc', supDisc(s)||[]); supFormOpen=true; syncSupFormLock();
   el('sup-form-card').scrollIntoView({behavior:'smooth',block:'start'});
@@ -4623,7 +4625,7 @@ function closeSupForm(){
   el('sup-edit-id').value=''; el('sup-form-title').textContent='Add supervisor account'; el('sup-save-btn').textContent='Add Supervisor'; hide('sup-cancel-btn');
   supFormOpen=false; resetSupFormExtras();
 }
-function resetSupFormExtras(){ renderSemChecks('sup-sem-box', defaultSemList()); el('sup-disc-box').innerHTML=discChecksHTML('sup-disc', adminDiscipline!=='all'?[adminDiscipline]:[]); syncSupFormLock(); }
+function resetSupFormExtras(){ if(el('sup-aff')) el('sup-aff').innerHTML=affOptionsHTML(''); renderSemChecks('sup-sem-box', defaultSemList()); el('sup-disc-box').innerHTML=discChecksHTML('sup-disc', adminDiscipline!=='all'?[adminDiscipline]:[]); syncSupFormLock(); }
 async function openSupervisorsTab(){
   renderSupervisorsList();
   // The pool (who the ADR selected) and every account (incl. disabled) make the picker complete.
@@ -4688,6 +4690,29 @@ function semLoads(sem){
   return {p,c};
 }
 const canBeP=t=>(t||'both')!=='co', canBeC=t=>(t||'both')!=='principal';
+/* ── Affiliation: Internal (CIHE Australia full-time or sessional staff) or External ──
+   Stored as users.affiliation and supervisorPool.affiliation (kept in step). */
+const AFF_OPTS=[['internal-ft','Internal — full-time'],['internal-sess','Internal — sessional'],['internal','Internal (type not recorded)'],['external','External (not affiliated with CIHE)']];
+const AFF_FILTERS=[['','All affiliations'],['internal','Internal (all)'],['internal-ft','Internal — full-time'],['internal-sess','Internal — sessional'],['external','External'],['none','Affiliation not set']];
+const affGroup=v=>String(v||'').startsWith('internal')?'internal':v==='external'?'external':'';
+function affMatch(v,f){ if(!f) return true; if(f==='none') return !affGroup(v); if(f==='internal') return affGroup(v)==='internal'; return v===f; }
+function affBadge(v){
+  const g=affGroup(v); if(!g) return '';
+  const sub=v==='internal-ft'?' · Full-time':v==='internal-sess'?' · Sessional':'';
+  return `<span class="badge ${g==='internal'?'badge-green':'badge-blue'}" title="${g==='internal'?'Staff of CIHE Australia (full-time or sessional)':'Not affiliated with CIHE Australia'}">${g==='internal'?'Internal':'External'}${sub}</span>`;
+}
+const affLabel=v=>(AFF_OPTS.find(o=>o[0]===v)||[,''])[1];
+const affOptionsHTML=val=>`<option value="">— Not set —</option>`+AFF_OPTS.map(([k,l])=>`<option value="${k}" ${val===k?'selected':''}>${esc(l)}</option>`).join('');
+const affFilterHTML=(attr,val,w=170)=>`<select ${attr} title="Filter by affiliation" style="width:auto;min-width:${w}px;height:34px">${AFF_FILTERS.map(([k,l])=>`<option value="${k}" ${val===k?'selected':''}>${esc(l)}</option>`).join('')}</select>`;
+function normAff(t){
+  const s=String(t||'').trim().toLowerCase(); if(!s) return '';
+  if(/sessional|casual/.test(s)) return 'internal-sess';
+  if(/external|not affiliated|non[- ]?cihe|outside/.test(s)) return 'external';
+  if(/full[- ]?time|permanent/.test(s)) return 'internal-ft';
+  if(/internal|cihe|staff|part[- ]?time/.test(s)) return 'internal';
+  return '';
+}
+let supAffF='';
 const TYPE_LBL={principal:'Principal only', co:'Associate (co-supervisor) only', both:'Principal & associate'};
 const TYPE_BADGE=t=>`<span class="badge ${t==='co'?'badge-purple':t==='principal'?'badge-blue':'badge-green'}">${esc(TYPE_LBL[t||'both']||t)}</span>`;
 
@@ -4728,7 +4753,7 @@ function renderSemSupHead(){
   const waiting=POOL_LOADED ? POOL.filter(p=>p.active!==false && poolSemState(p,sem)==='selected').length : 0;
   h.innerHTML=`
     <div class="stats-strip">
-      <div class="stat-card hl"><div class="stat-val c-accent">${act.length}</div><div class="stat-lbl">On the list</div><div class="stat-sub">${list.length-act.length?`${list.length-act.length} with a disabled account`:'Can select students'}</div></div>
+      <div class="stat-card hl"><div class="stat-val c-accent">${act.length}</div><div class="stat-lbl">On the list</div><div class="stat-sub">${act.filter(s=>affGroup(s.affiliation)==='internal').length} internal · ${act.filter(s=>affGroup(s.affiliation)==='external').length} external${list.length-act.length?` · ${list.length-act.length} disabled`:''}</div></div>
       <div class="stat-card"><div class="stat-val">${pUsed}<span class="text-muted" style="font-size:.6em"> / ${pCap}</span></div><div class="stat-lbl">Principal places used</div><div class="stat-sub">${studs.length} active student${studs.length===1?'':'s'}${pCap<studs.length?' · <span class="c-red">not enough places</span>':''}</div></div>
       <div class="stat-card"><div class="stat-val">${cUsed}<span class="text-muted" style="font-size:.6em"> / ${cCap}</span></div><div class="stat-lbl">Co-supervisor places used</div><div class="stat-sub">${cCap<studs.length?'<span class="c-amber">fewer places than students</span>':'Across the list'}</div></div>
       <div class="stat-card"><div class="stat-val ${atLimit?'c-amber':''}">${atLimit}</div><div class="stat-lbl">At their limit</div><div class="stat-sub">${own} with their own limit</div></div>
@@ -4767,11 +4792,13 @@ function renderSupListTools(){
     <div class="spacer"></div>
     <div class="search-wrap"><span class="search-icon">${icon('i-search')}</span><input type="text" class="search-input" id="semsup-q" placeholder="Search name or email…" value="${esc(semSupQ)}" style="width:210px" autocomplete="off"/></div>
     <select id="sup-f-type" title="Filter by role" style="width:auto;min-width:180px;height:34px">${SUP_TYPE_FILTERS.map(([v,l])=>`<option value="${v}" ${supTypeF===v?'selected':''}>${esc(l)}</option>`).join('')}</select>
+    ${affFilterHTML('id="sup-f-aff"',supAffF,160)}
     <select id="sup-f-campus" title="Filter by campus" style="width:auto;min-width:150px;height:34px"><option value="">All campuses</option>${CAMPUSES.map(c=>`<option value="${c.id}" ${supCampusF===c.id?'selected':''}>${esc(campusLabel(c))}</option>`).join('')}</select>`;
   el('semsup-add-btn').onclick=()=>openSemSupAdd();
   el('semsup-q').oninput=deb(e=>{ semSupQ=e.target.value; renderSemSupRows(); },150);
   el('sup-f-type').onchange=e=>{ supTypeF=e.target.value; renderSemSupRows(); };
   el('sup-f-campus').onchange=e=>{ supCampusF=e.target.value; renderSemSupRows(); };
+  el('sup-f-aff').onchange=e=>{ supAffF=e.target.value; renderSemSupRows(); };
   const cb=el('sup-copy-btn'); if(cb) cb.onclick=copySupSemesterList;
 }
 function loadCellHTML(n, max, own, can){
@@ -4785,7 +4812,7 @@ function renderSemSupRows(){
   if(!sem){ e.innerHTML=`<div class="text-muted text-sm" style="padding:16px">Create a semester first (Settings → Semesters). Each semester has its own supervisor list.</div>`; return; }
   const onList=semSupScope(sem), q=lc(semSupQ);
   [...SEMSUP_CHECK].forEach(id=>{ if(!onList.some(s=>s.id===id)) SEMSUP_CHECK.delete(id); });
-  const list=onList.filter(s=>supTypeMatch(s.supervisorType||'both',supTypeF) && (!supCampusF||s.campus===supCampusF) && (!q || lc(`${s.name} ${s.email} ${s.altEmail||''}`).includes(q)))
+  const list=onList.filter(s=>supTypeMatch(s.supervisorType||'both',supTypeF) && (!supCampusF||s.campus===supCampusF) && affMatch(s.affiliation,supAffF) && (!q || lc(`${s.name} ${s.email} ${s.altEmail||''}`).includes(q)))
     .sort((a,b)=>(a.disabled?1:0)-(b.disabled?1:0) || String(a.name||'').localeCompare(String(b.name||'')));
   if(!onList.length){
     e.innerHTML=`<div class="semsup-empty">${icon('i-users')}<div class="fw-600" style="color:var(--text)">Nobody is on the supervisor list for ${esc(semesterLabel(sem))}${discCtx()} yet</div><div class="text-sm">Add people from the supervisor pool or from existing accounts, or copy another semester's list.</div><button class="btn btn-primary btn-sm" data-ss-empty-add>${icon('i-userplus')}Add supervisors</button></div>`;
@@ -4805,7 +4832,7 @@ function renderSemSupRows(){
       <td><div class="flex items-center gap-12"><div class="avatar" style="width:32px;height:32px">${esc(ini(s.name||s.email))}</div><div style="min-width:0"><div class="fw-600">${esc(s.name||'(no name)')}</div><div class="text-xs text-muted">${esc(s.email||'')}</div>
         ${s.disabled?'<span class="badge badge-red" style="margin-top:3px">Account disabled</span>':''}${!Array.isArray(s.semesters)?`<span class="badge badge-gray" style="margin-top:3px" title="This account is on every semester's list">Every semester</span>`:''}</div></div></td>
       <td>${cn?`<span class="badge badge-gray">${esc(cn)}</span>`:'<span class="text-xs text-muted">—</span>'}</td>
-      <td>${TYPE_BADGE(t)}<div style="margin-top:4px">${supDiscBadges(s)}</div></td>
+      <td>${TYPE_BADGE(t)} ${affBadge(s.affiliation)}<div style="margin-top:4px">${supDiscBadges(s)}</div></td>
       <td>${loadCellHTML(L.p[s.id]||0, supLimit(s,'p',sem), supOwnLimit(s,'p',sem)!==null, canBeP(t))}</td>
       <td>${loadCellHTML(L.c[s.id]||0, supLimit(s,'c',sem), supOwnLimit(s,'c',sem)!==null, canBeC(t))}</td>
       <td>${s.disabled?'<span class="text-xs text-muted">—</span>':accessBadge(s,sem)}</td>
@@ -4905,22 +4932,24 @@ async function openSemSupAdd(startView){
   const accC=SUPS.filter(s=>!supInSemester(s,sem) && !linked(s));
   const cands=[...poolC.map(p=>({k:'pool:'+p.id, kind:'pool', p, name:poolName(p), email:p.email||'', disc:p.disciplines||[], sel:poolSemState(p,sem)==='selected'})),
                ...accC.map(s=>({k:'acc:'+s.id, kind:'acc', s, name:s.name||s.email, email:s.email||'', disc:supDisc(s)||[], sel:false}))]
+    .map(c=>({...c, aff:c.kind==='acc'?(c.s.affiliation||''):(c.p.affiliation||poolAccount(c.p)?.affiliation||'')}))
     .sort((a,b)=>(b.sel-a.sel) || a.name.localeCompare(b.name));
   const nSel=cands.filter(c=>c.sel).length;
-  let view=startView || (nSel?'selected':'all'), q='', picked=new Set(view==='selected'?cands.filter(c=>c.sel).map(c=>c.k):[]);
+  let view=startView || (nSel?'selected':'all'), q='', aff='', picked=new Set(view==='selected'?cands.filter(c=>c.sel).map(c=>c.k):[]);
   const m=miniModal('semsup-add-modal', `${icon('i-userplus','ic-sm')}Semester supervisors`);
   m.querySelector('.modal-box').style.maxWidth='820px';
   m.querySelector('[data-mm-title]').textContent=`Add supervisors to ${semesterLabel(sem)}`;
   const body=m.querySelector('[data-mm-body]');
   const draw=()=>{
     const shown=cands.filter(c=>(view==='all'||(view==='selected'&&c.sel)||(view==='pool'&&c.kind==='pool')||(view==='acc'&&c.kind==='acc'))
-      && (adminDiscipline==='all' || !c.disc.length || c.disc.includes(adminDiscipline))
+      && (adminDiscipline==='all' || !c.disc.length || discCovered(c.disc).includes(adminDiscipline))
+      && affMatch(c.aff,aff)
       && (!q || lc(`${c.name} ${c.email}`).includes(q)));
     const pills=[['selected',`Selected by ADR (${nSel})`],['pool',`Supervisor pool (${poolC.length})`],['acc',`Other staff accounts (${accC.length})`],['all',`Everyone (${cands.length})`]];
     const nPick=picked.size;
     body.innerHTML=`<p class="modal-desc">Tick the people who should be able to select students in ${esc(semesterLabel(sem))}. People from the pool without a sign-in account get one, and an invitation email opens for you to send.</p>
       <div class="flex gap-8 items-center mb-8" style="flex-wrap:wrap"><div class="campus-pills">${pills.map(([k,l])=>`<button class="campus-pill ${view===k?'active':''}" data-add-view="${k}">${esc(l)}</button>`).join('')}</div><div class="spacer"></div>
-        <div class="search-wrap"><span class="search-icon">${icon('i-search')}</span><input type="text" class="search-input" data-add-q placeholder="Search name or email…" value="${esc(q)}" style="width:200px" autocomplete="off"/></div></div>
+        ${affFilterHTML('data-add-aff',aff,150)}<div class="search-wrap"><span class="search-icon">${icon('i-search')}</span><input type="text" class="search-input" data-add-q placeholder="Search name or email…" value="${esc(q)}" style="width:180px" autocomplete="off"/></div></div>
       <div class="pick-list">${shown.length?shown.map(c=>{
         const p=c.p, acc=c.kind==='pool'?poolAccount(p):c.s, role=c.kind==='pool'?(p.selRole||{})[sem]:'';
         const note=c.kind==='pool'&&p.adminNote?.text?`<div class="text-xs pick-note">${icon('i-edit','ic-sm')}${esc(p.adminNote.text)}</div>`:'';
@@ -4928,11 +4957,12 @@ async function openSemSupAdd(startView){
         const accTxt = c.kind==='acc' ? `Account · ${esc(TYPE_LBL[c.s.supervisorType||'both'])}` : acc ? (acc.disabled?'<span class="c-amber">Account disabled — will be enabled</span>':'Has an account') : 'No account yet — one will be created';
         return `<label class="pick-row ${picked.has(c.k)?'on':''}"><input type="checkbox" data-pick="${c.k}" ${picked.has(c.k)?'checked':''}/>
           <span class="pick-main"><span class="fw-600">${esc(c.name)}</span> <span class="text-xs text-muted">${esc(c.email)}</span><div class="text-xs text-muted">${accTxt}${c.kind==='pool'&&p.level?' · '+esc(LEVEL_SHORT[p.level]||p.level):''}</div>${note}</span>
-          <span class="pick-tags">${st}${c.disc.length?c.disc.map(d=>discBadge(d)).join(' '):'<span class="badge badge-amber">No discipline</span>'}</span></label>`;
+          <span class="pick-tags">${st}${affBadge(c.aff)}${c.disc.length?c.disc.map(d=>discBadge(d)).join(' '):'<span class="badge badge-amber">No discipline</span>'}</span></label>`;
       }).join(''):`<div class="text-sm text-muted" style="padding:18px;text-align:center">${cands.length?'Nobody matches.':`Everyone in the pool and every supervisor account is already on the list for ${esc(semesterLabel(sem))}.`}</div>`}</div>
       <div class="form-actions mt-16"><button class="btn btn-primary" data-add-go ${nPick?'':'disabled'}>${icon('i-userplus')}Add ${nPick||''} to ${esc(semesterLabel(sem))}</button>
         ${shown.length?`<button class="btn" data-add-all>Tick all shown</button>`:''}<button class="btn btn-ghost" data-mm-close>Cancel</button></div>`;
     body.querySelectorAll('[data-add-view]').forEach(b=>b.onclick=()=>{ view=b.dataset.addView; draw(); });
+    body.querySelector('[data-add-aff]').onchange=e=>{ aff=e.target.value; draw(); };
     const qi=body.querySelector('[data-add-q]'); qi.oninput=deb(()=>{ q=lc(qi.value); draw(); const n=body.querySelector('[data-add-q]'); n.focus(); n.setSelectionRange(n.value.length,n.value.length); },180);
     body.querySelectorAll('[data-pick]').forEach(c=>c.onchange=()=>{ c.checked?picked.add(c.dataset.pick):picked.delete(c.dataset.pick); draw(); });
     body.querySelector('[data-add-all]')?.addEventListener('click',()=>{ shown.forEach(c=>picked.add(c.k)); draw(); });
@@ -6567,7 +6597,7 @@ const safeFile=s=>String(s||'').normalize('NFKD').replace(/[^A-Za-z0-9]+/g,'').s
 /* ══════════════════════════════════════════════════════════
    STAFF — every account in `users`, whatever its role
 ══════════════════════════════════════════════════════════ */
-let ALL_USERS=[], staffFilter='', staffBound=false;
+let ALL_USERS=[], staffFilter='', staffAffF='', staffBound=false;
 const userRole=u=>u.role||'supervisor';
 async function loadAllUsers(){
   const snap=await getDocs(collection(db,'users'));
@@ -6592,7 +6622,7 @@ function staffRoleBadges(u){
   const r=userRole(u), t=u.supervisorType||'both';
   const typeLbl={co:'Co-supervisor',principal:'Principal',both:'Principal & co'};
   let h = r==='admin' ? `<span class="badge badge-blue">${icon('i-shield','ic-sm')}Administrator</span>`
-        : r==='supervisor' ? `<span class="badge badge-green">Supervisor · ${esc(typeLbl[t]||t)}</span> ${supDiscBadges(u)}`
+        : r==='supervisor' ? `<span class="badge badge-green">Supervisor · ${esc(typeLbl[t]||t)}</span> ${affBadge(u.affiliation)} ${supDiscBadges(u)}`
         : r==='officer' ? `<span class="badge badge-purple">Review-only officer</span>`
         : `<span class="badge badge-gray">${esc(r)}</span>`;
   (u.officeRoles||[]).forEach(k=>h+=` <span class="badge badge-gray" title="Registration review stage">${esc(STAGES[k]||k)}</span>`);
@@ -6610,6 +6640,7 @@ function renderStaff(){
     if(staffFilter==='supervisor' && userRole(u)!=='supervisor') return false;
     if(staffFilter==='review' && !isRev(u)) return false;
     if(staffFilter==='disabled' && !u.disabled) return false;
+    if(staffAffF && (userRole(u)!=='supervisor' || !affMatch(u.affiliation,staffAffF))) return false;
     if(term && !`${u.name} ${u.email} ${u.altEmail||''}`.toLowerCase().includes(term)) return false;
     return true;
   }).sort((a,b)=>{ const o={admin:0,officer:1,supervisor:2}; return (o[userRole(a)]??3)-(o[userRole(b)]??3) || String(a.name||'').localeCompare(String(b.name||'')); });
@@ -6626,6 +6657,7 @@ function renderStaff(){
       <div class="table-toolbar">
         <div class="campus-pills">${pills.map(([k,l,c])=>`<button class="campus-pill ${staffFilter===k?'active':''}" data-staff-filter="${k}">${esc(l)} (${c})</button>`).join('')}</div>
         <div class="spacer"></div>
+        ${affFilterHTML('data-staff-aff',staffAffF)}
         <button class="btn btn-sm" data-staff-refresh>${icon('i-refresh')}Refresh</button>
         <div class="search-wrap"><span class="search-icon">${icon('i-search')}</span><input type="text" class="search-input" data-staff-search placeholder="Search name or email…" value="${esc(term)}"/></div>
       </div>
@@ -6633,6 +6665,7 @@ function renderStaff(){
     </div>`;
   host.querySelectorAll('[data-staff-filter]').forEach(b=>b.onclick=()=>{ staffFilter=b.dataset.staffFilter; renderStaff(); });
   host.querySelector('[data-staff-refresh]').onclick=openStaffTab;
+  host.querySelector('[data-staff-aff]').onchange=e=>{ staffAffF=e.target.value; renderStaff(); };
   const s=host.querySelector('[data-staff-search]');
   s.oninput=deb(()=>{ renderStaff(); const i=el('staff-host').querySelector('[data-staff-search]'); i.focus(); i.setSelectionRange(i.value.length,i.value.length); },200);
 }
@@ -6838,6 +6871,7 @@ function svScoped(){
   if(!svCanBrowse()){ const me=PROFILE?.uid; l=l.filter(s=>s.principalSupervisorId===me || s.coSupervisorId===me); }
   if(svCampus!=='all') l=l.filter(s=>s.campus===svCampus);
   if(svDisc!=='all') l=l.filter(s=>s.discipline===svDisc);
+  else if(PROFILE?.role!=='admin' && supCovers(PROFILE)){ const me=PROFILE.uid; l=l.filter(s=>supTeaches(PROFILE,s.discipline) || s.principalSupervisorId===me || s.coSupervisorId===me); }
   return l;
 }
 const SV_FILTERS=[
@@ -6898,11 +6932,20 @@ function regDisciplines(t){
 /* ids → the text stored on a registration, e.g. "Business; Accounting" */
 const discText=ids=>DISCIPLINES.filter(d=>ids.includes(d.id)).map(d=>d.label).join('; ');
 const supDisc=sup=>Array.isArray(sup?.disciplines)&&sup.disciplines.length ? sup.disciplines : null;
-const supTeaches=(sup,disc)=>!disc || !supDisc(sup) || supDisc(sup).includes(disc);
+/* Which students a supervisor may take: Business and Accounting (School of
+   Business) go together; IT and Early Childhood Education stand alone. An admin
+   makes an exception by ticking another discipline on the supervisor's account
+   (Staff & access), or by assigning someone to one student under Allocations. */
+const DISC_GROUP={business:['business','accounting'], accounting:['business','accounting'], it:['it'], ece:['ece']};
+const discCovered=list=>{ const s=new Set((list||[]).flatMap(d=>DISC_GROUP[d]||[d])); return DISCIPLINES.map(d=>d.id).filter(id=>s.has(id)); };
+const supCovers=sup=>{ const d=supDisc(sup); return d?discCovered(d):null; };
+const supTeaches=(sup,disc)=>!disc || !supDisc(sup) || supCovers(sup).includes(disc);
 function discBadge(id,cls=''){ return id?`<span class="badge disc-${id} ${cls}">${esc(discLabel(id))}</span>`:''; }
 function supDiscBadges(sup){
   const d=supDisc(sup);
-  return d ? d.map(x=>discBadge(x)).join(' ') : `<span class="badge badge-amber" title="Set the discipline(s) this supervisor covers">Discipline not set</span>`;
+  if(!d) return `<span class="badge badge-amber" title="Set the discipline(s) this supervisor covers">Discipline not set</span>`;
+  const extra=supCovers(sup).filter(x=>!d.includes(x));
+  return d.map(x=>discBadge(x)).join(' ')+(extra.length?` <span class="text-xs text-muted" title="Business and Accounting supervisors can take students from both">+ ${esc(extra.map(discLabel).join(', '))}</span>`:'');
 }
 /* Checkbox pair used in the supervisor form and the account-from-registration form. */
 function discChecksHTML(prefix, value){
@@ -6966,9 +7009,9 @@ function initDiscBackfill(){
 let svDisc='all';
 function buildSVDiscPills(){
   const box=el('sv-disc-pills'); if(!box) return;
-  const mine=PROFILE?.role==='admin' ? null : supDisc(PROFILE);
+  const mine=PROFILE?.role==='admin' ? null : supCovers(PROFILE);
   if(mine && mine.length===1){ svDisc=mine[0]; box.innerHTML=`<span class="badge disc-${mine[0]}" style="font-size:12.5px;padding:4px 12px">${esc(discLong(mine[0]))}</span>`; return; }
-  const opts=[['all','All disciplines'],...DISCIPLINES.map(d=>[d.id,d.short])];
+  const opts=[['all',mine?'All my disciplines':'All disciplines'],...DISCIPLINES.filter(d=>!mine||mine.includes(d.id)).map(d=>[d.id,d.short])];
   if(!opts.some(o=>o[0]===svDisc)) svDisc='all';
   box.innerHTML=opts.map(([k,l])=>`<button class="campus-pill ${svDisc===k?'active':''}" data-svdisc="${k}">${esc(l)}</button>`).join('');
   box.querySelectorAll('[data-svdisc]').forEach(b=>b.onclick=()=>{ svDisc=b.dataset.svdisc; buildSVDiscPills(); svRefresh(); });
@@ -6989,7 +7032,8 @@ function buildSVDiscPills(){
 ══════════════════════════════════════════════════════════ */
 const POOL_COL='supervisorPool';
 let POOL=[], POOL_LOADED=false, POOL_CHECK=new Set();
-let poolSem=null, poolDisc=null, poolLevel='', poolCampus='', poolView='all', POOL_HOST=null, POOL_CTX={};
+let poolSem=null, poolDisc=null, poolLevel='', poolCampus='', poolAffF='', poolView='all', POOL_HOST=null, POOL_CTX={};
+const poolAff=p=>p.affiliation || poolAccount(p)?.affiliation || '';
 const poolName=p=>p.name||[p.title,p.firstName,p.lastName].filter(Boolean).join(' ')||p.email||'—';
 const lc=s=>String(s||'').trim().toLowerCase();
 const poolAccount=p=>p.uid ? ALL_USERS.find(u=>u.id===p.uid) || SUPS.find(u=>u.id===p.uid) : null;
@@ -7046,7 +7090,7 @@ async function syncPoolWithAccounts(){
   missing.forEach(s=>b.set(doc(db,POOL_COL,s.id),{
     name:s.name||'', email:s.email||'', emailLower:lc(s.email), phone:'', disciplines:supDisc(s)||[], level:{principal:REG_OPTS.level[0],co:REG_OPTS.level[1],both:REG_OPTS.level[3]}[s.supervisorType||'both'],
     supervisorType:s.supervisorType||'both', campusIds:s.campus?[s.campus]:[], campusNames:s.campus?[campusLabel(CAMPUSES.find(c=>c.id===s.campus)||{name:s.campus})]:[],
-    source:'account', uid:s.id, active:!s.disabled, selected:[], invited:[], addedAt:serverTimestamp(), addedBy:ME.uid }));
+    affiliation:s.affiliation||'', source:'account', uid:s.id, active:!s.disabled, selected:[], invited:[], addedAt:serverTimestamp(), addedBy:ME.uid }));
   unlinked.forEach(([p,s])=>{ b.update(doc(db,POOL_COL,p.id),{uid:s.id}); if(s.poolRemoved) b.update(doc(db,'users',s.id),{poolRemoved:false}); });
   await b.commit(); await loadPool();
   return missing.length;
@@ -7058,11 +7102,23 @@ async function backfillPoolDocs(){
   if(!isAdminUser() || poolDocsBackfilled) return 0;
   poolDocsBackfilled=true;
   if(!REGS.length) await loadRegs();
-  const todo=POOL.map(p=>{ const r=p.registrationId&&REGS.find(x=>x.id===p.registrationId); if(!r) return null;
-    const patch={}; if(!p.docCv && r.docCv) patch.docCv=r.docCv; if(!p.docFolder && r.docFolder) patch.docFolder=r.docFolder;
+  const todo=POOL.map(p=>{ const patch={};
+    // The registration form is for external supervisors.
+    if(p.source==='registration' && p.affiliation===undefined) patch.affiliation='external';
+    const r=p.registrationId&&REGS.find(x=>x.id===p.registrationId);
+    if(r){ if(!p.docCv && r.docCv) patch.docCv=r.docCv; if(!p.docFolder && r.docFolder) patch.docFolder=r.docFolder; }
     return Object.keys(patch).length?[p,patch]:null; }).filter(Boolean);
   for(let i=0;i<todo.length;i+=400){ const b=writeBatch(db); todo.slice(i,i+400).forEach(([p,patch])=>{ b.update(doc(db,POOL_COL,p.id),patch); Object.assign(p,patch); }); await b.commit(); }
   return todo.length;
+}
+/* Admin: an account's affiliation changed — keep its pool entry in step. */
+async function syncPoolAffiliation(uid, affiliation){
+  try{
+    if(!POOL_LOADED) await loadPool();
+    const u=ALL_USERS.find(x=>x.id===uid)||SUPS.find(x=>x.id===uid);
+    const list=POOL.filter(p=>p.uid===uid || (u?.email && lc(p.email)===lc(u.email)));
+    for(const p of list){ await updateDoc(doc(db,POOL_COL,p.id),{affiliation}); p.affiliation=affiliation; }
+  }catch(e){ console.warn('pool affiliation sync',e); }
 }
 /* Called when the ADR / an admin approves a registration. */
 async function addRegToPool(r, decision, reviews){
@@ -7076,7 +7132,7 @@ async function addRegToPool(r, decision, reviews){
     researchAreas:r.researchAreas||'', profileLink:r.profileLink||'', hdrCompleted:r.hdrCompleted||'', hdrCurrent:r.hdrCurrent||'', mode:r.mode||'',
     docCv:r.docCv||'', docFolder:r.docFolder||'',
     outcome:decision?.outcome||r.decision?.outcome||'', conditions:decision?.comments||r.decision?.comments||'',
-    source:'registration', registrationId:id, active:true, selected:[], invited:[], addedAt:serverTimestamp(), addedBy:ME.uid
+    affiliation:'external', source:'registration', registrationId:id, active:true, selected:[], invited:[], addedAt:serverTimestamp(), addedBy:ME.uid
   });
   logAct('pool.add', regName(r), 'From approved registration', id);
 }
@@ -7103,9 +7159,10 @@ async function openPool(hostId, ctx){
 function poolFiltered(ignoreView){
   const term=lc(el(POOL_HOST)?.querySelector('[data-pool-search]')?.value);
   return POOL.filter(p=>{
-    if(poolDisc && !((p.disciplines||[]).length===0 || p.disciplines.includes(poolDisc))) return false;
+    if(poolDisc && !((p.disciplines||[]).length===0 || discCovered(p.disciplines).includes(poolDisc))) return false;
     if(poolLevel && !levelMatch(p.level,poolLevel)) return false;
     if(poolCampus && !(p.campusIds||[]).includes(poolCampus)) return false;
+    if(poolAffF && !affMatch(poolAff(p),poolAffF)) return false;
     if(!ignoreView){
       const st=poolSemState(p,poolSem);
       if(poolView==='active' && p.active===false) return false;
@@ -7179,6 +7236,7 @@ function renderPool(){
       <div class="table-toolbar">
         <select data-pool-disc style="width:auto;min-width:150px;height:34px"><option value="">All disciplines</option>${DISCIPLINES.map(d=>`<option value="${d.id}" ${poolDisc===d.id?'selected':''}>${esc(d.short)}</option>`).join('')}</select>
         <select data-pool-level style="width:auto;min-width:200px;height:34px">${LEVEL_FILTERS.map(([v,l])=>`<option value="${v}" ${poolLevel===v?'selected':''}>${esc(l)}</option>`).join('')}</select>
+        ${affFilterHTML('data-pool-aff',poolAffF)}
         <select data-pool-campus style="width:auto;min-width:170px;height:34px"><option value="">All campuses</option>${CAMPUSES.map(c=>`<option value="${c.id}" ${poolCampus===c.id?'selected':''}>${esc(campusLabel(c))}</option>`).join('')}</select>
       </div>
       <div class="table-toolbar pool-bulk hidden" data-pool-bulkbar>
@@ -7198,6 +7256,7 @@ function renderPool(){
   q('[data-pool-disc]').onchange=e=>{ poolDisc=e.target.value; renderPool(); };
   q('[data-pool-level]').onchange=e=>{ poolLevel=e.target.value; renderPool(); };
   q('[data-pool-campus]').onchange=e=>{ poolCampus=e.target.value; renderPool(); };
+  q('[data-pool-aff]').onchange=e=>{ poolAffF=e.target.value; renderPool(); };
   q('[data-pool-export]').onclick=()=>exportPool(q('[data-pool-export-disc]').value);
   host.querySelectorAll('[data-pool-bulk]').forEach(b=>b.onclick=()=>poolBulk(b.dataset.poolBulk));
   q('[data-pool-bulk-selas]')?.addEventListener('change',e=>{ const r=e.target.value; e.target.value=''; if(r) poolBulk('select',r); });
@@ -7229,7 +7288,7 @@ function renderPoolRows(){
     actions.push(`<button class="btn btn-sm btn-ghost" data-pool-act="view" data-id="${p.id}" title="Details">${icon('i-eye')}Details</button>`);
     return `<tr class="${st==='selected'?'row-sel':st==='invited'?'row-inv':''}" style="${p.active===false?'opacity:.55':''}">
       <td><input type="checkbox" data-pool-check="${p.id}" ${POOL_CHECK.has(p.id)?'checked':''} style="width:auto"/></td>
-      <td style="min-width:240px"><div class="fw-600">${esc(poolName(p))}</div><div class="text-xs text-muted">${esc(p.email||'no email')}${p.institution?' · '+esc(p.institution):''}</div>${(()=>{ const cv=safeUrl(poolCv(p)), fo=!cv&&safeUrl(p.docFolder), pr=safeUrl(p.profileLink); return cv||fo||pr?`<div class="text-xs pool-links">${cv?`<a href="${esc(cv)}" target="_blank" rel="noopener noreferrer">${icon('i-file','ic-sm')}CV</a>`:''}${fo?`<a href="${esc(fo)}" target="_blank" rel="noopener noreferrer">${icon('i-file','ic-sm')}Documents</a>`:''}${pr?`<a href="${esc(pr)}" target="_blank" rel="noopener noreferrer">${icon('i-ext','ic-sm')}Profile</a>`:''}</div>`:''; })()}
+      <td style="min-width:240px"><div class="fw-600">${esc(poolName(p))} ${affBadge(poolAff(p))}</div><div class="text-xs text-muted">${esc(p.email||'no email')}${p.institution?' · '+esc(p.institution):''}</div>${(()=>{ const cv=safeUrl(poolCv(p)), fo=!cv&&safeUrl(p.docFolder), pr=safeUrl(p.profileLink); return cv||fo||pr?`<div class="text-xs pool-links">${cv?`<a href="${esc(cv)}" target="_blank" rel="noopener noreferrer">${icon('i-file','ic-sm')}CV</a>`:''}${fo?`<a href="${esc(fo)}" target="_blank" rel="noopener noreferrer">${icon('i-file','ic-sm')}Documents</a>`:''}${pr?`<a href="${esc(pr)}" target="_blank" rel="noopener noreferrer">${icon('i-ext','ic-sm')}Profile</a>`:''}</div>`:''; })()}
         <div class="text-xs text-muted">${esc(srcLbl[p.source]||p.source||'')}${p.outcome==='Conditionally Approved'?' · <span class="c-amber">Conditional</span>':''}${acc?(acc.disabled?' · account disabled':(p.source==='account'?'':' · has an account')):' · no account yet'}</div>${poolNoteHTML(p)}</td>
       <td>${disc}<div class="text-xs text-muted" style="margin-top:3px">Applied as ${esc(LEVEL_SHORT[p.level]||p.level||'—')}</div>${poolRecHTML(p)}</td>
       <td class="text-sm">${esc((p.campusNames||[]).join(', ')||'—')}</td>
@@ -7328,11 +7387,12 @@ async function invitePoolInner(list, admin){
         if(Array.isArray(acc.semesters) && !acc.semesters.includes(poolSem)) patch.semesters=arrayUnion(poolSem);
         if(role && role!==(acc.supervisorType||'both')) patch.supervisorType=role;
         if(admin && !supDisc(acc) && (p.disciplines||[]).length) patch.disciplines=p.disciplines;
+        if(admin && !acc.affiliation && p.affiliation) patch.affiliation=p.affiliation;
         if(acc.poolId!==p.id) patch.poolId=p.id;
         if(Object.keys(patch).length) await updateDoc(doc(db,'users',acc.id),patch);
       } else {
         const campus=(p.campusIds||[]).find(id=>CAMPUSES.some(c=>c.id===id))||'';
-        const profile={name:poolName(p), email:p.email, altEmail:'', campus, supervisorType:role||p.supervisorType||LEVEL_TYPE[p.level]||'both', role:'supervisor', semesters:[poolSem], disciplines:p.disciplines||[], poolId:p.id, ...(p.registrationId?{registrationId:p.registrationId}:{})};
+        const profile={name:poolName(p), email:p.email, altEmail:'', campus, supervisorType:role||p.supervisorType||LEVEL_TYPE[p.level]||'both', role:'supervisor', semesters:[poolSem], disciplines:p.disciplines||[], poolId:p.id, affiliation:p.affiliation||'', ...(p.registrationId?{registrationId:p.registrationId}:{})};
         const pApp=provisionApp(), pAuth=getAuth(pApp);
         let cred;
         try{ cred=await createUserWithEmailAndPassword(pAuth,p.email,randomPassword()); }
@@ -7395,7 +7455,7 @@ function openPoolModal(p, editing){
   if(!editing && !isNew){
     const acc=poolAccount(p), semNames=ids=>(ids||[]).map(semesterLabel).join(', ')||'—';
     body.innerHTML=`<div class="kv" style="margin-top:8px">
-      ${kvHTML('Email',p.email)}${kvHTML('Phone',p.phone)}${kvHTML('Discipline',(p.disciplines||[]).map(discLong).join(', ')||'Not set')}${kvHTML('Supervision level',p.level)}
+      ${kvHTML('Affiliation',affLabel(poolAff(p))||'Not set')}${kvHTML('Email',p.email)}${kvHTML('Phone',p.phone)}${kvHTML('Discipline',(p.disciplines||[]).map(discLong).join(', ')||'Not set')}${kvHTML('Supervision level',p.level)}
       ${kvHTML('Preferred campus',(p.campusNames||[]).join(', '))}${kvHTML('Institution',p.institution)}${kvHTML('Position',p.position)}${kvHTML('Sign-in account',acc?(acc.disabled?'Disabled':'Yes'):'Not yet — created when added to a semester')}
       ${kvHTML('Research areas',p.researchAreas,'wide')}${kvHTML('CV',poolCv(p),'wide')}${p.docFolder?kvHTML('Documents folder',p.docFolder,'wide'):''}${kvHTML('ORCID / Google Scholar',p.profileLink,'wide')}
       ${kvHTML('HDR supervised to completion',p.hdrCompleted)}${kvHTML('HDR currently supervising',p.hdrCurrent)}
@@ -7409,10 +7469,16 @@ function openPoolModal(p, editing){
         ${C.canEdit?`<button class="btn btn-sm" data-pm="edit">${icon('i-edit')}Edit</button><button class="btn btn-sm" data-pm="toggle">${p.active===false?'Reactivate':'Mark inactive'}</button><button class="btn btn-sm btn-danger" data-pm="remove">${icon('i-trash')}Remove from pool</button>`:''}
       </div>`;
   } else {
+    // Entries copied from older accounts have only a full name: split it for the form.
+    const nm=(()=>{ if(p.firstName||p.lastName) return {title:p.title||'',first:p.firstName||'',last:p.lastName||''};
+      const parts=String(p.name||'').trim().split(/\s+/).filter(Boolean); let title='';
+      const t=parts[0]&&REG_OPTS.title.find(x=>lc(x).replace('.','')===lc(parts[0]).replace('.',''));
+      if(t && parts.length>1){ title=t; parts.shift(); }
+      return {title, last:parts.length>1?parts.pop():'', first:parts.join(' ')}; })();
     body.innerHTML=`<p class="modal-desc">${isNew?'For someone approved to supervise outside this system. They get a sign-in account only when added to a semester.':'Changes here do not change an existing sign-in account; edit that under Settings → Staff & access.'}</p>
-      <div class="g3"><div class="form-group"><label>Title</label><select data-pf="title"><option value="">—</option>${optsHTML(REG_OPTS.title,p.title||'')}</select></div>
-        <div class="form-group"><label>First name <span class="req">*</span></label><input type="text" data-pf="firstName" value="${esc(p.firstName||'')}"/></div>
-        <div class="form-group"><label>Last name <span class="req">*</span></label><input type="text" data-pf="lastName" value="${esc(p.lastName||'')}"/></div></div>
+      <div class="g3"><div class="form-group"><label>Title</label><select data-pf="title"><option value="">—</option>${optsHTML(REG_OPTS.title,nm.title||'')}</select></div>
+        <div class="form-group"><label>First name <span class="req">*</span></label><input type="text" data-pf="firstName" value="${esc(nm.first)}"/></div>
+        <div class="form-group"><label>Last name <span class="req">*</span></label><input type="text" data-pf="lastName" value="${esc(nm.last)}"/></div></div>
       <div class="g2"><div class="form-group"><label>Email <span class="req">*</span></label><input type="email" data-pf="email" value="${esc(p.email||'')}"/></div>
         <div class="form-group"><label>Phone</label><input type="text" data-pf="phone" value="${esc(p.phone||'')}"/></div></div>
       <div class="form-group"><label>Discipline(s) <span class="req">*</span></label><div>${discChecksHTML('pf-disc',p.disciplines||[])}</div></div>
@@ -7421,6 +7487,7 @@ function openPoolModal(p, editing){
       <div class="form-group"><label>Preferred campus</label><div class="sem-box"><div class="sem-list" style="border:none;margin:0;padding:0">${CAMPUSES.map(c=>`<label class="check-row"><input type="checkbox" data-pf-campus="${c.id}" ${(p.campusIds||[]).includes(c.id)?'checked':''}/> <span>${esc(campusLabel(c))}</span></label>`).join('')}</div></div></div>
       <div class="g2"><div class="form-group"><label>Position</label><input type="text" data-pf="position" value="${esc(p.position||'')}"/></div>
         <div class="form-group"><label>Research areas</label><input type="text" data-pf="researchAreas" value="${esc(p.researchAreas||'')}"/></div></div>
+      <div class="form-group"><label>Affiliation <span class="opt">(Internal = CIHE Australia full-time or sessional staff; External = not affiliated)</span></label><select data-pf="affiliation">${affOptionsHTML(p.affiliation||poolAccount(p)?.affiliation||'')}</select></div>
       <div class="form-group"><label>CV link <span class="opt">(optional — Google Drive, OneDrive, etc.)</span></label><input type="url" data-pf="docCv" placeholder="https://drive.google.com/…" value="${esc(p.docCv||'')}"/>${p.docFolder?`<div class="text-xs text-muted" style="margin-top:4px">Documents folder from their registration: <a href="${esc(safeUrl(p.docFolder)||'#')}" target="_blank" rel="noopener noreferrer">${esc(p.docFolder)}</a></div>`:''}</div>
       <div class="form-group"><label>ORCID iD / Google Scholar profile link <span class="opt">(optional)</span></label><input type="text" data-pf="profileLink" placeholder="https://orcid.org/0000-0000-0000-0000 or https://scholar.google.com/…" value="${esc(p.profileLink||'')}"/></div>
       <div class="g2"><div class="form-group"><label>HDR students supervised to completion <span class="opt">(optional)</span></label>${hdrSelectHTML('hdrCompleted',REG_OPTS.hdrCompleted,p.hdrCompleted||'')}</div>
@@ -7443,7 +7510,7 @@ async function poolModalAct(kind,p,isNew,btn){
       return confirmPoolRemove([p]);
     } else if(kind==='save'){
       const f=k=>m.querySelector(`[data-pf="${k}"]`)?.value.trim()||'';
-      const d={title:f('title'),firstName:f('firstName'),lastName:f('lastName'),email:f('email'),phone:f('phone'),level:f('level'),institution:f('institution'),position:f('position'),researchAreas:f('researchAreas'),notes:f('notes'),profileLink:f('profileLink').slice(0,300),hdrCompleted:f('hdrCompleted'),hdrCurrent:f('hdrCurrent'),docCv:f('docCv').slice(0,500)};
+      const d={title:f('title'),firstName:f('firstName'),lastName:f('lastName'),email:f('email'),phone:f('phone'),level:f('level'),institution:f('institution'),position:f('position'),researchAreas:f('researchAreas'),notes:f('notes'),profileLink:f('profileLink').slice(0,300),hdrCompleted:f('hdrCompleted'),hdrCurrent:f('hdrCurrent'),docCv:f('docCv').slice(0,500),affiliation:f('affiliation')};
       d.disciplines=readDiscChecks('pf-disc');
       d.campusIds=[...m.querySelectorAll('[data-pf-campus]:checked')].map(c=>c.dataset.pfCampus);
       d.campusNames=d.campusIds.map(id=>campusLabel(CAMPUSES.find(c=>c.id===id)));
@@ -7455,7 +7522,11 @@ async function poolModalAct(kind,p,isNew,btn){
       d.name=[d.title,d.firstName,d.lastName].filter(Boolean).join(' '); d.emailLower=lc(d.email); d.supervisorType=LEVEL_TYPE[d.level]||'both';
       btn.disabled=true;
       if(isNew){ const r=await addDoc(collection(db,POOL_COL),{...d,source:'manual',active:true,selected:[],invited:[],addedAt:serverTimestamp(),addedBy:ME.uid}); logAct('pool.add', d.name, 'Added by an administrator', r.id); }
-      else { await updateDoc(doc(db,POOL_COL,p.id),{...d,updatedAt:serverTimestamp()}); logAct('pool.edit', d.name, d.email, p.id); }
+      else {
+        await updateDoc(doc(db,POOL_COL,p.id),{...d,updatedAt:serverTimestamp()}); logAct('pool.edit', d.name, d.email, p.id);
+        const acc=poolAccount(p); // keep the sign-in account's affiliation in step
+        if(acc && isAdminUser() && (acc.affiliation||'')!==d.affiliation){ await updateDoc(doc(db,'users',acc.id),{affiliation:d.affiliation}); [...ALL_USERS,...SUPS].forEach(u=>{ if(u.id===acc.id) u.affiliation=d.affiliation; }); }
+      }
     }
     m.classList.add('hidden'); await loadPool(); renderPool(); toast('Saved','success');
   }catch(e){ toast('Error: '+e.message,'error'); if(btn) btn.disabled=false; }
@@ -7533,9 +7604,9 @@ function confirmPoolRemove(list){
 
 /* ── Export ── */
 function poolRows(list){
-  const rows=[['Title','First Name','Last Name','Full Name','Email','Phone','Discipline','Supervision Level','Supervisor Type','Preferred Campus','Institution','Position','Research Areas','CV Link','Documents Folder','ORCID / Google Scholar','HDR Completed','HDR Current','Supervision Mode','Source','Registration Ref','Registration Outcome','Conditions','Approved / Recommended Role','Reviewer Comments','Admin Recommends','Admin Note for ADR','Has Account','Selected For','On the List For','Status','Notes'].map(csvCell)];
+  const rows=[['Title','First Name','Last Name','Full Name','Email','Phone','Affiliation','Discipline','Supervision Level','Supervisor Type','Preferred Campus','Institution','Position','Research Areas','CV Link','Documents Folder','ORCID / Google Scholar','HDR Completed','HDR Current','Supervision Mode','Source','Registration Ref','Registration Outcome','Conditions','Approved / Recommended Role','Reviewer Comments','Admin Recommends','Admin Note for ADR','Has Account','Selected For','On the List For','Status','Notes'].map(csvCell)];
   [...list].sort((a,b)=>String(a.lastName||poolName(a)).localeCompare(String(b.lastName||poolName(b)))).forEach(p=>rows.push([
-    p.title,p.firstName,p.lastName,poolName(p),p.email,p.phone,(p.disciplines||[]).map(discLabel).join(' & ')||'Not set',p.level,({principal:'Principal',co:'Co-supervisor',both:'Principal & co'})[p.supervisorType]||'',
+    p.title,p.firstName,p.lastName,poolName(p),p.email,p.phone,affLabel(poolAff(p)),(p.disciplines||[]).map(discLabel).join(' & ')||'Not set',p.level,({principal:'Principal',co:'Co-supervisor',both:'Principal & co'})[p.supervisorType]||'',
     (p.campusNames||[]).join('; '),p.institution,p.position,p.researchAreas,poolCv(p),p.docFolder,p.profileLink,p.hdrCompleted,p.hdrCurrent,p.mode,p.source,p.registrationId,p.outcome,p.conditions,
     roleOpt((hasRev(p.review?.adr)?p.review.adr:p.review?.office)?.role)?.[2]||'',
     ['office','adr'].filter(k=>hasRev(p.review?.[k])).map(k=>`${REV_SHORT[k]}: ${revSummary(p.review[k])}${p.review[k].comment?' — '+p.review[k].comment:''}`).join(' | '),
@@ -7575,9 +7646,9 @@ function initPoolTools(){
   el('pool-csv').onchange=e=>{ previewPoolImport(e.target.files[0]); e.target.value=''; };
   el('pool-add-btn').onclick=()=>openPoolModal(null,true);
   el('pool-template-btn').onclick=()=>downloadCSV([
-    ['Title','First Name','Last Name','Email','Phone','Discipline','Supervision Level','Campus','Institution','Position','Research Areas','CV Link','ORCID / Google Scholar','HDR Completed','HDR Current','Notes'].map(csvCell),
-    ['Dr.','Jane','Citizen','jane.citizen@example.edu.au','+61 400 000 000','IT; Accounting','Both','Sydney Campus; Canberra Campus','Example University','Senior Lecturer','Cyber security; machine learning','https://drive.google.com/file/d/EXAMPLE/view','https://orcid.org/0000-0002-1825-0097','3–5','1–2','Approved by RSC 2025'].map(csvCell),
-    ['Prof','Sam','Lee','sam.lee@example.edu.au','','Business','Principal','Sydney Campus','Example University','Professor','Accounting; corporate governance','','','','',''].map(csvCell)],'supervisor-pool-template.csv');
+    ['Title','First Name','Last Name','Email','Phone','Discipline','Supervision Level','Campus','Institution','Position','Research Areas','Affiliation','CV Link','ORCID / Google Scholar','HDR Completed','HDR Current','Notes'].map(csvCell),
+    ['Dr.','Jane','Citizen','jane.citizen@example.edu.au','+61 400 000 000','IT; Accounting','Both','Sydney Campus; Canberra Campus','Example University','Senior Lecturer','Cyber security; machine learning','Internal sessional','https://drive.google.com/file/d/EXAMPLE/view','https://orcid.org/0000-0002-1825-0097','3–5','1–2','Approved by RSC 2025'].map(csvCell),
+    ['Prof','Sam','Lee','sam.lee@example.edu.au','','Business','Principal','Sydney Campus','Example University','Professor','Accounting; corporate governance','External','','','','',''].map(csvCell)],'supervisor-pool-template.csv');
 }
 async function previewPoolImport(file){
   if(!file) return;
@@ -7599,6 +7670,7 @@ async function previewPoolImport(file){
     out.push({title,firstName:first,lastName:last,name,email,emailLower:lc(email),phone:g(r,'Phone','Mobile','Phone Number'),disciplines:normDiscList(g(r,'Discipline','Disciplines','School','Program')),
       level,supervisorType:LEVEL_TYPE[level]||'both',campusIds:cm.ids,campusNames:cm.names,institution:g(r,'Institution','Organisation','Organization','University'),
       position:g(r,'Position','Position Title','Title / Position'),researchAreas:g(r,'Research Areas','Research Area','Expertise'),notes:g(r,'Notes','Comments'),
+      affiliation:normAff(g(r,'Affiliation','Internal / External','Internal/External','Employment','Employment Type','Staff Type','CIHE Staff')),
       docCv:(u=>safeUrl(u)?u.slice(0,500):'')(g(r,'CV Link','CV','CV URL','Curriculum Vitae','Resume','Résumé')),
       profileLink:g(r,'ORCID / Google Scholar','ORCID','Google Scholar','ORCID iD','Profile Link','Research Profile','Research Profile Link','Scholar Profile').slice(0,300),
       hdrCompleted:normHdr(g(r,'HDR Completed','HDR Completions','HDR Supervised to Completion','HDR Students Supervised to Completion','Completed HDR','HDR Completion'),REG_OPTS.hdrCompleted),
@@ -7610,7 +7682,7 @@ async function previewPoolImport(file){
       <button class="btn btn-sm btn-primary" id="pool-import-go" style="margin-left:8px">Import ${out.length}</button><button class="btn btn-sm" id="pool-import-cancel" style="margin-left:6px">Cancel</button></div>`:`<div class="alert alert-warning">Nothing to import.</div>`}
     ${noDisc?`<div class="alert alert-warning">${noDisc} row(s) have no recognisable discipline. Import them and set it with Edit, or add a Discipline column (Business / IT / Both).</div>`:''}
     ${skipped.length?`<details class="text-sm mb-8"><summary>Skipped rows</summary><ul style="margin:6px 0 0 18px">${skipped.map(s=>`<li>${esc(s)}</li>`).join('')}</ul></details>`:''}
-    ${out.length?`<div class="tw"><table><thead><tr><th>Name</th><th>Email</th><th>Discipline</th><th>Level</th><th>Campus</th><th>CV</th><th>Profile</th><th>HDR done / now</th></tr></thead><tbody>${out.slice(0,10).map(p=>`<tr><td>${esc(p.name)}</td><td class="text-xs">${esc(p.email)}</td><td>${p.disciplines.map(d=>discBadge(d)).join(' ')||'<span class="badge badge-amber">Not set</span>'}</td><td class="text-xs">${esc(LEVEL_SHORT[p.level]||'—')}</td><td class="text-xs">${esc(p.campusNames.join(', ')||'—')}</td><td class="text-xs">${p.docCv?'✓':'—'}</td><td class="text-xs">${p.profileLink?'✓':'—'}</td><td class="text-xs">${esc(p.hdrCompleted||'—')} / ${esc(p.hdrCurrent||'—')}</td></tr>`).join('')}${out.length>10?`<tr><td colspan="8" class="text-xs text-muted" style="text-align:center">…and ${out.length-10} more</td></tr>`:''}</tbody></table></div>`:''}`;
+    ${out.length?`<div class="tw"><table><thead><tr><th>Name</th><th>Email</th><th>Discipline</th><th>Level</th><th>Campus</th><th>Affiliation</th><th>CV</th><th>Profile</th><th>HDR done / now</th></tr></thead><tbody>${out.slice(0,10).map(p=>`<tr><td>${esc(p.name)}</td><td class="text-xs">${esc(p.email)}</td><td>${p.disciplines.map(d=>discBadge(d)).join(' ')||'<span class="badge badge-amber">Not set</span>'}</td><td class="text-xs">${esc(LEVEL_SHORT[p.level]||'—')}</td><td class="text-xs">${esc(p.campusNames.join(', ')||'—')}</td><td class="text-xs">${affBadge(p.affiliation)||'—'}</td><td class="text-xs">${p.docCv?'✓':'—'}</td><td class="text-xs">${p.profileLink?'✓':'—'}</td><td class="text-xs">${esc(p.hdrCompleted||'—')} / ${esc(p.hdrCurrent||'—')}</td></tr>`).join('')}${out.length>10?`<tr><td colspan="9" class="text-xs text-muted" style="text-align:center">…and ${out.length-10} more</td></tr>`:''}</tbody></table></div>`:''}`;
   el('pool-import-cancel')?.addEventListener('click',()=>pv.classList.add('hidden'));
   el('pool-import-go')?.addEventListener('click',async()=>{
     try{
