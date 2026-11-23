@@ -1739,7 +1739,7 @@ button.sup-chip:hover{border-color:currentColor}
 
           <div class="card">
             <div class="card-header"><h3><svg class="ic"><use href="#i-shield"/></svg>Promote a user by UID</h3></div>
-            <p class="card-sub">For accounts listed under <strong>Staff</strong>, use <em>Make admin</em> there. Use this only for a sign-in that has no profile yet: paste its Firebase UID.</p>
+            <p class="card-sub">For accounts listed under <strong>Staff &amp; access</strong>, use <em>Change role</em> there. Use this only for a sign-in that has no profile yet: paste its Firebase UID.</p>
             <div class="form-group"><label>Firebase user UID</label><input type="text" id="promote-uid" placeholder="Paste UID from Firebase Console…"/></div>
             <div class="g2">
               <div class="form-group"><label>Display name</label><input type="text" id="promote-name" placeholder="Dr. Admin Name"/></div>
@@ -2166,6 +2166,8 @@ const ACT = {
   'staff.add':         {v:'created an administrator account for', c:'system', i:'i-userplus'},
   'staff.enable':      {v:'enabled the account of',             c:'system', i:'i-check'},
   'staff.disable':     {v:'disabled the account of',            c:'system', i:'i-x', t:'danger'},
+  'staff.role':        {v:'changed the role of',                c:'system', i:'i-shield'},
+  'staff.delete':      {v:'deleted the account of',             c:'system', i:'i-trash', t:'danger'},
   'pool.add':          {v:'added to the supervisor pool:',       c:'reg', i:'i-userplus'},
   'pool.import':       {v:'imported into the supervisor pool',   c:'reg', i:'i-upload'},
   'pool.edit':         {v:'edited in the supervisor pool:',      c:'reg', i:'i-edit'},
@@ -7457,12 +7459,11 @@ function staffRowHTML(u){
   }
   if(r==='supervisor' || r==='officer' || r==='admin') a.push(`<button class="btn btn-sm" onclick="staffStages('${u.id}')" title="Registration review stages">${icon('i-clip')}Review stages</button>`);
   if(!me){
-    if(r==='admin') a.push(`<button class="btn btn-sm" onclick="staffRemoveAdmin('${u.id}')">Remove admin</button>`);
-    else a.push(`<button class="btn btn-sm btn-soft" onclick="staffMakeAdmin('${u.id}')">${icon('i-shield')}Make admin</button>`);
+    a.push(`<button class="btn btn-sm btn-soft" onclick="staffRole('${u.id}')" title="Make this person an administrator, a supervisor or a review-only officer">${icon('i-shield')}Change role</button>`);
     if(r!=='admin') a.push(`<button class="btn btn-sm" onclick="staffToggle('${u.id}',${u.disabled?'false':'true'})">${u.disabled?'Enable':'Disable'}</button>`);
   }
   a.push(`<button class="btn btn-sm btn-ghost" onclick="showHistory('${u.id}','${nm}')" title="Change history">${icon('i-history')}</button>`);
-  if(r==='supervisor' && !me) a.push(`<button class="btn btn-sm btn-danger" onclick="delSup('${u.id}')" title="Delete this account">${icon('i-trash')}</button>`);
+  if(!me) a.push(`<button class="btn btn-sm btn-danger" onclick="staffDelete('${u.id}')" title="Delete this account">${icon('i-trash')}</button>`);
   const semInfo = r==='supervisor' ? `<div class="text-xs text-muted" style="margin-top:3px">${esc(semListLabel(u))}</div>` : '';
   const links = r==='supervisor' ? xlinksHTML({acc:u, pool:poolEntryFor(u), here:'staff'}) : '';
   return `<tr style="${u.disabled?'opacity:.6':''}">
@@ -7485,6 +7486,106 @@ window.staffStages=async id=>{
   gotoAdminTab('tab-registrations');
   for(let i=0;i<40 && !OFFICERS.length && !el('of-user')?.options.length;i++) await new Promise(r=>setTimeout(r,50));
   setTimeout(()=>editOfficer(id),300);
+};
+
+/* ── Change role: administrator ⇄ supervisor ⇄ review-only officer ──
+   Keeps the person's account, sign-in and history; only what they can do changes. */
+const ROLE_NAME={admin:'Administrator',supervisor:'Supervisor',officer:'Review-only officer'};
+window.staffRole=id=>{
+  const u=staffUser(id); if(!u) return;
+  if(id===PROFILE?.uid){ toast('You cannot change your own role — ask another administrator','error'); return; }
+  const cur=userRole(u), nm=u.name||u.email;
+  const load=STUDENTS.filter(s=>s.principalSupervisorId===id||s.coSupervisorId===id).length;
+  const m=miniModal('role-modal', `${icon('i-shield','ic-sm')}Change role`);
+  m.querySelector('.modal-box').style.maxWidth='680px';
+  m.querySelector('[data-mm-title]').textContent=nm;
+  const body=m.querySelector('[data-mm-body]');
+  const opt=(k,d)=>`<label class="doc-opt"><input type="radio" name="rl-role" value="${k}" ${k===cur?'checked':''}/> <span><strong>${ROLE_NAME[k]}</strong>${k===cur?' <span class="badge badge-gray">current</span>':''}<br><span class="text-sm text-muted">${d}</span></span></label>`;
+  const stages=u.officeRoles||[];
+  const semOn=Array.isArray(u.semesters)?u.semesters.includes(adminSemester):false;
+  body.innerHTML=`<p class="modal-desc">Their account, sign-in, password and history stay as they are — only what they can do changes. ${esc(u.email||'')}</p>
+    <div class="acc-opts">
+      ${opt('admin','Can do everything in Assign Supervisor, including every registration review stage.')}
+      ${opt('supervisor','Selects students in the semesters they are listed for. Cannot change settings or other accounts.')}
+      ${opt('officer','Only reviews supervisor registrations, at the stages ticked below. Cannot select students or change settings.')}
+    </div>
+    <div data-rl="supervisor" class="hidden">
+      <div class="g3">
+        <div class="form-group"><label>Supervisor type</label><select data-rl-type>${[['both','Principal & co-supervisor'],['principal','Principal only'],['co','Co-supervisor only']].map(([k,l])=>`<option value="${k}" ${(u.supervisorType||'both')===k?'selected':''}>${l}</option>`).join('')}</select></div>
+        <div class="form-group"><label>Campus</label><select data-rl-campus><option value="">— Select —</option>${CAMPUSES.map(c=>`<option value="${c.id}" ${u.campus===c.id?'selected':''}>${esc(c.name)}</option>`).join('')}</select></div>
+        <div class="form-group"><label>Affiliation</label><select data-rl-aff>${affOptionsHTML(u.affiliation||'')}</select></div>
+      </div>
+      <div class="form-group"><label>Discipline(s) they supervise <span class="req">*</span></label><div>${discChecksHTML('rl-disc', supDisc(u)||(adminDiscipline!=='all'?[adminDiscipline]:[]))}</div></div>
+      ${adminSemester?`<label class="check-row"><input type="checkbox" data-rl-sem ${semOn||!Array.isArray(u.semesters)?'checked':''}/> <span>Put them on the supervisor list for <strong>${esc(semesterLabel(adminSemester))}</strong> (other semesters: <em>Semester supervisors</em>)</span></label>`:''}
+    </div>
+    <div data-rl="officer" class="hidden">
+      <label>Review stages they handle</label>
+      ${Object.entries(STAGES).map(([k,l])=>`<label class="check-row"><input type="checkbox" data-rl-stage="${k}" ${stages.includes(k)?'checked':''}/> <span>${esc(l)}</span></label>`).join('')}
+      <div class="form-group mt-8"><label>School / Division</label><select data-rl-school><option value="">Any school / division</option>${optsHTML(REG_OPTS.school,u.officeSchool||'')}</select></div>
+    </div>
+    ${load?`<div class="alert alert-warning mt-8" data-rl-load>${esc(nm)} currently supervises ${load} student${load===1?'':'s'}. Those allocations stay as they are if the role changes; reassign them under Allocations if needed.</div>`:''}
+    <p class="hint">Administrators and supervisors can also hold registration review stages — set those under Registrations → Reviewing officers.</p>
+    <div class="form-actions mt-16"><button class="btn btn-primary" data-rl-save>${icon('i-check')}Save role</button><button class="btn btn-ghost" data-mm-close>Cancel</button></div>`;
+  const sync=()=>{ const to=body.querySelector('input[name="rl-role"]:checked')?.value; body.querySelectorAll('[data-rl]').forEach(x=>x.classList.toggle('hidden',x.dataset.rl!==to||to===cur&&to!=='officer'&&to!=='supervisor')); };
+  body.querySelectorAll('input[name="rl-role"]').forEach(r=>r.onchange=sync); sync();
+  body.querySelector('[data-rl-save]').onclick=async e=>{
+    const to=body.querySelector('input[name="rl-role"]:checked')?.value;
+    if(!to) return;
+    const patch={role:to};
+    if(to===cur && to==='admin'){ toast('No change','info'); return; }
+    if(cur==='admin' && to!=='admin' && enabledAdmins().filter(x=>x.id!==id).length<1){ toast('Keep at least one administrator','error'); return; }
+    if(to==='admin'){ patch.disabled=false; patch.prevRole=cur; }
+    if(to==='supervisor'){
+      const disc=readDiscChecks('rl-disc');
+      if(!disc.length){ toast('Tick at least one discipline they supervise','error'); return; }
+      Object.assign(patch,{supervisorType:body.querySelector('[data-rl-type]').value, campus:body.querySelector('[data-rl-campus]').value||null, affiliation:body.querySelector('[data-rl-aff]').value, disciplines:disc});
+      const semBox=body.querySelector('[data-rl-sem]');
+      const base=Array.isArray(u.semesters)?u.semesters.filter(x=>x!==adminSemester):[];
+      // A profile with no semester list counts as "every semester"; give a former admin / officer an explicit list instead.
+      patch.semesters = semBox ? (semBox.checked ? [...base, adminSemester] : base) : base;
+    }
+    if(to==='officer'){
+      const st=[...body.querySelectorAll('[data-rl-stage]:checked')].map(c=>c.dataset.rlStage);
+      if(!st.length && !confirm(`No review stages are ticked, so ${nm} will be able to sign in but not do anything.\n\nSave anyway?`)) return;
+      patch.officeRoles=st; patch.officeSchool=body.querySelector('[data-rl-school]').value;
+    }
+    const from=ROLE_NAME[cur]||cur, toL=ROLE_NAME[to];
+    if(to!==cur && !confirm(`Change ${nm} from ${from} to ${toL}?${to==='admin'?'\n\nAdministrators can do everything, including every registration review stage.':''}${cur==='supervisor'&&to!=='supervisor'?'\n\nThey will no longer appear in supervisor lists or dropdowns.':''}`)) return;
+    e.target.disabled=true;
+    try{
+      await updateDoc(doc(db,'users',id),patch);
+      logAct('staff.role', nm, to===cur?`${toL}: details updated`:`${from} → ${toL}`, id);
+      m.classList.add('hidden');
+      await staffAfterChange();
+      toast(to===cur?`${nm}: saved`:`${nm} is now ${toL==='Administrator'?'an administrator':toL==='Supervisor'?'a supervisor':'a review-only officer'}`,'success');
+    }catch(err){ e.target.disabled=false; toast('Error: '+err.message,'error'); }
+  };
+  m.classList.remove('hidden');
+};
+
+/* ── Delete any account (except your own) ──
+   Removes the profile, so the person can no longer use the app. Their sign-in
+   (email + password) stays in Firebase Authentication — the app cannot remove it. */
+window.staffDelete=async id=>{
+  const u=staffUser(id); if(!u) return;
+  if(id===PROFILE?.uid){ toast('You cannot delete your own account','error'); return; }
+  const r=userRole(u), nm=u.name||u.email;
+  if(r==='admin' && enabledAdmins().filter(x=>x.id!==id).length<1){ toast('Keep at least one administrator','error'); return; }
+  try{ if(!REGS.length) await loadRegs(); }catch{}
+  const load=STUDENTS.filter(s=>s.principalSupervisorId===id||s.coSupervisorId===id).length;
+  const assigned=REGS.filter(x=>x.assignee===id && regIsOpen(x));
+  if(!confirm(`Delete the account of ${nm} (${ROLE_NAME[r]||r})?\n\nThey will no longer be able to use Assign Supervisor. This cannot be undone.`
+    +`${load?`\n\n• They supervise ${load} student(s). Those allocations stay as they are; reassign them under Allocations.`:''}`
+    +`${assigned.length?`\n• ${assigned.length} registration(s) assigned to them go back to automatic routing.`:''}`
+    +`\n\nIf they will keep working in another role, press Cancel and use "Change role" instead — it keeps their account and history.`
+    +`\n\nTheir sign-in (email and password) stays in Firebase. To create a new account for the same email address later, first delete it under Firebase Console → Authentication.`)) return;
+  try{
+    await deleteDoc(doc(db,'users',id));
+    for(const x of assigned){ try{ await updateDoc(doc(db,REG_COL,x.id),{assignee:'',assigneeName:'',updatedAt:serverTimestamp()}); }catch(e){ console.warn('unassign',e); } }
+    logAct('staff.delete', nm, `${ROLE_NAME[r]||r} · ${u.email||''}`, id);
+    await staffAfterChange();
+    toast(`${nm}'s account deleted`,'info');
+  }catch(e){ toast('Error: '+e.message,'error'); }
 };
 window.staffMakeAdmin=async id=>{
   const u=staffUser(id); if(!u) return;
@@ -7536,7 +7637,7 @@ async function addAdminAccount(){
     ['st-name','st-email','st-pass'].forEach(i=>el(i).value='');
     hide('staff-admin-card');
     await staffAfterChange(); toast(`${name} can now sign in as an administrator`,'success');
-  }catch(e){ toast(String(e.code||'').includes('email-already-in-use')?'A sign-in account already exists for that email address. If they are already listed, use "Make admin".':'Error: '+String(e.message||'').replace('Firebase:','').trim(),'error',6000); }
+  }catch(e){ toast(String(e.code||'').includes('email-already-in-use')?'A sign-in account already exists for that email address. If they are already listed, use "Change role".':'Error: '+String(e.message||'').replace('Firebase:','').trim(),'error',6000); }
   finally{ btn.disabled=false; }
 }
 
