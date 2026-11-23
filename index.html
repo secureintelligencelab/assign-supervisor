@@ -339,7 +339,7 @@ input.search-input:focus{border-color:var(--primary);box-shadow:var(--ring);back
 
 /* ───────────── Admin layout ───────────── */
 .layout-sidebar{display:flex;min-height:calc(100vh - var(--nav-h))}
-.sidebar{width:248px;background:var(--sidebar-bg);border-right:1px solid var(--border);padding:16px 12px;flex-shrink:0;position:sticky;top:var(--nav-h);height:calc(100vh - var(--nav-h));overflow-y:auto;display:flex;flex-direction:column}
+.sidebar{width:262px;background:var(--sidebar-bg);border-right:1px solid var(--border);padding:16px 12px;flex-shrink:0;position:sticky;top:var(--nav-h);height:calc(100vh - var(--nav-h));overflow-y:auto;display:flex;flex-direction:column}
 .sidebar-section{font-size:10.5px;text-transform:uppercase;letter-spacing:.09em;color:var(--text3);padding:14px 12px 6px;font-weight:700}
 .sidebar-section:first-child{padding-top:4px}
 .sidebar-item{display:flex;align-items:center;gap:11px;padding:9px 12px;margin:1px 0;color:var(--text2);font-size:13.5px;font-weight:500;cursor:pointer;border-radius:9px;transition:background .15s,color .15s;position:relative;user-select:none}
@@ -601,6 +601,101 @@ tr.row-mine td:first-child{box-shadow:inset 3px 0 0 var(--primary)}
 .container{max-width:1500px;margin:0 auto;padding:24px 24px 8px}
 .chip-code{background:var(--bg3);border:1px solid var(--border);padding:1px 7px;border-radius:6px;font-size:11.5px}
 
+/* ───────────── Navigation between related admin pages ───────────── */
+/* Sidebar: a quiet count next to people pages */
+.side-num{margin-left:auto;min-width:22px;text-align:center;font-size:11px;font-weight:600;color:var(--text3);background:var(--bg3);border:1px solid var(--border);border-radius:999px;padding:0 6px;line-height:17px}
+.sidebar-item.active .side-num{color:var(--accent);border-color:var(--b-blue-bd);background:transparent}
+.sidebar-item .nav-count+.side-num{margin-left:4px}
+/* Strip at the top of each page in a group: Registrations → Pool → Semester list | Staff */
+.section-nav{display:flex;align-items:center;gap:2px;margin:-8px 0 18px;padding:4px;background:var(--bg2);border:1px solid var(--border);border-radius:12px;width:fit-content;max-width:100%;overflow-x:auto;scrollbar-width:thin;box-shadow:var(--shadow-sm)}
+.sn-item{display:inline-flex;align-items:center;gap:7px;height:32px;padding:0 12px;border-radius:9px;border:none;background:none;color:var(--text2);font-size:12.5px;font-weight:600;font-family:var(--font);cursor:pointer;white-space:nowrap;transition:background .15s,color .15s}
+.sn-item .ic{width:15px;height:15px}
+.sn-item:hover{background:var(--bg-hover);color:var(--text)}
+.sn-item.on{background:var(--primary-soft);color:var(--accent)}
+.sn-step{display:inline-grid;place-items:center;width:18px;height:18px;border-radius:6px;background:var(--bg3);color:var(--text3);font-size:10.5px;font-weight:700}
+.sn-item.on .sn-step{background:var(--primary);color:#fff}
+.sn-cnt{font-size:11px;font-weight:700;color:var(--text3);background:var(--bg3);border-radius:99px;padding:0 6px;line-height:17px}
+.sn-item.on .sn-cnt{background:var(--primary);color:#fff}
+.sn-arrow{display:inline-flex;color:var(--text3);flex:none}
+.sn-arrow .ic{width:13px;height:13px}
+.sn-div{width:1px;height:20px;background:var(--border2);margin:0 6px;flex:none}
+/* Sub-pages inside one admin page (Students: list / add / import) */
+.subtabs{display:flex;gap:4px;border-bottom:1px solid var(--border);margin-bottom:16px;overflow-x:auto}
+.subtab{display:inline-flex;align-items:center;gap:7px;height:38px;padding:0 14px;border:none;border-bottom:2px solid transparent;margin-bottom:-1px;background:none;color:var(--text2);font-size:13px;font-weight:600;font-family:var(--font);cursor:pointer;white-space:nowrap}
+.subtab .ic{width:15px;height:15px}
+.subtab:hover{color:var(--text)}
+.subtab.on{color:var(--accent);border-bottom-color:var(--primary)}
+.subtab .sn-cnt{margin-left:2px}
+.subtab.on .sn-cnt{background:var(--primary);color:#fff}
+/* "Jump to" links within a long page */
+.jump-links{display:flex;align-items:center;gap:6px;flex-wrap:wrap;font-size:12.5px;color:var(--text3);margin:-10px 0 16px}
+.jump-links a{display:inline-flex;align-items:center;gap:4px;padding:3px 10px;border:1px solid var(--border);border-radius:999px;color:var(--text2);background:var(--bg2)}
+.jump-links a:hover{color:var(--accent);border-color:var(--accent);text-decoration:none}
+.tab-panel [id],.tab-panel .card,.tab-panel .scroll-wrap,.tab-panel .toolbar{scroll-margin-top:calc(var(--nav-h) + 14px)}
+/* Small cross-links under a name: Pool · Semester list · Staff account · Students */
+.xlinks{display:flex;flex-wrap:wrap;gap:2px 10px;margin-top:4px}
+.xlinks button{display:inline-flex;align-items:center;gap:3px;background:none;border:none;padding:0;color:var(--text2);font-size:11.5px;font-weight:600;font-family:var(--font);cursor:pointer}
+.xlinks button:hover{color:var(--accent);text-decoration:underline}
+.xlinks .ic{width:12px;height:12px}
+button.sup-chip{cursor:pointer;font-family:var(--font)}
+button.sup-chip:hover{border-color:currentColor}
+/* Pager under long tables */
+.pager{display:flex;align-items:center;gap:8px;flex-wrap:wrap;padding:10px 14px;border-top:1px solid var(--border);font-size:12.5px;color:var(--text2)}
+.pager select{width:auto;height:30px;font-size:12px;padding:0 26px 0 9px}
+.pager .pg-pos{min-width:92px;text-align:center;font-weight:600;color:var(--text)}
+.pager .btn{min-width:30px;padding:0 8px}
+/* Students table: keep the actions in reach while scrolling sideways */
+@media(min-width:861px){
+  .stu-table th:last-child,.stu-table td:last-child{position:sticky;right:0;background:var(--bg2)!important;box-shadow:inset 1px 0 0 var(--border)}
+  .stu-table thead th:last-child{background:var(--bg3)!important;z-index:2}
+  .stu-table tbody tr:hover td:last-child{background:var(--bg-hover)!important}
+}
+.stu-table tr.row-off{opacity:.6}
+.stu-table td:nth-child(2){white-space:nowrap}
+/* Supervisor pool: what is missing, when last emailed */
+.pool-miss{display:inline-flex;align-items:center;gap:4px;margin-top:4px;font-size:11.5px;color:var(--b-amber-fg)}
+.pool-mailed{display:inline-flex;align-items:center;gap:4px;margin-top:3px;font-size:11.5px;color:var(--text3)}
+.pool-mailed .ic,.pool-miss .ic{width:12px;height:12px}
+.email-cc-row .read-more-btn{padding:0;margin-left:6px}
+/* ───────────── Scrolling long people tables ─────────────
+   On desktop each list scrolls inside its own box no taller than the window,
+   so the column headings and the sideways scrollbar are always in view.
+   The name column (and the tick box) stay put while you scroll sideways. */
+.scroll-wrap{position:relative}
+.scroll-box{overflow:auto;outline:none}
+.scroll-box:focus-visible{box-shadow:inset 0 0 0 2px var(--primary)}
+.sx-btn{position:absolute;top:50%;transform:translateY(-50%);z-index:6;width:34px;height:34px;border-radius:50%;border:1px solid var(--border2);background:var(--bg2);color:var(--text);display:none;place-items:center;cursor:pointer;box-shadow:var(--shadow-lg);opacity:.92;transition:opacity .15s,background .15s}
+.sx-btn:hover{opacity:1;background:var(--bg-hover);border-color:var(--accent)}
+.sx-btn .ic{width:16px;height:16px}
+.sx-btn.left{left:8px}.sx-btn.left .ic{transform:rotate(180deg)}
+.sx-btn.right{right:14px}
+.scroll-wrap::after{content:"";position:absolute;top:0;bottom:0;right:0;width:36px;pointer-events:none;opacity:0;transition:opacity .2s;border-radius:0 var(--r) var(--r) 0;background:linear-gradient(to left,rgba(0,0,0,.28),transparent);z-index:5}
+:root[data-theme="light"] .scroll-wrap::after{background:linear-gradient(to left,rgba(16,24,40,.10),transparent)}
+.scroll-wrap.can-right::after{opacity:1}
+.sx-hint{font-size:11.5px;color:var(--text3);display:none;align-items:center;gap:5px}
+.sx-hint kbd{font-family:var(--font);font-size:10.5px;border:1px solid var(--border2);border-bottom-width:2px;border-radius:4px;padding:0 4px;background:var(--bg3)}
+@media(min-width:861px){
+  .scroll-box{max-height:calc(100vh - var(--nav-h) - 64px);overscroll-behavior-x:contain}
+  .scroll-wrap.can-left .sx-btn.left,.scroll-wrap.can-right .sx-btn.right{display:grid}
+  .scroll-wrap.can-left+.pager .sx-hint,.scroll-wrap.can-right+.pager .sx-hint{display:inline-flex}
+  .scroll-box thead th{position:sticky;top:0;z-index:3}
+  /* frozen lead columns: .lead1 = first column, .lead2 = first two (# / tick box + name) */
+  .lead1 th:nth-child(1),.lead1 td:nth-child(1){position:sticky;left:0;box-shadow:inset -1px 0 0 var(--border)}
+  .lead2 th:nth-child(1),.lead2 td:nth-child(1){position:sticky;left:0;width:48px!important;min-width:48px;max-width:48px}
+  .lead2 th:nth-child(2),.lead2 td:nth-child(2){position:sticky;left:48px;box-shadow:inset -1px 0 0 var(--border)}
+  .lead1 thead th:nth-child(1),.lead2 thead th:nth-child(-n+2){z-index:4;background:var(--bg3)}
+  .lead1 tbody td:nth-child(1),.lead2 tbody td:nth-child(-n+2){z-index:2;background:var(--bg2)!important}
+  .lead1 tbody tr:nth-child(even) td:nth-child(1),.lead2 tbody tr:nth-child(even) td:nth-child(-n+2){background:color-mix(in srgb,var(--text) 2%,var(--bg2))!important}
+  .lead2 tbody tr.row-sel td:nth-child(-n+2){background:color-mix(in srgb,var(--accent2) 6%,var(--bg2))!important}
+  .lead2 tbody tr.row-inv td:nth-child(-n+2){background:color-mix(in srgb,var(--primary) 5%,var(--bg2))!important}
+  .lead1 tbody tr:hover td:nth-child(1),.lead2 tbody tr:hover td:nth-child(-n+2){background:var(--bg-hover)!important}
+}
+/* Back to top */
+.to-top{position:fixed;right:22px;bottom:22px;z-index:800;width:42px;height:42px;border-radius:50%;box-shadow:var(--shadow-lg);background:var(--bg2)}
+.to-top .ic{transform:rotate(-90deg)}
+#toast-container:not(:empty)~.to-top{bottom:84px}
+@media(max-width:860px){ .section-nav{width:100%} .sn-item{padding:0 10px} .pager .pg-show{width:100%} }
+
 @media(max-width:1024px){
   .auth-shell{grid-template-columns:1fr}
   .auth-brand{padding:28px 24px;gap:22px}
@@ -767,14 +862,20 @@ tr.row-mine td:first-child{box-shadow:inset 3px 0 0 var(--primary)}
       <div id="email-recipients" class="text-sm" style="background:var(--bg3);border:1px solid var(--border);border-radius:9px;padding:9px 12px;max-height:90px;overflow-y:auto;word-break:break-word"></div>
     </div>
 
+    <div class="form-group hidden email-cc-row" id="email-cc-row">
+      <label for="email-cc">Cc <span class="opt">(optional — separate several with commas)</span><button type="button" class="read-more-btn" id="email-cc-office">+ Research Office</button><button type="button" class="read-more-btn" id="email-cc-me">+ me</button></label>
+      <input type="text" id="email-cc" placeholder="e.g. research.office@cihe.edu.au" autocomplete="off"/>
+    </div>
+
     <div class="form-group" id="email-tpl-row">
       <label>Quick template</label>
-      <div style="display:flex;gap:6px;flex-wrap:wrap">
+      <div style="display:flex;gap:6px;flex-wrap:wrap" id="email-tpl-btns">
         <button type="button" class="btn btn-sm" data-tpl="meeting">Meeting request</button>
         <button type="button" class="btn btn-sm" data-tpl="reminder">Reminder</button>
         <button type="button" class="btn btn-sm" data-tpl="feedback">Feedback / check-in</button>
         <button type="button" class="btn btn-sm" data-tpl="blank">Blank</button>
       </div>
+      <p class="hint hidden" id="email-tpl-hint"></p>
     </div>
 
     <div class="form-group">
@@ -791,6 +892,7 @@ tr.row-mine td:first-child{box-shadow:inset 3px 0 0 var(--primary)}
     <div class="form-actions">
       <button class="btn btn-primary" id="email-send-btn"><svg class="ic"><use href="#i-send"/></svg>Open in email app</button>
       <button class="btn" id="email-copy-btn"><svg class="ic"><use href="#i-copy"/></svg>Copy message</button>
+      <button class="btn" id="email-copy-to-btn" title="Copy the recipients' email addresses"><svg class="ic"><use href="#i-copy"/></svg>Copy addresses</button>
       <button class="btn btn-ghost" id="email-cancel-btn">Cancel</button>
     </div>
   </div>
@@ -1008,19 +1110,19 @@ tr.row-mine td:first-child{box-shadow:inset 3px 0 0 var(--primary)}
     <aside class="sidebar" id="admin-sidebar">
       <div class="sidebar-section">Workspace</div>
       <div class="sidebar-item active" data-tab="tab-overview"><svg class="ic"><use href="#i-sliders"/></svg>Overview</div>
-      <div class="sidebar-section">Supervisors</div>
+      <div class="sidebar-section">Supervisors &amp; staff</div>
       <div class="sidebar-item" data-tab="tab-registrations"><svg class="ic"><use href="#i-userplus"/></svg>Registrations<span class="nav-count hidden" id="reg-nav-count"></span></div>
-      <div class="sidebar-item" data-tab="tab-pool"><svg class="ic"><use href="#i-users"/></svg>Supervisor pool</div>
-      <div class="sidebar-item" data-tab="tab-supervisors"><svg class="ic"><use href="#i-user"/></svg>Semester supervisors</div>
+      <div class="sidebar-item" data-tab="tab-pool" title="Everyone approved to supervise"><svg class="ic"><use href="#i-users"/></svg>Supervisor pool</div>
+      <div class="sidebar-item" data-tab="tab-supervisors" title="Who can select students in the semester chosen at the top"><svg class="ic"><use href="#i-user"/></svg>Semester supervisors</div>
+      <div class="sidebar-item" data-tab="tab-staff" title="Every sign-in account: administrators, supervisors and review officers"><svg class="ic"><use href="#i-shield"/></svg>Staff &amp; access</div>
       <div class="sidebar-section">Students &amp; allocation</div>
-      <div class="sidebar-item" data-tab="tab-students"><svg class="ic"><use href="#i-cap"/></svg>Students</div>
+      <div class="sidebar-item" data-tab="tab-students" title="Students in the semester chosen at the top"><svg class="ic"><use href="#i-cap"/></svg>Students</div>
       <div class="sidebar-item" data-tab="tab-notes"><svg class="ic"><use href="#i-file"/></svg>Student notes</div>
       <div class="sidebar-item" data-tab="tab-allocations"><svg class="ic"><use href="#i-clip"/></svg>Allocations</div>
       <div class="sidebar-item" data-tab="tab-by-supervisor"><svg class="ic"><use href="#i-layers"/></svg>By supervisor</div>
       <div class="sidebar-section">Settings</div>
       <div class="sidebar-item" data-tab="tab-semesters"><svg class="ic"><use href="#i-cal"/></svg>Semesters</div>
       <div class="sidebar-item" data-tab="tab-campuses"><svg class="ic"><use href="#i-building"/></svg>Campuses</div>
-      <div class="sidebar-item" data-tab="tab-staff"><svg class="ic"><use href="#i-shield"/></svg>Staff &amp; access</div>
       <div class="sidebar-item" data-tab="tab-settings"><svg class="ic"><use href="#i-gear"/></svg>General settings</div>
       <div class="sidebar-item" data-tab="tab-activity"><svg class="ic"><use href="#i-history"/></svg>Activity log</div>
       <div class="sidebar-foot">
@@ -1042,7 +1144,7 @@ tr.row-mine td:first-child{box-shadow:inset 3px 0 0 var(--primary)}
             <p>Where allocation and supervisor registration stand, and what needs attention.</p>
           </div>
           <div class="flex gap-8" style="flex-wrap:wrap">
-            <button class="btn btn-sm" data-goto-tab="tab-students"><svg class="ic"><use href="#i-userplus"/></svg>Add students</button>
+            <button class="btn btn-sm" data-goto-tab="tab-students" data-goto-sub="add"><svg class="ic"><use href="#i-userplus"/></svg>Add students</button>
             <button class="btn btn-sm" data-goto-tab="tab-registrations"><svg class="ic"><use href="#i-clip"/></svg>Registrations</button>
             <button class="btn btn-sm btn-primary" data-goto-tab="tab-allocations"><svg class="ic"><use href="#i-layers"/></svg>Allocations</button>
           </div>
@@ -1102,15 +1204,21 @@ tr.row-mine td:first-child{box-shadow:inset 3px 0 0 var(--primary)}
         <div class="page-head"><div>
           <span class="eyebrow" data-sem-eyebrow>Per semester</span>
           <h2>Semester supervisors</h2>
-          <p>Who can select students in the semester chosen at the top of the page, and how many students each of them may take. Add people from the <a href="#" data-goto-tab="tab-pool">supervisor pool</a> (including those the Associate Dean Research has selected) or from existing staff accounts. Sign-in accounts themselves are managed under <a href="#" data-goto-tab="tab-staff">Settings → Staff &amp; access</a>.</p>
+          <p>Who can select students in the semester chosen at the top of the page, and how many students each of them may take. Add people from the <a href="#" data-goto-tab="tab-pool">supervisor pool</a> (including those the Associate Dean Research has selected) or from existing staff accounts. Sign-in accounts themselves are managed under <a href="#" data-goto-tab="tab-staff">Staff &amp; access</a>.</p>
         </div></div>
+        <div class="jump-links">Jump to:
+          <a href="#" data-jump="semsup-list-card"><svg class="ic ic-sm"><use href="#i-users"/></svg>Supervisor list</a>
+          <a href="#" data-jump="semsup-head"><svg class="ic ic-sm"><use href="#i-sliders"/></svg>Places &amp; default limits</a>
+          <a href="#" data-jump="semsup-access"><svg class="ic ic-sm"><use href="#i-eye"/></svg>When they see students</a>
+          <a href="#" data-jump="semsup-share"><svg class="ic ic-sm"><use href="#i-send"/></svg>Sign-in link &amp; invitations</a>
+        </div>
         <div id="semsup-head"></div>
-        <div class="card table-card">
+        <div class="card table-card" id="semsup-list-card">
           <div class="table-toolbar" id="sup-list-tools"></div>
           <div id="supervisors-list"><div class="text-muted text-sm" style="padding:14px">Loading…</div></div>
         </div>
         <div id="semsup-access" class="mt-16"></div>
-        <div class="card share-card mt-16">
+        <div class="card share-card mt-16" id="semsup-share">
           <div class="share-main">
             <span class="share-ic"><svg class="ic"><use href="#i-link"/></svg></span>
             <div style="min-width:0;flex:1">
@@ -1132,7 +1240,7 @@ tr.row-mine td:first-child{box-shadow:inset 3px 0 0 var(--primary)}
       <!-- STAFF & ACCESS (every account) -->
       <div id="tab-staff" class="tab-panel">
         <div class="page-head"><div>
-          <span class="eyebrow">Settings</span>
+          <span class="eyebrow">Supervisors &amp; staff</span>
           <h2>Staff &amp; access</h2>
           <p>Every account that can sign in: <strong>administrators</strong>, <strong>supervisors</strong> and <strong>review-only officers</strong> (Research Office, School / Division, Associate Dean Research / RSC). Add and edit accounts, change roles, enable, disable or delete them here. Which semester a supervisor works in, and how many students they may take, is set under <a href="#" data-goto-tab="tab-supervisors">Semester supervisors</a>.</p>
         </div>
@@ -1168,10 +1276,8 @@ tr.row-mine td:first-child{box-shadow:inset 3px 0 0 var(--primary)}
           </div>
           <p class="hint">Creating a supervisor also creates their sign-in account. You stay signed in as admin.</p>
         </div>
-        <div id="staff-host"><div class="text-muted text-sm">Loading…</div></div>
-
-        <div class="card mt-16" id="staff-admin-card">
-          <div class="card-header"><h3><svg class="ic"><use href="#i-userplus"/></svg>Add an administrator</h3></div>
+        <div class="card mb-16 hidden" id="staff-admin-card">
+          <div class="card-header"><h3><svg class="ic"><use href="#i-userplus"/></svg>Add an administrator</h3><button class="btn btn-sm btn-ghost" id="staff-admin-close" aria-label="Close">Close</button></div>
           <p class="card-sub">Administrators can do everything, including every registration review stage. Supervisors are added from approved registrations, and review-only officers under <a href="#" data-goto-tab="tab-registrations">Registrations</a>.</p>
           <div class="g3">
             <div class="form-group"><label>Full name</label><input type="text" id="st-name" placeholder="e.g. Dr. Jane Smith"/></div>
@@ -1180,6 +1286,7 @@ tr.row-mine td:first-child{box-shadow:inset 3px 0 0 var(--primary)}
           </div>
           <div class="form-actions"><button class="btn btn-primary" id="st-add-btn"><svg class="ic"><use href="#i-shield"/></svg>Create administrator</button></div>
         </div>
+        <div id="staff-host"><div class="text-muted text-sm">Loading…</div></div>
       </div>
 
       <!-- SUPERVISOR POOL -->
@@ -1189,6 +1296,10 @@ tr.row-mine td:first-child{box-shadow:inset 3px 0 0 var(--primary)}
           <h2>Supervisor pool</h2>
           <p>Everyone approved to supervise. Approved registrations join automatically, and supervisors approved before this system can be imported or added. Being in the pool does not mean someone will supervise: for each semester, administrators can leave a <strong>note</strong> for the <strong>Associate Dean Research</strong>, who <strong>selects</strong> people as principal or associate; then an administrator (or the ADR) <strong>adds</strong> them to the semester. A sign-in account is created only then.</p>
         </div></div>
+        <div class="jump-links">Jump to:
+          <a href="#" data-jump="admin-pool-host"><svg class="ic ic-sm"><use href="#i-users"/></svg>Supervisor list</a>
+          <a href="#" data-jump="pool-admin-tools"><svg class="ic ic-sm"><use href="#i-upload"/></svg>Import or add supervisors</a>
+        </div>
         <div id="admin-pool-host"></div>
         <div class="grid-2 mt-16" id="pool-admin-tools">
           <div class="card">
@@ -1281,7 +1392,12 @@ tr.row-mine td:first-child{box-shadow:inset 3px 0 0 var(--primary)}
           <h2>Students</h2>
           <p>Add students one by one or import a CSV. Inactive students are hidden from supervisors.</p>
         </div></div>
-        <div class="card mb-16">
+        <div class="subtabs" id="stu-subtabs" role="tablist">
+          <button class="subtab on" data-stu-view="list" role="tab"><svg class="ic"><use href="#i-cap"/></svg>All students <span class="sn-cnt" id="stu-cnt"></span></button>
+          <button class="subtab" data-stu-view="add" role="tab" id="stu-tab-add"><svg class="ic"><use href="#i-userplus"/></svg><span id="stu-tab-add-lbl">Add student</span></button>
+          <button class="subtab" data-stu-view="import" role="tab"><svg class="ic"><use href="#i-upload"/></svg>Import CSV</button>
+        </div>
+        <div class="card mb-16 hidden" data-stu-pane="add">
           <div class="card-header">
             <h3 id="student-form-title">Add student</h3>
             <button class="btn btn-sm btn-ghost hidden" id="student-cancel-btn">Cancel edit</button>
@@ -1310,14 +1426,14 @@ tr.row-mine td:first-child{box-shadow:inset 3px 0 0 var(--primary)}
           <input type="hidden" id="s-edit-id"/>
           <div class="form-actions"><button class="btn btn-primary" id="student-save-btn">Add Student</button></div>
         </div>
-        <div class="card mb-16">
+        <div class="card mb-16 hidden" data-stu-pane="import">
           <div class="card-header"><h3><svg class="ic"><use href="#i-upload"/></svg>Bulk import via CSV</h3></div>
           <p class="text-sm text-muted mb-8" style="margin-top:-8px">Columns: <code class="chip-code">SL. No, Student Name, ID, Email, Personal Email, Proposal Title, Summary, Link, Student's Preferences, Campus, Discipline, Semester</code> <span class="text-xs">(Discipline is <strong>Business</strong>, <strong>Accounting</strong>, <strong>IT</strong> or <strong>Early Childhood Education</strong> — if blank, the discipline selected at the top is used. Personal Email &amp; Semester are optional — Semester defaults to the active semester.)</span></p>
           <div id="csv-drop-zone" class="drop-zone mt-8"><div class="dz-ic"><svg class="ic ic-lg"><use href="#i-file"/></svg></div><div class="fw-600" style="color:var(--text)">Drop a CSV file here or click to browse</div><div class="text-xs" style="margin-top:2px">You'll see a preview before anything is imported</div></div>
           <input type="file" id="csv-input" accept=".csv" style="display:none"/>
           <div id="csv-preview" class="hidden mt-16"></div>
         </div>
-        <div class="card">
+        <div class="card" data-stu-pane="list">
           <div class="card-header"><h3>All students <span id="st-f-count" class="text-xs text-muted" style="font-weight:500;margin-left:6px"></span></h3><div id="admin-campus-pills" class="campus-pills"></div></div>
           <div class="toolbar" id="students-filters">
             <div class="search-wrap">
@@ -2471,6 +2587,10 @@ function renderEmailRecipients(){
   const noun = EMAIL_KIND==='student' ? 'students' : EMAIL_KIND==='route' ? 'recipients' : 'supervisors';
   if(!withEmail.length){ box.innerHTML=`<span class="text-muted">No ${noun} with an email address.</span>`; return; }
   box.innerHTML=withEmail.map(s=>`${esc(s.name||'Recipient')} &lt;${esc(s.email)}&gt;`).join(', ');
+  // Cc is offered when an administrator writes to supervisors in the pool.
+  const ccOn=EMAIL_KIND==='pool';
+  el('email-cc-row')?.classList.toggle('hidden', !ccOn);
+  if(!ccOn && el('email-cc')) el('email-cc').value='';
   const note=el('email-bulk-note');
   note.classList.toggle('hidden', withEmail.length<2);
   note.innerHTML=`Sending to several ${noun}: recipients are added as <strong>Bcc</strong> so addresses stay private.`;
@@ -2483,6 +2603,7 @@ function openEmailComposer(targets, label, kind){
   const noun = EMAIL_KIND==='student' ? 'student' : 'supervisor';
   el('email-target-label').textContent = label || (EMAIL_TARGETS.length===1 ? (EMAIL_TARGETS[0].name||noun) : `${EMAIL_TARGETS.length} ${noun}s`);
   el('email-tpl-row')?.classList.toggle('hidden', EMAIL_KIND==='invite');
+  renderTplButtons();
   const tpl=emailTemplate(EMAIL_KIND==='invite'?'invite':'meeting',EMAIL_TARGETS);
   el('email-subject').value=tpl.subject;
   el('email-body').value=tpl.body;
@@ -2508,9 +2629,48 @@ function buildMailto(){
     head='mailto:'; // recipients go to Bcc for privacy
     params.push('bcc='+enc(targets.map(s=>s.email).join(',')));
   }
+  if(EMAIL_KIND==='pool'){
+    const cc=emailCcList();
+    if(cc.length) params.push('cc='+enc(cc.join(',')));
+  }
   params.push('subject='+enc(subject));
   params.push('body='+enc(body));
   return head+'?'+params.join('&');
+}
+/* Cc addresses typed in the composer (pool emails only), cleaned and de-duplicated. */
+function emailCcList(){
+  const to=new Set(EMAIL_TARGETS.map(t=>String(t.email||'').toLowerCase()));
+  const out=[];
+  String(el('email-cc')?.value||'').split(/[,;\s]+/).map(x=>x.trim()).filter(Boolean).forEach(a=>{
+    if(/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(a) && !to.has(a.toLowerCase()) && !out.some(o=>o.toLowerCase()===a.toLowerCase())) out.push(a);
+  });
+  return out;
+}
+function addCc(addr){
+  const i=el('email-cc'); if(!i || !addr) return;
+  const cur=String(i.value||'').split(/[,;]+/).map(x=>x.trim()).filter(Boolean);
+  if(!cur.some(x=>x.toLowerCase()===addr.toLowerCase())) cur.push(addr);
+  i.value=cur.join(', ');
+}
+/* Quick-template buttons depend on who is being written to. */
+const TPL_SETS={
+  student:[['meeting','Meeting request'],['reminder','Reminder'],['feedback','Feedback / check-in'],['blank','Blank']],
+  colleague:[['meeting','Meeting request'],['reminder','Reminder'],['feedback','Feedback / check-in'],['blank','Blank']],
+  pool:[['info','Request missing information'],['docs','Ask for documents'],['avail','Availability this semester'],['confirm','Confirm details on file'],['blank','Blank']],
+};
+function renderTplButtons(active){
+  const host=el('email-tpl-btns'); if(!host) return;
+  const set=TPL_SETS[EMAIL_KIND]||TPL_SETS.student;
+  const on=active||set[0][0];
+  host.innerHTML=set.map(([k,l])=>`<button type="button" class="btn btn-sm ${k===on?'btn-soft':''}" data-tpl="${k}">${esc(l)}</button>`).join('');
+  const hint=el('email-tpl-hint');
+  if(hint){
+    const multi=EMAIL_TARGETS.length>1;
+    const txt = EMAIL_KIND==='pool'
+      ? (multi ? 'Several people: one message goes to all of them (Bcc). "Request missing information" lists what is missing for all of them; edit the list before sending.' : '"Request missing information" lists what is missing from their pool record. Edit anything before sending.')
+      : '';
+    hint.textContent=txt; hint.classList.toggle('hidden',!txt);
+  }
 }
 
 el('contacts-email-all-btn')?.addEventListener('click',()=>{
@@ -2527,17 +2687,29 @@ el('email-all-students-btn')?.addEventListener('click',()=>{
 el('email-close-btn')?.addEventListener('click',()=>el('email-modal').classList.add('hidden'));
 el('email-cancel-btn')?.addEventListener('click',()=>el('email-modal').classList.add('hidden'));
 el('email-modal')?.addEventListener('click',e=>{ if(e.target===el('email-modal')) el('email-modal').classList.add('hidden'); });
-document.querySelectorAll('#email-modal [data-tpl]').forEach(btn=>{
-  btn.addEventListener('click',()=>{
-    const tpl=emailTemplate(btn.getAttribute('data-tpl'),EMAIL_TARGETS);
-    el('email-subject').value=tpl.subject;
-    el('email-body').value=tpl.body;
-  });
+// Delegated: the template buttons are redrawn for each kind of email.
+el('email-tpl-btns')?.addEventListener('click',e=>{
+  const btn=e.target.closest('[data-tpl]'); if(!btn) return;
+  const k=btn.getAttribute('data-tpl');
+  const tpl = EMAIL_KIND==='pool' ? poolEmailTemplate(k, EMAIL_TARGETS) : emailTemplate(k,EMAIL_TARGETS);
+  el('email-subject').value=tpl.subject;
+  el('email-body').value=tpl.body;
+  el('email-tpl-btns').querySelectorAll('[data-tpl]').forEach(b=>b.classList.toggle('btn-soft',b===btn));
 });
+el('email-cc-office')?.addEventListener('click',()=>addCc(RESEARCH_OFFICE_EMAIL));
+el('email-cc-me')?.addEventListener('click',()=>{ const me=PROFILE?.email||ME?.email; if(me) addCc(me); else toast('Your email address is not known','info'); });
 el('email-send-btn')?.addEventListener('click',()=>{
   if(!EMAIL_TARGETS.filter(s=>s.email).length){ toast('No recipients','error'); return; }
-  window.location.href=buildMailto();
+  const url=buildMailto();
+  if(url.length>1900) toast('This email is long — some email apps cut very long pre-filled messages. If text is missing, use "Copy message" and paste it in.','warning',7000);
+  if(EMAIL_KIND==='pool') notePoolEmailed(EMAIL_TARGETS, el('email-subject').value);
+  window.location.href=url;
   toast('Opening your email app…','success');
+});
+el('email-copy-to-btn')?.addEventListener('click',()=>{
+  const list=EMAIL_TARGETS.filter(s=>s.email).map(s=>s.email);
+  if(!list.length){ toast('No addresses to copy','info'); return; }
+  copyText(list.join(', '), `${list.length} address${list.length===1?'':'es'} copied`);
 });
 el('email-copy-btn')?.addEventListener('click',async()=>{
   const text=el('email-subject').value+'\n\n'+el('email-body').value;
@@ -3351,6 +3523,8 @@ async function mountAdmin(){
       if(item.dataset.tab==='tab-staff') openStaffTab();
       if(item.dataset.tab==='tab-overview') renderOverview();
       if(item.dataset.tab==='tab-pool') openPoolTab();
+      try{ sessionStorage.setItem('as-admin-tab', item.dataset.tab); }catch{}
+      refreshNavCounts(); refreshScrollWraps(el(item.dataset.tab)); updateToTop();
       closeSidebarDrawer(); // collapse the drawer on mobile after choosing
       window.scrollTo({top:0});
     };
@@ -3380,6 +3554,204 @@ async function mountAdmin(){
   el('tab-overview')?.classList.add('active');
 
   initSemestersTab(); initCampusesTab(); initSupervisorsTab(); initStudentsTab(); initNotesTab(); initSettingsTab(); initRegistrationsTab(); initAdminDisciplinePicker(); initDiscBackfill(); renderOverview();
+  refreshNavCounts();
+  // Pool and account counts for the sidebar, in the background.
+  Promise.all([loadPool(), loadAllUsers()]).then(refreshNavCounts).catch(()=>{});
+  // After a reload (or coming back from the supervisor view), reopen the page you were on.
+  let last=''; try{ last=sessionStorage.getItem('as-admin-tab')||''; }catch{}
+  if(last && last!=='tab-overview' && el(last)) gotoAdminTab(last);
+}
+
+/* ══════════════════════════════════════════════════════════
+   ADMIN NAVIGATION — sidebar counts, the strip that links related pages
+   (Registrations → Supervisor pool → Semester supervisors | Staff & access,
+   and Students · Notes · Allocations · By supervisor), "jump to" links,
+   cross-links between the same person on different pages, and pagers.
+══════════════════════════════════════════════════════════ */
+const SECTION_NAVS=[
+  {flow:3, tabs:[['tab-registrations','Registrations','i-userplus','Approve new supervisors'],['tab-pool','Supervisor pool','i-users','Everyone approved to supervise'],['tab-supervisors','Semester supervisors','i-user','Who can select students this semester'],['tab-staff','Staff & access','i-shield','Every sign-in account']]},
+  {flow:0, tabs:[['tab-students','Students','i-cap'],['tab-notes','Student notes','i-file'],['tab-allocations','Allocations','i-clip'],['tab-by-supervisor','By supervisor','i-layers']]},
+];
+const NAV_COUNTS={};
+function refreshNavCounts(){
+  const set=(k,fn)=>{ try{ const v=fn(); NAV_COUNTS[k]=(v===null||v===undefined)?null:v; }catch{ NAV_COUNTS[k]=null; } };
+  set('tab-students', ()=>scopedStudentsForAdmin().length);
+  set('tab-pool', ()=>POOL_LOADED?POOL.filter(p=>p.active!==false).length:null);
+  set('tab-supervisors', ()=>adminSemester?semSupScope(adminSemester).filter(s=>!s.disabled).length:null);
+  set('tab-staff', ()=>ALL_USERS.length||null);
+  ['tab-students','tab-pool','tab-supervisors','tab-staff'].forEach(k=>{
+    const item=document.querySelector(`.sidebar-item[data-tab="${k}"]`); if(!item) return;
+    let n=item.querySelector('.side-num');
+    if(!n){ n=document.createElement('span'); n.className='side-num'; item.appendChild(n); }
+    const v=NAV_COUNTS[k];
+    n.textContent = v===null||v===undefined ? '' : String(v);
+    n.classList.toggle('hidden', v===null||v===undefined);
+    n.title = {'tab-students':'Students in the selected semester','tab-pool':'Active people in the supervisor pool','tab-supervisors':'On the selected semester\'s list','tab-staff':'Sign-in accounts'}[k];
+  });
+  setTxt('stu-cnt', NAV_COUNTS['tab-students']??'');
+  renderSectionNavs();
+}
+function renderSectionNavs(){
+  SECTION_NAVS.forEach(g=>g.tabs.forEach(([tabId])=>{
+    const panel=el(tabId); if(!panel) return;
+    let nav=panel.querySelector(':scope > .section-nav');
+    if(!nav){ nav=document.createElement('nav'); nav.className='section-nav'; nav.setAttribute('aria-label','Related pages'); panel.prepend(nav); }
+    nav.innerHTML=g.tabs.map(([id,label,ic,tip],i)=>{
+      const cnt=NAV_COUNTS[id];
+      const sep = i===0 ? '' : (g.flow && i<g.flow) ? `<span class="sn-arrow">${icon('i-arrow')}</span>` : (g.flow && i===g.flow) ? '<span class="sn-div"></span>' : '';
+      return `${sep}<button type="button" class="sn-item ${id===tabId?'on':''}" data-sn="${id}" ${tip?`title="${esc(tip)}"`:''} ${id===tabId?'aria-current="page"':''}>${g.flow&&i<g.flow?`<span class="sn-step">${i+1}</span>`:icon(ic)}${esc(label)}${cnt!=null&&cnt!==''?`<span class="sn-cnt">${cnt}</span>`:''}</button>`;
+    }).join('');
+    nav.querySelectorAll('[data-sn]').forEach(b=>b.onclick=()=>{ if(b.dataset.sn!==tabId) gotoAdminTab(b.dataset.sn); });
+  }));
+}
+/* "Jump to" links inside a page */
+document.addEventListener('click',e=>{
+  const a=e.target.closest('[data-jump]'); if(!a) return;
+  e.preventDefault();
+  const t=el(a.dataset.jump); if(t) t.scrollIntoView({behavior:'smooth',block:'start'});
+});
+
+/* Students page: list / add / import */
+let STU_VIEW='list';
+function setStuView(v){
+  STU_VIEW = ['list','add','import'].includes(v) ? v : 'list';
+  document.querySelectorAll('#stu-subtabs [data-stu-view]').forEach(b=>{ const on=b.dataset.stuView===STU_VIEW; b.classList.toggle('on',on); b.setAttribute('aria-selected',on?'true':'false'); });
+  document.querySelectorAll('[data-stu-pane]').forEach(p=>p.classList.toggle('hidden', p.dataset.stuPane!==STU_VIEW));
+}
+document.querySelectorAll('#stu-subtabs [data-stu-view]').forEach(b=>b.addEventListener('click',()=>{
+  setStuView(b.dataset.stuView);
+  if(STU_VIEW==='add') setTimeout(()=>el('s-name')?.focus(),40);
+}));
+function syncStuEditLabel(){
+  const editing=!!el('s-edit-id')?.value;
+  setTxt('stu-tab-add-lbl', editing ? 'Edit student' : 'Add student');
+}
+
+/* Pager — keeps long tables manageable. State is per table; a change of
+   filters (the signature) goes back to page 1. Page size is remembered. */
+const PAGER={};
+const PAGE_SIZES=[25,50,100,0]; // 0 = all
+function pagerState(key){
+  if(!PAGER[key]){ let size=50; try{ const v=parseInt(localStorage.getItem('as-page-'+key),10); if(PAGE_SIZES.includes(v)) size=v; }catch{} PAGER[key]={page:1,size,sig:null}; }
+  return PAGER[key];
+}
+function pageSlice(key, list, sig){
+  const st=pagerState(key);
+  if(sig!==undefined && st.sig!==sig){ st.sig=sig; st.page=1; }
+  const pages = st.size ? Math.max(1, Math.ceil(list.length/st.size)) : 1;
+  st.page=Math.min(Math.max(1,st.page),pages);
+  const start = st.size ? (st.page-1)*st.size : 0;
+  const rows = st.size ? list.slice(start, start+st.size) : list;
+  return {key, rows, start, pages, page:st.page, size:st.size, total:list.length, sig:st.sig};
+}
+function pagerHTML(info, noun='rows'){
+  if(info.total<=PAGE_SIZES[0]) return '';
+  const {page,pages,start,rows,total,size,key}=info;
+  return `<div class="pager" data-pager="${key}">
+    <span class="pg-show">Showing <strong>${start+1}–${start+rows.length}</strong> of <strong>${total}</strong> ${esc(noun)}</span>
+    <span class="sx-hint" title="More columns to the side: use the arrow buttons, or hold Shift while scrolling">· <kbd>Shift</kbd> + scroll for more columns</span>
+    <div class="spacer"></div>
+    <label class="text-xs" style="margin:0;display:inline-flex;align-items:center;gap:6px;font-weight:500">Per page
+      <select data-pg-size>${PAGE_SIZES.map(n=>`<option value="${n}" ${n===size?'selected':''}>${n||'All'}</option>`).join('')}</select></label>
+    <button class="btn btn-sm" data-pg="first" ${page<=1?'disabled':''} title="First page" aria-label="First page">«</button>
+    <button class="btn btn-sm" data-pg="prev" ${page<=1?'disabled':''} title="Previous page" aria-label="Previous page">‹</button>
+    <span class="pg-pos">Page ${page} of ${pages}</span>
+    <button class="btn btn-sm" data-pg="next" ${page>=pages?'disabled':''} title="Next page" aria-label="Next page">›</button>
+    <button class="btn btn-sm" data-pg="last" ${page>=pages?'disabled':''} title="Last page" aria-label="Last page">»</button>
+  </div>`;
+}
+function bindPager(host, key, rerender, scrollTo){
+  host?.querySelectorAll(`[data-pager="${key}"]`).forEach(pg=>{
+    const st=pagerState(key);
+    pg.querySelectorAll('[data-pg]').forEach(b=>b.onclick=()=>{
+      const k=b.dataset.pg; st.page = k==='first'?1 : k==='prev'?st.page-1 : k==='next'?st.page+1 : 1e9;
+      rerender(); (scrollTo||host)?.scrollIntoView?.({behavior:'smooth',block:'start'});
+    });
+    pg.querySelector('[data-pg-size]').onchange=e=>{
+      st.size=parseInt(e.target.value,10)||0; st.page=1;
+      try{ localStorage.setItem('as-page-'+key, String(st.size)); }catch{}
+      rerender();
+    };
+  });
+}
+
+/* Scroll boxes: keep the scroll position when a table is redrawn (ticking a
+   box, changing a role…) unless the filters or page changed; show arrows and
+   an edge shadow while there are more columns to the side. */
+const pgKey=pg=>`${pg.sig}|${pg.page}|${pg.size}`;
+function sxSave(host){ const b=host?.querySelector('.scroll-box'); return b?{t:b.scrollTop,l:b.scrollLeft,k:b.dataset.sxKey||''}:null; }
+function sxRestore(host, saved, key){
+  const b=host?.querySelector('.scroll-box');
+  if(b){ b.dataset.sxKey=key; if(saved && saved.k===key){ b.scrollTop=saved.t; b.scrollLeft=saved.l; } }
+  refreshScrollWraps(host);
+}
+function updateScrollWrap(w){
+  const b=w?.querySelector(':scope > .scroll-box'); if(!b) return;
+  const max=b.scrollWidth-b.clientWidth;
+  w.classList.toggle('can-left', b.scrollLeft>2);
+  w.classList.toggle('can-right', max>2 && b.scrollLeft<max-2);
+}
+function refreshScrollWraps(root){
+  requestAnimationFrame(()=>(root||document).querySelectorAll('.scroll-wrap').forEach(w=>{
+    if(!w.querySelector(':scope > .sx-btn')) w.insertAdjacentHTML('beforeend',
+      `<button type="button" class="sx-btn left" data-sx="-1" title="Scroll left" aria-label="Scroll the table left">${icon('i-arrow')}</button><button type="button" class="sx-btn right" data-sx="1" title="Scroll right" aria-label="Scroll the table right">${icon('i-arrow')}</button>`);
+    updateScrollWrap(w);
+  }));
+}
+document.addEventListener('scroll',e=>{ const t=e.target; if(t?.classList?.contains('scroll-box')) updateScrollWrap(t.parentElement); updateToTop(); },true);
+window.addEventListener('resize',deb(()=>document.querySelectorAll('.scroll-wrap').forEach(updateScrollWrap),120));
+document.addEventListener('click',e=>{
+  const b=e.target.closest('[data-sx]'); if(!b) return;
+  const box=b.parentElement.querySelector(':scope > .scroll-box');
+  box?.scrollBy({left:Number(b.dataset.sx)*Math.max(200,box.clientWidth*0.7),behavior:'smooth'});
+});
+/* Back to top: the page and any list scrolled down inside the open admin page. */
+const TO_TOP=document.createElement('button');
+TO_TOP.type='button'; TO_TOP.className='icon-btn to-top hidden'; TO_TOP.title='Back to top'; TO_TOP.setAttribute('aria-label','Back to top');
+TO_TOP.innerHTML=icon('i-arrow'); document.body.appendChild(TO_TOP);
+function updateToTop(){
+  const admin=el('page-admin')?.classList.contains('active');
+  const inner=[...document.querySelectorAll('.tab-panel.active .scroll-box')].some(b=>b.scrollTop>400);
+  TO_TOP.classList.toggle('hidden', !admin || !(window.scrollY>500 || inner));
+}
+TO_TOP.onclick=()=>{
+  document.querySelectorAll('.tab-panel.active .scroll-box').forEach(b=>b.scrollTo({top:0,behavior:'smooth'}));
+  window.scrollTo({top:0,behavior:'smooth'});
+};
+
+/* Cross-links: the same person on the other people pages. */
+const supLoadAll=id=>STUDENTS.filter(s=>(!adminSemester||s.semester===adminSemester) && (s.principalSupervisorId===id || s.coSupervisorId===id)).length;
+const poolEntryFor=u=>u ? POOL.find(p=>p.uid===u.id || (p.email && u.email && lc(p.email)===lc(u.email))) : null;
+function xlinksHTML(opts){
+  const {acc, pool, here}=opts; const out=[];
+  const q=esc(acc?.email||pool?.email||'');
+  if(here!=='pool' && pool) out.push(`<button type="button" onclick="gotoPoolEntry('${q}')" title="Open in the supervisor pool">${icon('i-users')}Pool</button>`);
+  if(here!=='semsup' && acc && adminSemester && supInSemester(acc,adminSemester) && (acc.role||'supervisor')==='supervisor') out.push(`<button type="button" onclick="gotoSemSupEntry('${q}')" title="Open in Semester supervisors (${esc(semesterLabel(adminSemester))})">${icon('i-user')}Semester list</button>`);
+  if(here!=='staff' && acc) out.push(`<button type="button" onclick="gotoStaffEntry('${q}')" title="Open the sign-in account in Staff & access">${icon('i-shield')}Account</button>`);
+  if(acc && (acc.role||'supervisor')==='supervisor'){ const n=supLoadAll(acc.id); if(n) out.push(`<button type="button" onclick="gotoStudentsOfSup('${esc(acc.id)}')" title="Their students${adminSemester?' in '+esc(semesterLabel(adminSemester)):''}">${icon('i-cap')}${n} student${n===1?'':'s'}</button>`); }
+  return out.length?`<div class="xlinks">${out.join('')}</div>`:'';
+}
+window.gotoPoolEntry=q=>{ poolQ=String(q||''); poolView='all'; poolMissF=''; gotoAdminTab('tab-pool'); };
+window.gotoStaffEntry=q=>{ staffQ=String(q||''); staffFilter=''; staffAffF=''; gotoAdminTab('tab-staff'); };
+window.gotoSemSupEntry=q=>{ semSupQ=String(q||''); supTypeF=''; supCampusF=''; supAffF=''; gotoAdminTab('tab-supervisors'); };
+window.gotoStudentsOfSup=(supId, name)=>{
+  const key = SUPS.some(s=>s.id===supId) ? 'id:'+supId : (name ? 'name:'+name : '');
+  Object.assign(STF,{q:'',campus:'all',disc:'',sup:key,role:'any',alloc:'',status:'',notes:''});
+  syncStudentFilterInputs();
+  gotoAdminTab('tab-students',{stuView:'list'});
+};
+/* Students page: filter by a supervisor by clicking their name in the table. */
+window.stuFilterSup=(supId, name, role)=>{
+  const byName=SUPS.find(s=>lc(s.name)===lc(name));
+  STF.sup = SUPS.some(s=>s.id===supId) ? 'id:'+supId : byName ? 'id:'+byName.id : 'name:'+name;
+  STF.role = role||'any';
+  syncStudentFilterInputs(); renderStudentsList(scopedStudentsForAdmin());
+  toast(`Showing students of ${name||'this supervisor'} — Clear filters to see everyone`,'info',3000);
+};
+function syncStudentFilterInputs(){
+  const set=(id,v)=>{ const e=el(id); if(e) e.value=v; };
+  set('st-f-search',STF.q); set('st-f-disc',STF.disc); set('st-f-role',STF.role); set('st-f-alloc',STF.alloc); set('st-f-status',STF.status); set('st-f-notes',STF.notes);
+  el('admin-campus-pills')?.querySelectorAll('.campus-pill').forEach(p=>p.classList.toggle('active',p.dataset.campus===STF.campus));
 }
 
 /* Helpers used across admin tabs */
@@ -3645,8 +4017,8 @@ function initSupervisorsTab(){
   el('sup-cancel-btn').onclick=closeSupForm;
   el('sup-form-close').onclick=closeSupForm;
   el('sup-locked-close').onclick=closeSupForm;
-  el('staff-add-sup-btn').onclick=()=>{ closeSupForm(); supFormOpen=true; el('sup-form-title').textContent='Add supervisor account'; syncSupFormLock(); (requireReg()?el('sup-add-locked'):el('sup-form-card')).scrollIntoView({behavior:'smooth',block:'start'}); };
-  el('staff-add-admin-btn').onclick=()=>{ el('staff-admin-card').scrollIntoView({behavior:'smooth',block:'start'}); setTimeout(()=>el('st-name').focus(),350); };
+  el('staff-add-sup-btn').onclick=()=>{ hide('staff-admin-card'); closeSupForm(); supFormOpen=true; el('sup-form-title').textContent='Add supervisor account'; syncSupFormLock(); (requireReg()?el('sup-add-locked'):el('sup-form-card')).scrollIntoView({behavior:'smooth',block:'start'}); };
+  el('staff-add-admin-btn').onclick=()=>{ closeSupForm(); syncSupFormLock(); show('staff-admin-card'); el('staff-admin-card').scrollIntoView({behavior:'smooth',block:'start'}); setTimeout(()=>el('st-name').focus(),350); };
 }
 /* renderSupervisorsList() — see "SEMESTER SUPERVISORS" below */
 window.editSup=(id)=>{
@@ -3708,12 +4080,14 @@ function initStudentsTab(){
       }
       ['s-slno','s-name','s-id','s-email','s-personal-email','s-title','s-summary','s-link'].forEach(id=>{const e=el(id);if(e)e.value='';}); el('s-campus').value=''; el('s-pref').value=''; el('s-edit-id').value='';
       // Keep semester selection sticky to whatever was used — easier bulk-add
-      el('student-form-title').textContent='Add Student'; el('student-save-btn').textContent='Add Student'; hide('student-cancel-btn');
+      el('student-form-title').textContent='Add Student'; el('student-save-btn').textContent='Add Student'; hide('student-cancel-btn'); syncStuEditLabel();
       const snap=await getDocs(query(collection(db,'students'),orderBy('slNo'))); STUDENTS=snap.docs.map(d=>({id:d.id,...d.data()}));
-      renderStudentsList(scopedStudentsForAdmin()); toast('Student saved','success');
+      renderStudentsList(scopedStudentsForAdmin());
+      if(editId){ setStuView('list'); toast('Student updated','success'); } // back to the list after an edit
+      else toast('Student added — add another, or open All students','success');
     }catch(e){ toast('Error: '+e.message,'error'); }
   };
-  el('student-cancel-btn').onclick=()=>{ ['s-slno','s-name','s-id','s-email','s-personal-email','s-title','s-summary','s-link'].forEach(id=>{const e=el(id);if(e)e.value='';}); el('s-campus').value=''; el('s-pref').value=''; el('s-edit-id').value=''; el('student-form-title').textContent='Add Student'; el('student-save-btn').textContent='Add Student'; hide('student-cancel-btn'); };
+  el('student-cancel-btn').onclick=()=>{ ['s-slno','s-name','s-id','s-email','s-personal-email','s-title','s-summary','s-link'].forEach(id=>{const e=el(id);if(e)e.value='';}); el('s-campus').value=''; el('s-pref').value=''; el('s-edit-id').value=''; el('student-form-title').textContent='Add Student'; el('student-save-btn').textContent='Add Student'; hide('student-cancel-btn'); syncStuEditLabel(); setStuView('list'); };
   // Filters for the "All students" table
   const rerender=()=>renderStudentsList(scopedStudentsForAdmin());
   el('st-f-search').oninput=deb(e=>{ STF.q=e.target.value; rerender(); },150);
@@ -3789,16 +4163,20 @@ function renderStudentsList(all){
   const active = !!(STF.q.trim()||STF.campus!=='all'||(adminDiscipline==='all'&&STF.disc)||STF.sup||STF.alloc||STF.status||STF.notes);
   el('st-f-clear')?.classList.toggle('hidden',!active);
   const cnt=el('st-f-count'); if(cnt) cnt.textContent = all.length ? (active ? `· ${students.length} of ${all.length}` : `· ${all.length}`) : '';
+  refreshNavCounts();
   if(!all.length){
     const ctx = adminSemester ? ` for <strong>${esc(semesterLabel(adminSemester))}</strong>` : '';
-    e.innerHTML=`<div class="text-muted text-sm" style="padding:12px">No students yet${ctx}.</div>`;
+    e.innerHTML=`<div class="text-muted text-sm" style="padding:12px">No students yet${ctx}. <button class="read-more-btn" onclick="setStuViewG('add')">Add a student</button> or <button class="read-more-btn" onclick="setStuViewG('import')">import a CSV</button>.</div>`;
     return;
   }
   if(!students.length){
     e.innerHTML=`<div class="text-muted text-sm" style="padding:12px">No students match these filters. <button class="read-more-btn" onclick="document.getElementById('st-f-clear').click()">Clear filters</button></div>`;
     return;
   }
-  e.innerHTML=`<div class="tw"><table><thead><tr><th>#</th><th>Student</th><th>ID</th><th>Email</th><th>Campus</th><th>Discipline</th><th>Semester</th><th>Status</th><th>Notes</th><th>Proposal Title</th><th>Principal</th><th>Co-Sup</th><th>Preference</th><th>Link</th><th>Actions</th></tr></thead><tbody>${students.map(s=>{
+  const pg=pageSlice('students', students, JSON.stringify(STF)+'|'+adminSemester+'|'+adminDiscipline);
+  const supChip=(id,name,cls,role)=> name ? `<button type="button" class="badge ${cls} sup-chip" onclick="stuFilterSup('${esc(id||'')}','${esc(name).replace(/'/g,"\\'")}','${role}')" title="Show only ${esc(name)}'s students as ${role==='principal'?'principal':'co-supervisor'}">${esc(name)}</button>` : '<span class="text-xs text-muted">—</span>';
+  const sx=sxSave(e);
+  e.innerHTML=`<div class="scroll-wrap"><div class="tw scroll-box" tabindex="0" aria-label="Students table"><table class="stu-table lead2"><thead><tr><th>#</th><th>Student</th><th>ID</th><th>Email</th><th>Campus</th><th>Discipline</th><th>Semester</th><th>Status</th><th>Notes</th><th>Proposal Title</th><th>Principal</th><th>Co-Sup</th><th>Preference</th><th>Link</th><th>Actions</th></tr></thead><tbody>${pg.rows.map(s=>{
     const cn=CAMPUSES.find(c=>c.id===s.campus)?.name||'—';
     const sn=s.semesterName || SEMESTERS.find(x=>x.id===s.semester)?.name || '—';
     const isInactive = s.active===false;
@@ -3806,7 +4184,7 @@ function renderStudentsList(all){
     const toggleBtn = isInactive
       ? `<button class="btn btn-sm" onclick="toggleStudentActive('${s.id}',true)">Activate</button>`
       : `<button class="btn btn-sm" onclick="toggleStudentActive('${s.id}',false)">Deactivate</button>`;
-    return `<tr style="${isInactive?'opacity:.6':''}"><td class="text-xs text-muted">${s.slNo||''}</td><td class="fw-600">${esc(s.name)}</td><td class="text-xs text-muted">${esc(s.studentId)}</td>
+    return `<tr class="${isInactive?'row-off':''}"><td class="text-xs text-muted">${s.slNo||''}</td><td class="fw-600">${esc(s.name)}</td><td class="text-xs text-muted">${esc(s.studentId)}</td>
     <td class="text-xs">${s.email?`<a href="mailto:${esc(s.email)}">${esc(s.email)}</a>`:'<span class="text-muted">—</span>'}${s.personalEmail?`<div class="text-xs"><a href="mailto:${esc(s.personalEmail)}">${esc(s.personalEmail)}</a> <span class="text-muted">(personal)</span></div>`:''}</td>
     <td><span class="badge badge-gray">${esc(cn)}</span></td>
     <td>${s.discipline?discBadge(s.discipline):'<span class="badge badge-amber">Not set</span>'}</td>
@@ -3814,14 +4192,17 @@ function renderStudentsList(all){
     <td>${statusBadge}</td>
     <td>${noteCellHTML(s)}</td>
     <td class="pc text-sm" title="${esc(s.proposalTitle)}">${esc(s.proposalTitle||'—')}</td>
-    <td>${s.principalSupervisorName?`<span class="badge badge-blue">${esc(s.principalSupervisorName)}</span>`:'<span class="text-xs text-muted">—</span>'}</td>
-    <td>${s.coSupervisorName?`<span class="badge badge-purple">${esc(s.coSupervisorName)}</span>`:'<span class="text-xs text-muted">—</span>'}</td>
+    <td>${supChip(s.principalSupervisorId,s.principalSupervisorName,'badge-blue','principal')}</td>
+    <td>${supChip(s.coSupervisorId,s.coSupervisorName,'badge-purple','co')}</td>
     <td>${s.studentPreference?`<span class="pref-warn">⭐ ${esc(s.studentPreference)}</span>`:'<span class="text-xs text-muted">—</span>'}</td>
     <td>${s.proposalLink?`<a href="${esc(s.proposalLink)}" target="_blank" class="btn btn-sm btn-ghost" title="Open proposal">${icon('i-ext')}</a>`:'—'}</td>
     <td><div class="flex gap-8"><button class="btn btn-sm" onclick="editStudent('${s.id}')">${icon('i-edit')}Edit</button>${toggleBtn}${s.principalSupervisorId?`<button class="btn btn-sm" onclick="clearAlloc('${s.id}')">Clear</button>`:''}<button class="btn btn-sm btn-ghost" onclick="showHistory('${s.id}','${esc(s.name).replace(/'/g,"\\'")}')" title="Change history">${icon('i-history')}</button><button class="btn btn-sm btn-danger" onclick="delStudent('${s.id}')" title="Delete">${icon('i-trash')}</button></div></td></tr>`;
-  }).join('')}</tbody></table></div>`;
+  }).join('')}</tbody></table></div></div>${pagerHTML(pg,'students')}`;
+  sxRestore(e,sx,pgKey(pg));
+  bindPager(e,'students',()=>renderStudentsList(scopedStudentsForAdmin()), el('students-filters'));
 }
-window.editStudent=id=>{ const s=STUDENTS.find(x=>x.id===id); if(!s) return; el('s-slno').value=s.slNo||''; el('s-name').value=s.name||''; el('s-id').value=s.studentId||''; el('s-email').value=s.email||''; el('s-personal-email').value=s.personalEmail||''; el('s-campus').value=s.campus||''; el('s-discipline').value=s.discipline||''; el('s-semester').value=s.semester||''; el('s-title').value=s.proposalTitle||''; el('s-summary').value=s.proposalSummary||''; el('s-link').value=s.proposalLink||''; el('s-pref').value=s.studentPreference||''; el('s-edit-id').value=id; el('student-form-title').textContent='Edit Student'; el('student-save-btn').textContent='Update Student'; show('student-cancel-btn'); el('student-form-title').scrollIntoView({behavior:'smooth'}); };
+window.setStuViewG=v=>setStuView(v);
+window.editStudent=id=>{ const s=STUDENTS.find(x=>x.id===id); if(!s) return; el('s-slno').value=s.slNo||''; el('s-name').value=s.name||''; el('s-id').value=s.studentId||''; el('s-email').value=s.email||''; el('s-personal-email').value=s.personalEmail||''; el('s-campus').value=s.campus||''; el('s-discipline').value=s.discipline||''; el('s-semester').value=s.semester||''; el('s-title').value=s.proposalTitle||''; el('s-summary').value=s.proposalSummary||''; el('s-link').value=s.proposalLink||''; el('s-pref').value=s.studentPreference||''; el('s-edit-id').value=id; el('student-form-title').textContent='Edit Student'; el('student-save-btn').textContent='Update Student'; show('student-cancel-btn'); syncStuEditLabel(); setStuView('add'); el('tab-students').scrollIntoView({behavior:'smooth'}); setTimeout(()=>el('s-name')?.focus({preventScroll:true}),300); };
 window.delStudent=async id=>{
   const s=STUDENTS.find(x=>x.id===id);
   const k=idKey(s?.studentId), shared=!!k && STUDENTS.some(x=>x.id!==id && idKey(x.studentId)===k);
@@ -4736,7 +5117,7 @@ function miniModal(id, eyebrow){
 ══════════════════════════════════════════════════════════ */
 let semSupQ='', SEMSUP_CHECK=new Set();
 function renderSupervisorsList(){
-  renderSemSupHead(); renderSupListTools(); renderSemSupRows(); renderSemSupAccess();
+  renderSemSupHead(); renderSupListTools(); renderSemSupRows(); renderSemSupAccess(); refreshNavCounts();
 }
 function semSupScope(sem){ return SUPS.filter(s=>supInSemester(s,sem) && (adminDiscipline==='all' || supTeaches(s,adminDiscipline))); }
 function renderSemSupHead(){
@@ -4825,12 +5206,14 @@ function renderSemSupRows(){
       <button class="btn btn-sm" data-ss-bulk="access">${icon('i-eye')}Student access</button>
       <button class="btn btn-sm btn-danger" data-ss-bulk="remove">${icon('i-x')}Remove from ${esc(semesterLabel(sem))}</button>
       <button class="btn btn-sm btn-ghost" data-ss-bulk="clear">Clear</button></div>`;
-  e.innerHTML=bulk+(list.length?`<div class="tw"><table><thead><tr><th style="width:34px"><input type="checkbox" data-ss-all style="width:auto" title="Tick all shown"/></th><th>Supervisor</th><th>Campus</th><th>Role &amp; discipline</th><th>As principal</th><th>As co-supervisor</th><th>Student access</th><th></th></tr></thead><tbody>${list.map(s=>{
+  const pg=pageSlice('semsup', list, [semSupQ,supTypeF,supCampusF,supAffF,sem,adminDiscipline].join('|'));
+  const sx=sxSave(e);
+  e.innerHTML=bulk+(list.length?`<div class="scroll-wrap"><div class="tw scroll-box" tabindex="0" aria-label="Semester supervisors table"><table class="lead2"><thead><tr><th style="width:34px"><input type="checkbox" data-ss-all style="width:auto" title="Tick everyone matching the filters (${list.length})"/></th><th>Supervisor</th><th>Campus</th><th>Role &amp; discipline</th><th>As principal</th><th>As co-supervisor</th><th>Student access</th><th></th></tr></thead><tbody>${pg.rows.map(s=>{
     const t=s.supervisorType||'both', cn=CAMPUSES.find(c=>c.id===s.campus)?.name;
     return `<tr style="${s.disabled?'opacity:.6':''}">
       <td><input type="checkbox" data-ss-check="${s.id}" ${SEMSUP_CHECK.has(s.id)?'checked':''} style="width:auto"/></td>
       <td><div class="flex items-center gap-12"><div class="avatar" style="width:32px;height:32px">${esc(ini(s.name||s.email))}</div><div style="min-width:0"><div class="fw-600">${esc(s.name||'(no name)')}</div><div class="text-xs text-muted">${esc(s.email||'')}</div>
-        ${s.disabled?'<span class="badge badge-red" style="margin-top:3px">Account disabled</span>':''}${!Array.isArray(s.semesters)?`<span class="badge badge-gray" style="margin-top:3px" title="This account is on every semester's list">Every semester</span>`:''}</div></div></td>
+        ${s.disabled?'<span class="badge badge-red" style="margin-top:3px">Account disabled</span>':''}${!Array.isArray(s.semesters)?`<span class="badge badge-gray" style="margin-top:3px" title="This account is on every semester's list">Every semester</span>`:''}${xlinksHTML({acc:s, pool:poolEntryFor(s), here:'semsup'})}</div></div></td>
       <td>${cn?`<span class="badge badge-gray">${esc(cn)}</span>`:'<span class="text-xs text-muted">—</span>'}</td>
       <td>${TYPE_BADGE(t)} ${affBadge(s.affiliation)}<div style="margin-top:4px">${supDiscBadges(s)}</div></td>
       <td>${loadCellHTML(L.p[s.id]||0, supLimit(s,'p',sem), supOwnLimit(s,'p',sem)!==null, canBeP(t))}</td>
@@ -4843,7 +5226,10 @@ function renderSemSupRows(){
         <button class="btn btn-sm" onclick="staffEditSup('${s.id}')" title="Edit the account (Staff & access)">${icon('i-edit')}</button>
         <button class="btn btn-sm btn-danger" onclick="toggleSupSemester('${s.id}')" title="Remove from ${esc(semesterLabel(sem))}">${icon('i-x')}Remove</button>
       </div></td></tr>`;
-  }).join('')}</tbody></table></div>`:`<div class="text-muted text-sm" style="padding:16px">No supervisors match these filters.</div>`);
+  }).join('')}</tbody></table></div></div>${pagerHTML(pg,'supervisors')}`:`<div class="text-muted text-sm" style="padding:16px">No supervisors match these filters.${semSupQ||supTypeF||supCampusF||supAffF?' <button class="read-more-btn" data-ss-reset>Clear filters</button>':''}</div>`);
+  sxRestore(e,sx,pgKey(pg));
+  bindPager(e,'semsup',renderSemSupRows,el('semsup-list-card'));
+  e.querySelector('[data-ss-reset]')?.addEventListener('click',()=>{ semSupQ=''; supTypeF=''; supCampusF=''; supAffF=''; renderSupListTools(); renderSemSupRows(); });
   e.querySelectorAll('[data-ss-check]').forEach(c=>c.onchange=()=>{ c.checked?SEMSUP_CHECK.add(c.dataset.ssCheck):SEMSUP_CHECK.delete(c.dataset.ssCheck); renderSemSupRows(); });
   const all=e.querySelector('[data-ss-all]'); if(all){ all.checked=list.length&&list.every(s=>SEMSUP_CHECK.has(s.id)); all.onchange=()=>{ list.forEach(s=>all.checked?SEMSUP_CHECK.add(s.id):SEMSUP_CHECK.delete(s.id)); renderSemSupRows(); }; }
   e.querySelectorAll('[data-ss-bulk]').forEach(b=>b.onclick=()=>semSupBulk(b.dataset.ssBulk));
@@ -6597,7 +6983,7 @@ const safeFile=s=>String(s||'').normalize('NFKD').replace(/[^A-Za-z0-9]+/g,'').s
 /* ══════════════════════════════════════════════════════════
    STAFF — every account in `users`, whatever its role
 ══════════════════════════════════════════════════════════ */
-let ALL_USERS=[], staffFilter='', staffAffF='', staffBound=false;
+let ALL_USERS=[], staffFilter='', staffAffF='', staffQ='', staffBound=false;
 const userRole=u=>u.role||'supervisor';
 async function loadAllUsers(){
   const snap=await getDocs(collection(db,'users'));
@@ -6609,13 +6995,17 @@ async function openStaffTab(){
   if(!staffBound){
     staffBound=true;
     el('st-add-btn').onclick=addAdminAccount;
+    el('staff-admin-close').onclick=()=>hide('staff-admin-card');
   }
   const host=el('staff-host');
   host.innerHTML=`<div class="card" style="text-align:center;padding:36px"><div class="spinner"></div></div>`;
   try{ await loadAllUsers(); renderStaff(); }
   catch(e){ host.innerHTML=`<div class="alert alert-danger">Could not load staff: ${esc(e.message)}</div>`; }
 }
-function gotoAdminTab(id){ document.querySelector(`.sidebar-item[data-tab="${id}"]`)?.click(); }
+function gotoAdminTab(id, opts){
+  document.querySelector(`.sidebar-item[data-tab="${id}"]`)?.click();
+  if(id==='tab-students' && opts?.stuView){ setStuView(opts.stuView); if(opts.stuView==='add') setTimeout(()=>el('s-name')?.focus(),60); }
+}
 const enabledAdmins=()=>ALL_USERS.filter(u=>userRole(u)==='admin' && !u.disabled);
 
 function staffRoleBadges(u){
@@ -6631,7 +7021,7 @@ function staffRoleBadges(u){
 }
 function renderStaff(){
   const host=el('staff-host'); if(!host) return;
-  const term=(host.querySelector('[data-staff-search]')?.value||'').trim().toLowerCase();
+  const term=staffQ.trim().toLowerCase();
   const n=f=>ALL_USERS.filter(f).length;
   const isRev=u=>userRole(u)==='officer' || (u.officeRoles||[]).length>0;
   const pills=[['','All staff',ALL_USERS.length],['admin','Administrators',n(u=>userRole(u)==='admin')],['supervisor','Supervisors',n(u=>userRole(u)==='supervisor')],['review','Review officers',n(isRev)],['disabled','Disabled',n(u=>u.disabled)]];
@@ -6645,6 +7035,8 @@ function renderStaff(){
     return true;
   }).sort((a,b)=>{ const o={admin:0,officer:1,supervisor:2}; return (o[userRole(a)]??3)-(o[userRole(b)]??3) || String(a.name||'').localeCompare(String(b.name||'')); });
 
+  const pg=pageSlice('staff', rows, [staffFilter,staffAffF,term].join('|'));
+  const sx=sxSave(host);
   host.innerHTML=`
     <div class="stats-strip">
       <div class="stat-card"><div class="stat-val">${ALL_USERS.length}</div><div class="stat-lbl">All accounts</div></div>
@@ -6659,15 +7051,20 @@ function renderStaff(){
         <div class="spacer"></div>
         ${affFilterHTML('data-staff-aff',staffAffF)}
         <button class="btn btn-sm" data-staff-refresh>${icon('i-refresh')}Refresh</button>
-        <div class="search-wrap"><span class="search-icon">${icon('i-search')}</span><input type="text" class="search-input" data-staff-search placeholder="Search name or email…" value="${esc(term)}"/></div>
+        <div class="search-wrap"><span class="search-icon">${icon('i-search')}</span><input type="text" class="search-input" data-staff-search placeholder="Search name or email…" value="${esc(staffQ)}"/></div>
       </div>
-      <div class="tw"><table><thead><tr><th>Name</th><th>Role</th><th>Campus</th><th>Status</th><th>Actions</th></tr></thead><tbody>${rows.length?rows.map(staffRowHTML).join(''):`<tr><td colspan="5" style="text-align:center;padding:32px;color:var(--text2)">No accounts match.</td></tr>`}</tbody></table></div>
+      <div class="scroll-wrap"><div class="tw scroll-box" tabindex="0" aria-label="Staff accounts table"><table class="lead1"><thead><tr><th>Name</th><th>Role</th><th>Campus</th><th>Status</th><th>Actions</th></tr></thead><tbody>${rows.length?pg.rows.map(staffRowHTML).join(''):`<tr><td colspan="5" style="text-align:center;padding:32px;color:var(--text2)">No accounts match.${staffQ||staffFilter||staffAffF?' <button class="read-more-btn" data-staff-reset>Clear filters</button>':''}</td></tr>`}</tbody></table></div></div>
+      ${pagerHTML(pg,'accounts')}
     </div>`;
+  sxRestore(host,sx,pgKey(pg));
+  bindPager(host,'staff',renderStaff,host);
+  host.querySelector('[data-staff-reset]')?.addEventListener('click',()=>{ staffQ=''; staffFilter=''; staffAffF=''; renderStaff(); });
+  refreshNavCounts();
   host.querySelectorAll('[data-staff-filter]').forEach(b=>b.onclick=()=>{ staffFilter=b.dataset.staffFilter; renderStaff(); });
   host.querySelector('[data-staff-refresh]').onclick=openStaffTab;
   host.querySelector('[data-staff-aff]').onchange=e=>{ staffAffF=e.target.value; renderStaff(); };
   const s=host.querySelector('[data-staff-search]');
-  s.oninput=deb(()=>{ renderStaff(); const i=el('staff-host').querySelector('[data-staff-search]'); i.focus(); i.setSelectionRange(i.value.length,i.value.length); },200);
+  s.oninput=deb(()=>{ staffQ=s.value; renderStaff(); const i=el('staff-host').querySelector('[data-staff-search]'); i.focus(); i.setSelectionRange(i.value.length,i.value.length); },200);
 }
 function staffRowHTML(u){
   const r=userRole(u), me=u.id===PROFILE?.uid;
@@ -6688,10 +7085,11 @@ function staffRowHTML(u){
   a.push(`<button class="btn btn-sm btn-ghost" onclick="showHistory('${u.id}','${nm}')" title="Change history">${icon('i-history')}</button>`);
   if(r==='supervisor' && !me) a.push(`<button class="btn btn-sm btn-danger" onclick="delSup('${u.id}')" title="Delete this account">${icon('i-trash')}</button>`);
   const semInfo = r==='supervisor' ? `<div class="text-xs text-muted" style="margin-top:3px">${esc(semListLabel(u))}</div>` : '';
+  const links = r==='supervisor' ? xlinksHTML({acc:u, pool:poolEntryFor(u), here:'staff'}) : '';
   return `<tr style="${u.disabled?'opacity:.6':''}">
     <td><div class="flex items-center gap-12"><div class="avatar" style="width:32px;height:32px">${esc(ini(u.name||u.email))}</div><div style="min-width:0">
       <div class="fw-600">${esc(u.name||'(no name)')}${me?' <span class="badge badge-gray">You</span>':''}</div>
-      <div class="text-xs text-muted">${esc(u.email||'no email')}${u.registrationId?' · from registration':''}</div></div></div></td>
+      <div class="text-xs text-muted">${esc(u.email||'no email')}${u.registrationId?' · from registration':''}</div>${links}</div></div></td>
     <td>${staffRoleBadges(u)}${semInfo}</td>
     <td>${cn?`<span class="badge badge-gray">${esc(cn)}</span>`:'<span class="text-xs text-muted">—</span>'}</td>
     <td>${status}</td>
@@ -6757,6 +7155,7 @@ async function addAdminAccount(){
     finally{ await signOut(pAuth).catch(()=>{}); }
     logAct('staff.add', name, `${email} · administrator`, cred.user.uid);
     ['st-name','st-email','st-pass'].forEach(i=>el(i).value='');
+    hide('staff-admin-card');
     await staffAfterChange(); toast(`${name} can now sign in as an administrator`,'success');
   }catch(e){ toast(String(e.code||'').includes('email-already-in-use')?'A sign-in account already exists for that email address. If they are already listed, use "Make admin".':'Error: '+String(e.message||'').replace('Firebase:','').trim(),'error',6000); }
   finally{ btn.disabled=false; }
@@ -6767,7 +7166,7 @@ async function addAdminAccount(){
 ══════════════════════════════════════════════════════════ */
 document.addEventListener('click',e=>{
   const a=e.target.closest('[data-goto-tab]'); if(!a) return;
-  e.preventDefault(); gotoAdminTab(a.dataset.gotoTab);
+  e.preventDefault(); gotoAdminTab(a.dataset.gotoTab, a.dataset.gotoSub?{stuView:a.dataset.gotoSub}:undefined);
 });
 function syncSemEyebrows(){
   document.querySelectorAll('[data-sem-eyebrow]').forEach(e=>e.textContent='Per semester · '+(adminSemester?semesterLabel(adminSemester):'all semesters')+(typeof discCtx==='function'?discCtx():''));
@@ -7032,7 +7431,7 @@ function buildSVDiscPills(){
 ══════════════════════════════════════════════════════════ */
 const POOL_COL='supervisorPool';
 let POOL=[], POOL_LOADED=false, POOL_CHECK=new Set();
-let poolSem=null, poolDisc=null, poolLevel='', poolCampus='', poolAffF='', poolView='all', POOL_HOST=null, POOL_CTX={};
+let poolSem=null, poolDisc=null, poolLevel='', poolCampus='', poolAffF='', poolView='all', poolQ='', poolMissF='', POOL_HOST=null, POOL_CTX={};
 const poolAff=p=>p.affiliation || poolAccount(p)?.affiliation || '';
 const poolName=p=>p.name||[p.title,p.firstName,p.lastName].filter(Boolean).join(' ')||p.email||'—';
 const lc=s=>String(s||'').trim().toLowerCase();
@@ -7157,8 +7556,9 @@ async function openPool(hostId, ctx){
   }
 }
 function poolFiltered(ignoreView){
-  const term=lc(el(POOL_HOST)?.querySelector('[data-pool-search]')?.value);
+  const term=lc(poolQ);
   return POOL.filter(p=>{
+    if(poolMissF){ const miss=poolMissing(p); if(poolMissF==='any' ? !miss.length : !miss.some(m=>m.k===poolMissF)) return false; }
     if(poolDisc && !((p.disciplines||[]).length===0 || discCovered(p.disciplines).includes(poolDisc))) return false;
     if(poolLevel && !levelMatch(p.level,poolLevel)) return false;
     if(poolCampus && !(p.campusIds||[]).includes(poolCampus)) return false;
@@ -7197,13 +7597,14 @@ function selAsHTML(p, attr, label){
 function renderPool(){
   const host=el(POOL_HOST); if(!host) return;
   const C=POOL_CTX, semLbl=poolSem?semesterLabel(poolSem):'—';
+  const sx=sxSave(host);
   const act=POOL.filter(p=>p.active!==false);
   const count=f=>act.filter(f).length;
   const base=poolFiltered(true);
   const vc=k=>base.filter(p=>{ const st=poolSemState(p,poolSem); return k==='all'||(k==='none'&&!st&&p.active!==false)||(k==='selected'&&st==='selected')||(k==='invited'&&st==='invited')||(k==='inactive'&&p.active===false); }).length;
   const selN=count(p=>poolSemState(p,poolSem)==='selected'), invN=count(p=>poolSemState(p,poolSem)==='invited');
   const notedN=count(p=>p.adminNote?.text||p.adminNote?.rec);
-  const term=host.querySelector('[data-pool-search]')?.value||'';
+  const term=poolQ;
   const step=(k,n,t,s,cls)=>`<button class="pool-step ${cls} ${poolView===k?'on':''}" data-pool-view="${k}"><span class="ps-n">${n}</span><span class="ps-t">${t}</span><span class="ps-s">${s}</span></button>`;
   host.innerHTML=`
     <div class="card mb-16" style="padding:14px 18px">
@@ -7238,35 +7639,44 @@ function renderPool(){
         <select data-pool-level style="width:auto;min-width:200px;height:34px">${LEVEL_FILTERS.map(([v,l])=>`<option value="${v}" ${poolLevel===v?'selected':''}>${esc(l)}</option>`).join('')}</select>
         ${affFilterHTML('data-pool-aff',poolAffF)}
         <select data-pool-campus style="width:auto;min-width:170px;height:34px"><option value="">All campuses</option>${CAMPUSES.map(c=>`<option value="${c.id}" ${poolCampus===c.id?'selected':''}>${esc(campusLabel(c))}</option>`).join('')}</select>
+        <select data-pool-miss title="Find people whose pool record is missing something — then tick them and email them" style="width:auto;min-width:190px;height:34px"><option value="">Any details</option><option value="any" ${poolMissF==='any'?'selected':''}>Missing any detail</option>${POOL_MISSING.map(m=>`<option value="${m.k}" ${poolMissF===m.k?'selected':''}>Missing: ${esc(m.short)}</option>`).join('')}</select>
+        ${poolQ||poolDisc||poolLevel||poolCampus||poolAffF||poolMissF?`<button class="btn btn-sm btn-ghost" data-pool-reset>Clear filters</button>`:''}
       </div>
       <div class="table-toolbar pool-bulk hidden" data-pool-bulkbar>
         <span class="fw-600 text-sm" data-pool-checked></span>
         ${C.canSelect?`${selAsHTML({}, 'data-pool-bulk-selas', 'Select ticked as…')}<button class="btn btn-sm" data-pool-bulk="unselect">Unselect</button>`:''}
         ${C.canInvite?`<button class="btn btn-sm btn-primary" data-pool-bulk="invite">${icon('i-userplus')}Add to ${esc(semLbl)}</button>`:''}
+        ${C.canEmail?`<button class="btn btn-sm" data-pool-bulk="email" title="Prepare one email to the ticked people (Bcc), e.g. to ask for missing information">${icon('i-mail')}Email ticked</button>`:''}
         ${C.canAccess?`<button class="btn btn-sm" data-pool-bulk="access" title="When the ticked people on the list see the students">${icon('i-eye')}Student access</button>`:''}
         ${C.canEdit?`<button class="btn btn-sm btn-danger" data-pool-bulk="remove">${icon('i-trash')}Remove from pool</button>`:''}
         <button class="btn btn-sm btn-ghost" data-pool-bulk="clear">Clear</button>
       </div>
-      <div class="tw"><table><thead><tr><th style="width:34px"><input type="checkbox" data-pool-all style="width:auto"/></th><th>Supervisor</th><th>Discipline &amp; level</th><th>Campus</th><th>${esc(semLbl)}</th><th></th></tr></thead><tbody data-pool-rows></tbody></table></div>
+      <div class="scroll-wrap"><div class="tw scroll-box" tabindex="0" aria-label="Supervisor pool table"><table class="lead2"><thead><tr><th style="width:34px"><input type="checkbox" data-pool-all style="width:auto" title="Tick everyone matching the filters"/></th><th>Supervisor</th><th>Discipline &amp; level</th><th>Campus</th><th>${esc(semLbl)}</th><th></th></tr></thead><tbody data-pool-rows></tbody></table></div></div>
+      <div data-pool-pager></div>
     </div>`;
   const q=s=>host.querySelector(s);
   q('[data-pool-sem]').onchange=e=>{ poolSem=e.target.value; POOL_CHECK.clear(); renderPool(); };
   host.querySelectorAll('[data-pool-view]').forEach(b=>b.onclick=()=>{ poolView=b.dataset.poolView; renderPool(); });
-  q('[data-pool-search]').oninput=deb(()=>renderPoolRows(),150);
+  q('[data-pool-search]').oninput=deb(e=>{ poolQ=e.target.value; renderPoolRows(); },150);
+  q('[data-pool-miss]').onchange=e=>{ poolMissF=e.target.value; renderPool(); };
   q('[data-pool-disc]').onchange=e=>{ poolDisc=e.target.value; renderPool(); };
   q('[data-pool-level]').onchange=e=>{ poolLevel=e.target.value; renderPool(); };
   q('[data-pool-campus]').onchange=e=>{ poolCampus=e.target.value; renderPool(); };
   q('[data-pool-aff]').onchange=e=>{ poolAffF=e.target.value; renderPool(); };
   q('[data-pool-export]').onclick=()=>exportPool(q('[data-pool-export-disc]').value);
+  q('[data-pool-reset]')?.addEventListener('click',()=>{ poolQ=''; poolDisc=''; poolLevel=''; poolCampus=''; poolAffF=''; poolMissF=''; renderPool(); });
   host.querySelectorAll('[data-pool-bulk]').forEach(b=>b.onclick=()=>poolBulk(b.dataset.poolBulk));
   q('[data-pool-bulk-selas]')?.addEventListener('change',e=>{ const r=e.target.value; e.target.value=''; if(r) poolBulk('select',r); });
   q('[data-pool-invite-selected]')?.addEventListener('click',()=>invitePool(POOL.filter(p=>p.active!==false && poolSemState(p,poolSem)==='selected')));
   q('[data-pool-all]').onchange=e=>{ poolFiltered().forEach(p=>e.target.checked?POOL_CHECK.add(p.id):POOL_CHECK.delete(p.id)); renderPoolRows(); };
   renderPoolRows();
+  sxRestore(host,sx,host.querySelector('.scroll-box')?.dataset.sxKey||'');
 }
 function renderPoolRows(){
   const host=el(POOL_HOST), body=host?.querySelector('[data-pool-rows]'); if(!body) return;
-  const C=POOL_CTX, rows=poolFiltered();
+  const C=POOL_CTX, all=poolFiltered();
+  const pg=pageSlice('pool:'+POOL_HOST, all, [poolQ,poolDisc,poolLevel,poolCampus,poolAffF,poolMissF,poolView,poolSem].join('|'));
+  const rows=pg.rows, adminHere=POOL_HOST==='admin-pool-host' && isAdminUser();
   const valid=new Set(POOL.map(p=>p.id)); [...POOL_CHECK].forEach(id=>{ if(!valid.has(id)) POOL_CHECK.delete(id); });
   const srcLbl={registration:'Approved registration',import:'Imported',manual:'Added by admin',account:'Existing account'};
   body.innerHTML = rows.length ? rows.map(p=>{
@@ -7284,22 +7694,29 @@ function renderPoolRows(){
     }
     if(C.canInvite && p.active!==false && st!=='invited') actions.push(`<button class="btn btn-sm ${st==='selected'?'btn-primary':''}" data-pool-act="invite" data-id="${p.id}" title="Put ${esc(poolName(p))} on the ${esc(semesterLabel(poolSem))} list">${icon('i-userplus')}Add to semester</button>`);
     if(C.canAccess && st==='invited' && acc) actions.push(`<button class="btn btn-sm" data-pool-act="access" data-id="${p.id}" title="When ${esc(poolName(p))} sees the students">${icon('i-eye')}</button>`);
+    if(C.canEmail && p.email) actions.push(`<button class="btn btn-sm btn-ghost" data-pool-act="email" data-id="${p.id}" title="Prepare an email to ${esc(poolName(p))}, e.g. to ask for more information">${icon('i-mail')}Email</button>`);
     if(C.canComment) actions.push(`<button class="btn btn-sm btn-ghost" data-pool-act="note" data-id="${p.id}" title="Write a note for the Associate Dean Research">${icon('i-edit')}Note</button>`);
     actions.push(`<button class="btn btn-sm btn-ghost" data-pool-act="view" data-id="${p.id}" title="Details">${icon('i-eye')}Details</button>`);
     return `<tr class="${st==='selected'?'row-sel':st==='invited'?'row-inv':''}" style="${p.active===false?'opacity:.55':''}">
       <td><input type="checkbox" data-pool-check="${p.id}" ${POOL_CHECK.has(p.id)?'checked':''} style="width:auto"/></td>
       <td style="min-width:240px"><div class="fw-600">${esc(poolName(p))} ${affBadge(poolAff(p))}</div><div class="text-xs text-muted">${esc(p.email||'no email')}${p.institution?' · '+esc(p.institution):''}</div>${(()=>{ const cv=safeUrl(poolCv(p)), fo=!cv&&safeUrl(p.docFolder), pr=safeUrl(p.profileLink); return cv||fo||pr?`<div class="text-xs pool-links">${cv?`<a href="${esc(cv)}" target="_blank" rel="noopener noreferrer">${icon('i-file','ic-sm')}CV</a>`:''}${fo?`<a href="${esc(fo)}" target="_blank" rel="noopener noreferrer">${icon('i-file','ic-sm')}Documents</a>`:''}${pr?`<a href="${esc(pr)}" target="_blank" rel="noopener noreferrer">${icon('i-ext','ic-sm')}Profile</a>`:''}</div>`:''; })()}
-        <div class="text-xs text-muted">${esc(srcLbl[p.source]||p.source||'')}${p.outcome==='Conditionally Approved'?' · <span class="c-amber">Conditional</span>':''}${acc?(acc.disabled?' · account disabled':(p.source==='account'?'':' · has an account')):' · no account yet'}</div>${poolNoteHTML(p)}</td>
+        <div class="text-xs text-muted">${esc(srcLbl[p.source]||p.source||'')}${p.outcome==='Conditionally Approved'?' · <span class="c-amber">Conditional</span>':''}${acc?(acc.disabled?' · account disabled':(p.source==='account'?'':' · has an account')):' · no account yet'}</div>${poolMailedHTML(p)}${poolMissF?poolMissHTML(p):''}${poolNoteHTML(p)}${adminHere?xlinksHTML({acc, pool:p, here:'pool'}):''}</td>
       <td>${disc}<div class="text-xs text-muted" style="margin-top:3px">Applied as ${esc(LEVEL_SHORT[p.level]||p.level||'—')}</div>${poolRecHTML(p)}</td>
       <td class="text-sm">${esc((p.campusNames||[]).join(', ')||'—')}</td>
       <td>${stCell}</td>
       <td><div class="flex gap-8" style="flex-wrap:wrap;justify-content:flex-end;align-items:center">${actions.join('')}</div></td></tr>`;
   }).join('') : `<tr><td colspan="6" style="text-align:center;padding:36px;color:var(--text2)">${POOL.length?'Nobody matches these filters.':'The pool is empty. Approved registrations are added automatically; import or add supervisors approved before.'}</td></tr>`;
+  const box=host.querySelector('.scroll-box');
+  if(box){ const k=pgKey(pg); if(box.dataset.sxKey!==k){ box.scrollTop=0; box.dataset.sxKey=k; } }
+  refreshScrollWraps(host);
+  const pgHost=host.querySelector('[data-pool-pager]');
+  if(pgHost){ pgHost.innerHTML=pagerHTML(pg,'supervisors'); bindPager(pgHost,'pool:'+POOL_HOST,renderPoolRows,host.querySelector('.table-card')); }
   body.querySelectorAll('[data-pool-check]').forEach(c=>c.onchange=()=>{ c.checked?POOL_CHECK.add(c.dataset.poolCheck):POOL_CHECK.delete(c.dataset.poolCheck); updatePoolChecked(); });
   body.querySelectorAll('[data-pool-act]').forEach(b=>b.onclick=()=>poolAct(b.dataset.poolAct, POOL.find(p=>p.id===b.dataset.id)));
   body.querySelectorAll('[data-pool-selas]').forEach(sl=>sl.onchange=()=>{ const r=sl.value; if(r) setPoolSelected([POOL.find(p=>p.id===sl.dataset.poolSelas)],true,r); });
   body.querySelectorAll('[data-pool-role]').forEach(sl=>sl.onchange=()=>{ const r=sl.value; if(r) setPoolSelected([POOL.find(p=>p.id===sl.dataset.poolRole)],true,r); });
   updatePoolChecked();
+  if(POOL_HOST==='admin-pool-host') refreshNavCounts();
 }
 /* What the reviewers said, under the level in the pool table (ADR's view wins). */
 function poolRecHTML(p){
@@ -7345,6 +7762,7 @@ function poolBulk(kind, role){
   if(kind==='select') setPoolSelected(list,true,role);
   else if(kind==='unselect') setPoolSelected(list,false);
   else if(kind==='invite') invitePool(list);
+  else if(kind==='email') openPoolEmail(list);
   else if(kind==='remove') confirmPoolRemove(list);
   else if(kind==='access'){
     const accs=list.filter(p=>poolSemState(p,poolSem)==='invited').map(poolAccount).filter(Boolean);
@@ -7427,10 +7845,102 @@ async function invitePoolInner(list, admin){
     `Dear ${targets.length===1?studentFirstName(targets[0]):'colleagues'},\n\nYou are invited to supervise Master of Research students at CIHE Australia in ${semesterLabel(poolSem)}.\n\n${accLine}\n${APP_URL}\n\nSign in with your email address. If this is your first time, you will receive a separate email to set your password — please check your junk folder if it has not arrived. You can also use "Forgot password?" on the sign-in page at any time.\n\nOnce students are allocated, attendance, CoC, thesis examination and appeals are managed in Supervision Hub (a separate system):\n${SUPERVISION_HUB_URL}\n\nBest regards,\n${myDisplayName()}`);
 }
 
+/* ── Email supervisors in the pool (admin / ADR) ──
+   No mail server: the message opens in the user's own email app (mailto:),
+   one person → To:, several → Bcc:. "Request missing information" lists what
+   their pool record lacks, so admins can ask for exactly that. When an
+   administrator opens the email, the pool entry records it (lastEmail), so
+   the table can show who was asked and when. */
+const POOL_MISSING=[
+  {k:'cv',       short:'CV',                     ask:'An up-to-date CV',                                                                                       test:p=>!poolCv(p) && !p.docFolder},
+  {k:'profile',  short:'ORCID / Scholar link',   ask:'Your ORCID iD or Google Scholar profile link',                                                           test:p=>!String(p.profileLink||'').trim()},
+  {k:'disc',     short:'Discipline',             ask:'The Master of Research discipline(s) you can supervise: Business, Accounting, Information Technology and/or Early Childhood Education', test:p=>!(p.disciplines||[]).length},
+  {k:'level',    short:'Supervision level',      ask:'The supervision role you are seeking: principal supervisor, associate (co-)supervisor, or both',         test:p=>!p.level},
+  {k:'campus',   short:'Campus',                 ask:'The CIHE Australia campus(es) where you can supervise',                                                  test:p=>!(p.campusIds||[]).length && !(p.campusNames||[]).length},
+  {k:'areas',    short:'Research areas',         ask:'Your research areas and specialisations',                                                                test:p=>!String(p.researchAreas||'').trim()},
+  {k:'hdr',      short:'HDR numbers',            ask:'How many HDR students you have supervised to completion, and how many you supervise now',               test:p=>!p.hdrCompleted || !p.hdrCurrent},
+  {k:'position', short:'Position / institution', ask:'Your current position title and employing institution',                                                  test:p=>!String(p.position||'').trim() || !String(p.institution||'').trim()},
+  {k:'phone',    short:'Phone',                  ask:'A contact phone number',                                                                                 test:p=>!String(p.phone||'').trim()},
+];
+const poolMissing=p=>p ? POOL_MISSING.filter(m=>{ try{ return m.test(p); }catch{ return false; } }) : [];
+function poolMissHTML(p){
+  const m=poolMissing(p); if(!m.length) return '';
+  return `<div class="pool-miss" title="Missing from their pool record">${icon('i-file')}Missing: ${esc(m.map(x=>x.short).join(', '))}</div>`;
+}
+function poolMailedHTML(p){
+  const e=p.lastEmail; if(!e || !e.at) return '';
+  const d=tsDate(e.at);
+  return `<div class="pool-mailed" title="${esc(`Email prepared ${d?d.toLocaleString('en-AU'):''}${e.by?' by '+e.by:''}${e.subject?' — '+e.subject:''}`)}">${icon('i-mail')}Emailed ${esc(relTime(d))}${e.by?' by '+esc(e.by):''}</div>`;
+}
+function openPoolEmail(list){
+  const people=(list||[]).filter(Boolean), withMail=people.filter(p=>p.email);
+  if(!withMail.length){ toast(people.length===1?`${poolName(people[0])} has no email address in the pool — add one with Details → Edit`:'None of the ticked people has an email address','info',5000); return; }
+  const left=people.length-withMail.length;
+  if(left) toast(`${left} ticked ${left===1?'person has':'people have'} no email address and ${left===1?'was':'were'} left out`,'info',5000);
+  EMAIL_KIND='pool';
+  EMAIL_TARGETS=withMail.map(p=>({name:poolName(p), email:p.email, _pool:p}));
+  el('email-target-label').textContent = withMail.length===1 ? poolName(withMail[0]) : `${withMail.length} supervisors`;
+  el('email-tpl-row')?.classList.remove('hidden');
+  renderEmailRecipients();
+  renderTplButtons('info');
+  const t=poolEmailTemplate('info', EMAIL_TARGETS);
+  el('email-subject').value=t.subject; el('email-body').value=t.body;
+  el('email-modal').classList.remove('hidden');
+  setTimeout(()=>{ const b=el('email-body'); if(!b) return; b.focus({preventScroll:true}); b.setSelectionRange(0,0); b.scrollTop=0; },60);
+}
+function poolEmailTemplate(kind, targets){
+  const ps=(targets||[]).map(t=>t._pool).filter(Boolean), one=ps.length===1?ps[0]:null;
+  const greet = one ? `Dear ${studentFirstName({name:poolName(one)})},` : 'Dear colleagues,';
+  const sign = `\n\nKind regards,\n${myDisplayName()}\nMaster of Research, CIHE Australia`;
+  const sem = poolSem ? semesterLabel(poolSem) : '';
+  if(kind==='info'){
+    let items;
+    if(one) items=poolMissing(one).map(m=>m.ask);
+    else { const sets=ps.map(p=>new Set(poolMissing(p).map(m=>m.k))); items=POOL_MISSING.filter(m=>sets.length && sets.every(st=>st.has(m.k))).map(m=>m.ask); }
+    const list = items.length ? items.map(x=>'• '+x).join('\n') : '• [write the information you need here]';
+    return { subject:'Additional information needed – supervisor pool, CIHE Australia',
+      body:`${greet}\n\nThank you for being part of the CIHE Australia Master of Research supervisor pool. To complete your record${sem?` and help us plan supervision for ${sem}`:''}, could you please send us the following:\n\n${list}\n\nYou can reply to this email with the details and attach any documents, or share a link that anyone with the link can open.${sign}` };
+  }
+  if(kind==='docs'){
+    return { subject:'Supporting documents – supervisor pool, CIHE Australia',
+      body:`${greet}\n\nTo keep your record in the CIHE Australia Master of Research supervisor pool up to date, could you please send us copies of:\n\n• Your current CV\n• Your PhD / doctoral certificate\n• Your academic transcripts\n\nYou can attach them to a reply, or share a Google Drive / OneDrive folder whose link is set so that anyone with the link can view and download.${sign}` };
+  }
+  if(kind==='avail'){
+    const s=sem||'the coming semester';
+    return { subject:`Supervision availability – ${s}`,
+      body:`${greet}\n\nWe are planning Master of Research supervision for ${s}. Could you please let us know:\n\n• Whether you are available to supervise in ${s}\n• In which role: principal supervisor, associate (co-)supervisor, or either\n• How many students you could take on\n• Any campus or discipline preferences\n\nA short reply is all we need.${sign}` };
+  }
+  if(kind==='confirm'){
+    if(one){
+      const line=(l,v)=>`${l}: ${String(v||'').trim()||'—'}`;
+      const details=[line('Name',poolName(one)),line('Email',one.email),line('Phone',one.phone),line('Discipline(s)',(one.disciplines||[]).map(discLong).join(', ')),line('Supervision level',one.level),line('Preferred campus',(one.campusNames||[]).join(', ')),line('Position',one.position),line('Institution',one.institution),line('Research areas',one.researchAreas),line('HDR students supervised to completion',one.hdrCompleted),line('HDR students currently supervising',one.hdrCurrent),line('ORCID / Google Scholar',one.profileLink),line('CV',poolCv(one)?'on file':'')].join('\n');
+      return { subject:'Please confirm your details – supervisor pool, CIHE Australia',
+        body:`${greet}\n\nCould you please check the details we hold for you in the CIHE Australia Master of Research supervisor pool, and reply with any corrections or anything that is missing (shown as —)?\n\n${details}${sign}` };
+    }
+    return { subject:'Please confirm your details – supervisor pool, CIHE Australia',
+      body:`${greet}\n\nCould you please check that the details we hold for you in the CIHE Australia Master of Research supervisor pool are current — contact details, discipline(s), supervision level, preferred campus, position and institution, research areas, HDR supervision numbers, ORCID / Google Scholar link and CV — and reply with any changes?${sign}` };
+  }
+  return { subject:'', body:`${greet}\n\n${sign.replace(/^\n+/,'')}` };
+}
+/* Record that an administrator prepared an email to these pool entries (best effort). */
+function notePoolEmailed(targets, subject){
+  if(!isAdminUser()) return;
+  const ps=(targets||[]).map(t=>t._pool).filter(p=>p && p.id); if(!ps.length) return;
+  const val={at:serverTimestamp(), by:myDisplayName(), uid:ME.uid, subject:String(subject||'').slice(0,120), n:ps.length};
+  (async()=>{
+    try{
+      for(let i=0;i<ps.length;i+=400){ const b=writeBatch(db); ps.slice(i,i+400).forEach(p=>b.update(doc(db,POOL_COL,p.id),{lastEmail:val})); await b.commit(); }
+      ps.forEach(p=>{ p.lastEmail={...val, at:Timestamp.now()}; const live=POOL.find(x=>x.id===p.id); if(live && live!==p) live.lastEmail=p.lastEmail; });
+      if(POOL_HOST && el(POOL_HOST) && el(POOL_HOST).offsetParent!==null) renderPoolRows();
+    }catch(e){ console.warn('Supervisor pool: could not record the email', e.code||e.message); }
+  })();
+}
+
 /* ── Row actions, details, add / edit ── */
 function poolAct(kind,p){
   if(!p) return;
   if(kind==='note') return openPoolNote(p);
+  if(kind==='email') return openPoolEmail([p]);
   if(kind==='select') setPoolSelected([p],true);
   else if(kind==='unselect') setPoolSelected([p],false);
   else if(kind==='invite') invitePool([p]);
@@ -7463,8 +7973,11 @@ function openPoolModal(p, editing){
       ${['office','adr'].filter(k=>hasRev(p.review?.[k])).map(k=>kvHTML(`${REV_STAGES[k]} — reviewer comments`,`${revSummary(p.review[k])||'—'}${p.review[k].by?' ('+p.review[k].by+')':''}${p.review[k].comment?'\n'+p.review[k].comment:''}`,'wide')).join('')}
       ${acc&&poolSem?kvHTML(`Sees students · ${semesterLabel(poolSem)}`,accessText(acc,poolSem)):''}
       ${p.adminNote&&(p.adminNote.text||p.adminNote.rec)?kvHTML('Admin note for the ADR',`${p.adminNote.rec?'Recommends '+ROLE_WORD[p.adminNote.rec]+(p.adminNote.text?'\n':''):''}${p.adminNote.text||''}`,'wide'):''}
-      ${kvHTML('Selected for',(p.selected||[]).map(s=>semesterLabel(s)+(poolSelRole(p,s)?` (${ROLE_WORD[poolSelRole(p,s)]})`:'')).join(', ')||'—')}${kvHTML('Added to the list for',semNames(p.invited))}${p.notes?kvHTML('Notes',p.notes,'wide'):''}</div>
+      ${kvHTML('Selected for',(p.selected||[]).map(s=>semesterLabel(s)+(poolSelRole(p,s)?` (${ROLE_WORD[poolSelRole(p,s)]})`:'')).join(', ')||'—')}${kvHTML('Added to the list for',semNames(p.invited))}${p.notes?kvHTML('Notes',p.notes,'wide'):''}
+      ${(()=>{ const miss=poolMissing(p); return kvHTML('Missing from their record', miss.length?miss.map(m=>m.short).join(', '):'Nothing — all the usual details are on file', 'wide'+(miss.length?' c-amber':'')); })()}
+      ${p.lastEmail?kvHTML('Last email prepared',`${fmtDate(p.lastEmail.at)}${p.lastEmail.by?' by '+p.lastEmail.by:''}${p.lastEmail.subject?' — “'+p.lastEmail.subject+'”':''}`,'wide'):''}</div>
       <div class="form-actions mt-16">
+        ${C.canEmail&&p.email?`<button class="btn btn-sm btn-primary" data-pm="email">${icon('i-mail')}Email ${esc(studentFirstName({name:poolName(p)}))}${poolMissing(p).length?' to ask for missing details':''}</button>`:''}
         ${p.registrationId && C.canEdit!==undefined ? `<button class="btn btn-sm" data-pm="reg">${icon('i-clip')}Open registration form</button>`:''}
         ${C.canEdit?`<button class="btn btn-sm" data-pm="edit">${icon('i-edit')}Edit</button><button class="btn btn-sm" data-pm="toggle">${p.active===false?'Reactivate':'Mark inactive'}</button><button class="btn btn-sm btn-danger" data-pm="remove">${icon('i-trash')}Remove from pool</button>`:''}
       </div>`;
@@ -7475,7 +7988,7 @@ function openPoolModal(p, editing){
       const t=parts[0]&&REG_OPTS.title.find(x=>lc(x).replace('.','')===lc(parts[0]).replace('.',''));
       if(t && parts.length>1){ title=t; parts.shift(); }
       return {title, last:parts.length>1?parts.pop():'', first:parts.join(' ')}; })();
-    body.innerHTML=`<p class="modal-desc">${isNew?'For someone approved to supervise outside this system. They get a sign-in account only when added to a semester.':'Changes here do not change an existing sign-in account; edit that under Settings → Staff & access.'}</p>
+    body.innerHTML=`<p class="modal-desc">${isNew?'For someone approved to supervise outside this system. They get a sign-in account only when added to a semester.':'Changes here do not change an existing sign-in account; edit that under Supervisors & staff → Staff & access.'}</p>
       <div class="g3"><div class="form-group"><label>Title</label><select data-pf="title"><option value="">—</option>${optsHTML(REG_OPTS.title,nm.title||'')}</select></div>
         <div class="form-group"><label>First name <span class="req">*</span></label><input type="text" data-pf="firstName" value="${esc(nm.first)}"/></div>
         <div class="form-group"><label>Last name <span class="req">*</span></label><input type="text" data-pf="lastName" value="${esc(nm.last)}"/></div></div>
@@ -7501,6 +8014,7 @@ function openPoolModal(p, editing){
 async function poolModalAct(kind,p,isNew,btn){
   const m=poolModalEl();
   if(kind==='edit') return openPoolModal(p,true);
+  if(kind==='email'){ m.classList.add('hidden'); return openPoolEmail([p]); }
   if(kind==='reg'){ m.classList.add('hidden'); try{ if(!REGS.length) await loadRegs(); }catch{} if(REGS.some(r=>r.id===p.registrationId)) openReg(p.registrationId); else toast('Registration form not found','error'); return; }
   try{
     if(kind==='toggle'){
@@ -7694,8 +8208,8 @@ async function previewPoolImport(file){
 }
 
 /* ── Entry points ── */
-async function openPoolTab(){ initPoolTools(); await openPool('admin-pool-host',{canSelect:true,canInvite:true,canEdit:true,canAccess:true,canComment:true}); }
-function poolCtxForMe(){ const admin=isAdminUser(), adr=admin||isADRUser(); return {canSelect:adr,canInvite:adr,canEdit:admin,canAccess:admin,canComment:admin}; }
+async function openPoolTab(){ initPoolTools(); await openPool('admin-pool-host',{canSelect:true,canInvite:true,canEdit:true,canAccess:true,canComment:true,canEmail:true}); }
+function poolCtxForMe(){ const admin=isAdminUser(), adr=admin||isADRUser(); return {canSelect:adr,canInvite:adr,canEdit:admin,canAccess:admin,canComment:admin,canEmail:adr}; }
 
 
 /* ══════════════════════════════════════════════════════════
