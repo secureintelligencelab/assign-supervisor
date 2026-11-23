@@ -1304,7 +1304,7 @@ button.sup-chip:hover{border-color:currentColor}
         <div class="grid-2 mt-16" id="pool-admin-tools">
           <div class="card">
             <div class="card-header"><h3><svg class="ic"><use href="#i-upload"/></svg>Import existing supervisors</h3><button class="btn btn-sm" id="pool-template-btn"><svg class="ic"><use href="#i-download"/></svg>CSV template</button></div>
-            <p class="card-sub">For supervisors approved before registrations were kept here. Columns: <code class="chip-code">Title, First Name, Last Name, Email, Phone, Discipline, Supervision Level, Campus, Institution, Position, Research Areas, Affiliation, CV Link, ORCID / Google Scholar, HDR Completed, HDR Current, Notes</code>. Only names and email are required. Discipline is <em>Business</em>, <em>Accounting</em>, <em>IT</em> and/or <em>Early Childhood Education</em> (separate several with <code>;</code>); Supervision Level is <em>Principal</em>, <em>Associate</em>, <em>Both</em> or <em>Industry</em>; separate several campuses with <code>;</code>. Affiliation is <em>Internal full-time</em>, <em>Internal sessional</em>, <em>Internal</em> or <em>External</em>. HDR Completed / HDR Current take a number (e.g. <em>4</em>) or a range as on the registration form (<em>0, 1–2, 3–5, 6–10, 10+</em> / <em>0, 1–2, 3–5, 5+</em>). Anyone already in the pool (same email) is skipped.</p>
+            <p class="card-sub"><strong>Only for people who are already approved.</strong> New applications received as Word files that still need reviewing go under <a href="#" data-goto-tab="tab-registrations">Registrations</a> (Enter a form manually / CSV import) instead. For supervisors approved before registrations were kept here. Columns: <code class="chip-code">Title, First Name, Last Name, Email, Phone, Discipline, Supervision Level, Campus, Institution, Position, Research Areas, Affiliation, CV Link, ORCID / Google Scholar, HDR Completed, HDR Current, Notes</code>. Only names and email are required. Discipline is <em>Business</em>, <em>Accounting</em>, <em>IT</em> and/or <em>Early Childhood Education</em> (separate several with <code>;</code>); Supervision Level is <em>Principal</em>, <em>Associate</em>, <em>Both</em> or <em>Industry</em>; separate several campuses with <code>;</code>. Affiliation is <em>Internal full-time</em>, <em>Internal sessional</em>, <em>Internal</em> or <em>External</em>. HDR Completed / HDR Current take a number (e.g. <em>4</em>) or a range as on the registration form (<em>0, 1–2, 3–5, 6–10, 10+</em> / <em>0, 1–2, 3–5, 5+</em>). Anyone already in the pool (same email) is skipped.</p>
             <div id="pool-drop" class="drop-zone"><div class="dz-ic"><svg class="ic ic-lg"><use href="#i-file"/></svg></div><div class="fw-600" style="color:var(--text)">Drop a CSV file here or click to browse</div><div class="text-xs" style="margin-top:2px">You'll see a preview before anything is imported</div></div>
             <input type="file" id="pool-csv" accept=".csv" style="display:none"/>
             <div id="pool-import-preview" class="mt-16 hidden"></div>
@@ -1338,6 +1338,15 @@ button.sup-chip:hover{border-color:currentColor}
               </div>
             </div>
           </div>
+        </div>
+
+        <div class="card mb-16" id="reg-paper-card">
+          <div class="card-header"><h3><svg class="ic"><use href="#i-file"/></svg>Registration forms received as Word files</h3>
+            <div class="flex gap-8" style="flex-wrap:wrap"><button class="btn btn-sm btn-primary" id="reg-paper-add"><svg class="ic"><use href="#i-edit"/></svg>Enter a form manually</button><button class="btn btn-sm" id="reg-paper-template"><svg class="ic"><use href="#i-download"/></svg>CSV template</button></div></div>
+          <p class="card-sub">For applications that arrived as a Word file (or on paper) and have <strong>not been approved yet</strong>. Enter them one at a time, or put several in a CSV file (one row per applicant, columns as in the template) and import them. Each one joins the queue below as a registration marked <em>Word form</em> and goes through the same review steps. The applicant does not need to fill in the online form. Supervisors who were <strong>already approved</strong> go straight into the <a href="#" data-goto-tab="tab-pool">supervisor pool</a> instead.</p>
+          <div id="reg-paper-drop" class="drop-zone"><div class="dz-ic"><svg class="ic ic-lg"><use href="#i-upload"/></svg></div><div class="fw-600" style="color:var(--text)">Drop a CSV of Word-form registrations here, or click to browse</div><div class="text-xs" style="margin-top:2px">You'll see a preview, and choose where in the review they start, before anything is added</div></div>
+          <input type="file" id="reg-paper-csv" accept=".csv,text/csv" style="display:none"/>
+          <div id="reg-paper-preview" class="mt-16 hidden"></div>
         </div>
 
         <div id="admin-reg-host"></div>
@@ -2139,6 +2148,8 @@ const ACT = {
   'reg.returnApplicant':{v:'returned to the applicant for changes the registration of', c:'reg', i:'i-back'},
   'reg.delete':        {v:'deleted the registration of',        c:'reg',    i:'i-trash', t:'danger'},
   'reg.review':        {v:'saved reviewer comments on the registration of', c:'reg', i:'i-edit'},
+  'reg.paper':         {v:'entered a Word-form registration for', c:'reg', i:'i-file'},
+  'reg.paperImport':   {v:'imported Word-form registrations:',   c:'reg', i:'i-upload'},
   'access.default':    {v:'set when invited supervisors see students for', c:'sup', i:'i-eye'},
   'access.set':        {v:'changed when students are shown to',  c:'sup',    i:'i-eye'},
   'officer.set':       {v:'set registration review stages for', c:'reg',    i:'i-shield'},
@@ -5626,7 +5637,7 @@ const REG_STATUS={
   closed:     {l:'Closed',                       b:'badge-gray',  step:1, bad:1, w:'—'},
 };
 const REG_STEPS=['Submitted','Course Coordinator / Research Officer','Head of School endorsement','Associate Dean Research / RSC','Supervisor pool'];
-const TRAIL={review:'Reviewer comments saved',adrReturn:'Returned by the Associate Dean Research / RSC to the Course Coordinator / Research Officer',adminEdit:'Answers corrected by an administrator',poolRemove:'Removed from the supervisor pool by an administrator',forwardAdr:'Forwarded to the Associate Dean Research / RSC (Head of School endorsement not required)',assign:'Assigned by an administrator',returnApplicant:'Returned to the applicant for changes',resubmit:'Resubmitted by the applicant',forward:'Forwarded for School / Division endorsement',close:'Closed by the Research Office',endorse:'Endorsed by the School / Division',return:'Returned to the Research Office',decide:'Decision recorded',checklist:'Office checklist updated',account:'Supervisor account created',reopen:'Reopened',adminMove:'Moved by an administrator',withdraw:'Withdrawn by an administrator'};
+const TRAIL={paper:'Received as a Word / paper form and entered by an administrator',review:'Reviewer comments saved',adrReturn:'Returned by the Associate Dean Research / RSC to the Course Coordinator / Research Officer',adminEdit:'Answers corrected by an administrator',poolRemove:'Removed from the supervisor pool by an administrator',forwardAdr:'Forwarded to the Associate Dean Research / RSC (Head of School endorsement not required)',assign:'Assigned by an administrator',returnApplicant:'Returned to the applicant for changes',resubmit:'Resubmitted by the applicant',forward:'Forwarded for School / Division endorsement',close:'Closed by the Research Office',endorse:'Endorsed by the School / Division',return:'Returned to the Research Office',decide:'Decision recorded',checklist:'Office checklist updated',account:'Supervisor account created',reopen:'Reopened',adminMove:'Moved by an administrator',withdraw:'Withdrawn by an administrator'};
 const DECLARATIONS=[
   'I confirm that I am actively engaged in research and scholarly activities relevant to the discipline in which I seek to supervise.',
   'I have read and understood the CIHE Australia relevant policies and procedures outlined in Section 4 and agree to supervise research candidates in accordance with these requirements.',
@@ -6196,7 +6207,7 @@ function renderRegRows(){
     const withWho = regWithWho(r);
     return `<tr>
       <td class="text-xs text-muted" style="white-space:nowrap">${esc(fmtDate(r.submittedAt))}</td>
-      <td><div class="fw-600">${esc(regName(r))}</div><div class="text-xs text-muted">${esc(r.email)}${r.institution?' · '+esc(r.institution):''}</div></td>
+      <td><div class="fw-600">${esc(regName(r))}${r.source==='paper'?' <span class="badge badge-gray" title="Received as a Word / paper form and entered by an administrator">Word form</span>':''}</div><div class="text-xs text-muted">${esc(r.email)}${r.institution?' · '+esc(r.institution):''}</div></td>
       <td class="text-sm">${esc(r.discipline)}<div class="text-xs text-muted">${esc(r.level)}</div>${regCampusText(r)?`<div class="text-xs" style="margin-top:2px">${icon('i-building','ic-sm')} ${esc(regCampusText(r))}</div>`:''}</td>
       <td><span class="badge ${st.b}">${esc(st.l)}</span>${r.decision?.outcome?`<div class="text-xs text-muted" style="margin-top:3px">${esc(r.decision.outcome)}</div>`:''}${['office','adr'].map(k=>revSummary(r.reviews?.[k])?`<div class="text-xs text-muted" style="margin-top:2px" title="${esc(REV_STAGES[k])}">${REV_SHORT[k]}: ${esc(revSummary(r.reviews[k]))}</div>`:'').join('')}</td>
       <td class="text-sm">${esc(withWho)}${r.assignee?' <span class="badge badge-gray" title="Assigned by an administrator">Assigned</span>':''}</td>
@@ -6213,16 +6224,18 @@ function kvHTML(label,val,cls=''){
   return `<div class="${cls}"><div class="k">${esc(label)}</div><div style="overflow-wrap:anywhere;white-space:pre-wrap">${v}</div></div>`;
 }
 const sigKV=(label,u)=>`<div><div class="k">${esc(label)}</div>${okSig(u)?`<img class="sig-img" alt="Signature" src="${esc(okSig(u))}"/>`:'<div>—</div>'}</div>`;
-const docMethodText=r=> r.docMethod==='email' ? 'Emailing the documents to the Research Office (quoting the reference)'
+const docMethodText=r=> r.docMethod==='paper' ? 'Sent with the Word / paper form (kept by the Research Office)'
+  : r.docMethod==='email' ? 'Emailing the documents to the Research Office (quoting the reference)'
   : r.docMethod==='links' ? 'Shared links — applicant confirmed anyone with the link can view and download' : 'Links in the form';
 function regDetailHTML(r){
   const st=REG_STATUS[r.status]||{l:r.status,b:'badge-gray'};
   const e=r.endorsement||{}, d=r.decision||{}, ck=r.checklist||{}, docs=r.officeReview?.docs||{};
   const sec=(t,inner)=>`<div class="reg-sec"><h4>${t}</h4>${inner}</div>`;
-  const docLine=(lbl,url,got)=>kvHTML(lbl, url || (got?'Received by the Research Office':r.docFolder?'See the shared folder':r.docMethod==='email'?'To be emailed to the Research Office':'Not provided'));
+  const docLine=(lbl,url,got)=>kvHTML(lbl, url || (got?'Received by the Research Office':r.docFolder?'See the shared folder':r.docMethod==='paper'?'With the Word / paper form':r.docMethod==='email'?'To be emailed to the Research Office':'Not provided'));
   return `
     <div class="flex items-center gap-8" style="flex-wrap:wrap"><span class="badge ${st.b}">${esc(st.l)}</span><span class="text-xs text-muted">Ref <code>${esc(r.id)}</code> · submitted ${esc(fmtDate(r.submittedAt))}</span>
       <div class="spacer"></div>${isAdminUser()?`<button class="btn btn-sm" data-ra="adminEdit">${icon('i-edit')}Correct answers</button>`:''}<button class="btn btn-sm btn-primary" data-ra="word">${icon('i-download')}Download Word file</button><button class="btn btn-sm" data-ra="mail-applicant">${icon('i-mail')}Email applicant</button></div>
+    ${r.source==='paper'?`<div class="alert alert-info" style="margin:10px 0 0">${icon('i-file','ic-sm')} <strong>Received as a Word / paper form</strong>${r.paper?.received?` dated ${esc(dmy(r.paper.received))}`:''}, entered${r.paper?.how==='csv'?' (CSV import)':''} by ${esc(r.paper?.by||'an administrator')}${r.paper?.at?' on '+esc(fmtDate(r.paper.at)):''}.${safeUrl(r.paper?.file)?` <a href="${esc(safeUrl(r.paper.file))}" target="_blank" rel="noopener noreferrer">Open the original Word file</a>`:''}${r.paper?.note?`<div class="text-sm" style="margin-top:4px;white-space:pre-wrap">${esc(r.paper.note)}</div>`:''}</div>`:''}
     ${assignCtlHTML(r)}
     ${regStepsHTML(r.status, r.endorsement?.skipped, r.returnedFrom)}
     ${reviewsSectionHTML(r)}
@@ -6231,7 +6244,9 @@ function regDetailHTML(r){
     ${sec('Section 2 · Personal details',`<div class="kv">${kvHTML('Name',regName(r))}${kvHTML('Australian citizen / PR',r.citizen)}${kvHTML('Phone',r.phone)}${kvHTML('Email',r.email)}${kvHTML('Residential address',r.address,'wide')}</div>`)}
     ${sec('Section 3 · Academic & professional profile',`<div class="kv">${kvHTML('Current position title',r.position)}${kvHTML('Employing institution',r.institution)}${kvHTML('Institution address',r.institutionAddress,'wide')}${kvHTML('PhD / doctoral qualification',r.phd,'wide')}${kvHTML('Research areas & specialisations',r.researchAreas,'wide')}${kvHTML('ORCID / Google Scholar',r.profileLink,'wide')}${kvHTML('HDR students supervised to completion',r.hdrCompleted)}${kvHTML('Current HDR students supervising',r.hdrCurrent)}${kvHTML('Supervision mode',r.mode)}</div>`)}
     ${sec('Supporting documents',`<div class="kv">${kvHTML('How provided',docMethodText(r),'wide')}${r.docFolder?kvHTML('Shared folder',r.docFolder,'wide'):''}${docLine('CV',r.docCv,docs.cv)}${docLine('PhD certificate',r.docPhd,docs.phd)}${docLine('Transcripts',r.docTranscripts,docs.tr)}${r.docOther?kvHTML('Other documents',r.docOther):''}</div>`)}
-    ${sec('Section 5 · Supervisor declaration',`<div class="text-sm">${icon('i-check','ic-sm')} All ${DECLARATIONS.length} statements confirmed, including the Conflict of Interest Declaration.</div><div class="kv mt-8">${sigKV('Signature',r.signatureImg)}${kvHTML('Print full name',r.signature)}${kvHTML('Date',dmy(r.signedOn))}</div>`)}
+    ${sec('Section 5 · Supervisor declaration', r.source==='paper'
+      ? `<div class="text-sm">${r.declarations===true?`${icon('i-check','ic-sm')} All ${DECLARATIONS.length} statements ticked on the Word / paper form, including the Conflict of Interest Declaration.`:`<span class="c-amber">The declarations were not recorded as ticked on the Word / paper form — check the original.</span>`}</div><div class="kv mt-8">${okSig(r.signatureImg)?sigKV('Signature',r.signatureImg):kvHTML('Signature','Signed on the Word / paper form')}${kvHTML('Print full name',r.signature)}${kvHTML('Date',dmy(r.signedOn))}</div>`
+      : `<div class="text-sm">${icon('i-check','ic-sm')} All ${DECLARATIONS.length} statements confirmed, including the Conflict of Interest Declaration.</div><div class="kv mt-8">${sigKV('Signature',r.signatureImg)}${kvHTML('Print full name',r.signature)}${kvHTML('Date',dmy(r.signedOn))}</div>`)}
     ${!hosApplies(r) ? '' : sec('Section 6 · Faculty / School endorsement',`<div class="kv">${kvHTML('Forwarding School / Division',e.school)}${kvHTML('Endorsed by',e.by)}${kvHTML('Date of endorsement',dmy(e.date))}${sigKV('Signature',e.sig)}${e.note?kvHTML('Comment',e.note,'wide'):''}</div>`)}
     ${sec(`Section ${adrSec(r)} · Approval by Associate Dean Research or RSC`,`<div class="kv">${kvHTML('Name',d.name)}${kvHTML('Registration outcome',d.outcome)}${kvHTML('Date of decision',dmy(d.date))}${kvHTML('RSC decision / date',d.rsc)}${sigKV('Signature',d.sig)}${kvHTML('Comments / conditions',d.comments,'wide')}</div>`)}
     ${sec('Checklist · office use only',CHECKLIST.map(([k,l])=>`<div class="text-sm" style="padding:3px 0;color:${ck[k]?'var(--text)':'var(--text3)'}">${ck[k]?'☑':'☐'} ${esc(l)}</div>`).join('')+(r.account?.uid?`<div class="text-sm" style="padding:3px 0">☑ Assign Supervisor account created ${esc(fmtDate(r.account.at))}</div>`:''))}
@@ -6289,7 +6304,7 @@ function openAdminEdit(r){
     <div class="alert alert-info" style="margin-top:8px">You are correcting <strong>${esc(regName(r))}</strong>'s answers on their behalf. Every change is recorded in the form's history (and the Word file). The applicant's signature and declarations are not changed.</div>
     <div class="ae-grid">${keys.map(fld).join('')}
       <div class="form-group"><label>${esc(FIELD_LABELS.citizen)}</label><select data-ae="citizen">${optsHTML(['Yes','No'],r.citizen||'')}</select></div>
-      <div class="form-group"><label>${esc(FIELD_LABELS.docMethod)}</label><select data-ae="docMethod"><option value="links" ${r.docMethod!=='email'?'selected':''}>Shared links</option><option value="email" ${r.docMethod==='email'?'selected':''}>Emailed to the Research Office</option></select></div>
+      <div class="form-group"><label>${esc(FIELD_LABELS.docMethod)}</label><select data-ae="docMethod"><option value="links" ${!['email','paper'].includes(r.docMethod)?'selected':''}>Shared links</option><option value="email" ${r.docMethod==='email'?'selected':''}>Emailed to the Research Office</option><option value="paper" ${r.docMethod==='paper'?'selected':''}>Sent with the Word / paper form</option></select></div>
       <div class="form-group wide"><label>${esc(FIELD_LABELS.campusIds)} <span class="req">*</span></label><div class="sem-box"><div class="sem-list" style="border:none;margin:0;padding:0">${CAMPUSES.map(c=>`<label class="check-row"><input type="checkbox" data-ae-campus="${c.id}" ${(r.campusIds||[]).includes(c.id)?'checked':''}/> <span>${esc(campusLabel(c))}</span></label>`).join('')}</div></div></div>
     </div>
     <div class="form-group"><label>Reason for the correction <span class="opt">(recorded in the history)</span></label><input type="text" id="ae-reason" maxlength="200" placeholder="e.g. Applicant emailed a new phone number"/></div>
@@ -6331,6 +6346,339 @@ function openAdminEdit(r){
     }catch(e){ el('ae-save').disabled=false; toast('Error: '+e.message,'error'); }
   };
 }
+/* ══════════════════════════════════════════════════════════
+   REGISTRATIONS RECEIVED AS WORD / PAPER FORMS (admin)
+   Applications that arrived as a Word file before the online form existed.
+   An administrator enters one by hand, or imports several from a CSV. Each
+   becomes an ordinary registration (source:'paper', paper:{…}) that starts at
+   the stage the admin chooses and then follows the normal review steps. The
+   applicant gets a reference code and can follow it on the public page.
+══════════════════════════════════════════════════════════ */
+const PAPER_STAGES=[
+  ['submitted','Course Coordinator / Research Officer — check documents and forward (usual start)'],
+  ['endorsement','Head of School / Division — endorsement'],
+  ['approval','Associate Dean Research / RSC — decision (office checks already done)'],
+];
+const RG_MAX=Object.fromEntries(RG_FIELDS.map(([k,,,max])=>[k,max]));
+const PAPER_REQ=['discipline','level','title','firstName','lastName','phone','email','address','position','institution','researchAreas','hdrCompleted','hdrCurrent','mode'];
+const blankRegAnswers=()=>{ const o={}; RG_FIELDS.forEach(([k])=>o[k]=''); return Object.assign(o,{docMethod:'paper',citizen:'',campusIds:[],campusNames:[]}); };
+/* Which online-form answers are still blank (the Research Officer can fill them in later with "Correct answers"). */
+const paperBlanks=f=>PAPER_REQ.filter(k=>!String(f[k]||'').trim()).map(k=>FIELD_LABELS[k]||k).concat((f.campusIds||[]).length||(f.campusNames||[]).length?[]:['Preferred campus']).concat(f.citizen?[]:['Australian citizen / PR']);
+const normMode=t=>{ const s=lc(t); if(!s) return ''; if(s.includes('hybrid')) return REG_OPTS.mode[2]; if(/remote|online/.test(s)) return REG_OPTS.mode[1]; if(/site|campus|person/.test(s)) return REG_OPTS.mode[0]; return String(t).trim().slice(0,60); };
+const normTitle=t=>{ const s=lc(t).replace(/\./g,''); if(!s) return ''; if(/^(a\/?prof|assoc(iate)? ?prof(essor)?)$/.test(s)) return 'Assoc Prof'; if(/^prof(essor)?$/.test(s)) return 'Prof'; if(s==='dr'||s==='doctor') return 'Dr.'; if(s==='mr') return 'Mr'; if(s==='ms') return 'Ms'; return String(t).trim().slice(0,20); };
+const normYesNo=t=>{ const s=lc(t); return /^(y|yes|true|1|citizen|pr|permanent)/.test(s)?'Yes':/^(n|no|false|0)/.test(s)?'No':''; };
+const normDocMethod=(t,hasLinks)=>{ const s=lc(t); if(/link|drive|onedrive|dropbox|share/.test(s)) return 'links'; if(/e-?mail/.test(s)) return 'email'; if(s) return 'paper'; return hasLinks?'links':'paper'; };
+/* "12/03/2025", "2025-03-12", "12 March 2025", Excel serial numbers → YYYY-MM-DD (day first, as in Australia). */
+function parseDateISO(t){
+  const s=String(t||'').trim(); if(!s) return '';
+  let m=s.match(/^(\d{4})-(\d{1,2})-(\d{1,2})/); if(m) return `${m[1]}-${m[2].padStart(2,'0')}-${m[3].padStart(2,'0')}`;
+  m=s.match(/^(\d{1,2})[\/.\-](\d{1,2})[\/.\-](\d{2,4})$/); if(m){ const y=m[3].length===2?'20'+m[3]:m[3]; return `${y}-${m[2].padStart(2,'0')}-${m[1].padStart(2,'0')}`; }
+  if(/^\d{5}$/.test(s)){ const d=new Date(Date.UTC(1899,11,30)+parseInt(s,10)*86400000); return d.toISOString().slice(0,10); }
+  const d=new Date(s); if(!isNaN(d)) return `${d.getFullYear()}-${String(d.getMonth()+1).padStart(2,'0')}-${String(d.getDate()).padStart(2,'0')}`;
+  return '';
+}
+/* CSV with quoted fields, "" escapes, commas and line breaks inside quotes, and a BOM — as Excel saves it. */
+function parseCSVFull(text){
+  text=String(text||'').replace(/^﻿/,'');
+  const rows=[]; let row=[], cur='', q=false;
+  for(let i=0;i<text.length;i++){
+    const ch=text[i];
+    if(q){ if(ch==='"'){ if(text[i+1]==='"'){ cur+='"'; i++; } else q=false; } else cur+=ch; }
+    else if(ch==='"') q=true;
+    else if(ch===','){ row.push(cur); cur=''; }
+    else if(ch==='\n'||ch==='\r'){ if(ch==='\r'&&text[i+1]==='\n') i++; row.push(cur); rows.push(row); row=[]; cur=''; }
+    else cur+=ch;
+  }
+  if(cur!==''||row.length){ row.push(cur); rows.push(row); }
+  const clean=rows.filter(r=>r.some(c=>String(c).trim()));
+  if(clean.length<2) return [];
+  const hdr=clean[0].map(h=>String(h).trim());
+  return clean.slice(1).map(r=>{ const o={}; hdr.forEach((h,i)=>{ o[h]=String(r[i]??'').trim(); }); return o; });
+}
+
+/* Save one Word-form registration. f = the form's answers; o = {stage, school, how, received, file, declarations, sigImg, note}. */
+async function createPaperReg(f, o){
+  const ref=doc(collection(db,REG_COL)), id=ref.id;
+  const who=String(PROFILE?.name||ME.email||'').slice(0,60);
+  const stage=['submitted','endorsement','approval'].includes(o.stage)?o.stage:'submitted';
+  const answers={...blankRegAnswers(), ...f, signatureImg:o.sigImg||'', declarations:o.declarations!==false, signedOn:o.received||todayISO(), status:stage};
+  const extra={source:'paper', paper:{how:o.how||'manual', received:o.received||'', file:safeUrl(o.file)||'', note:String(o.note||'').slice(0,600), by:who, uid:ME.uid, at:Timestamp.now()},
+    trail:[{at:Timestamp.now(), uid:ME.uid, who, act:'paper', note:[o.received?`Form dated ${dmy(o.received)}`:'', o.how==='csv'?'imported from a CSV':'entered by hand', o.note||''].filter(Boolean).join(' · ').slice(0,400)}]};
+  if(stage==='endorsement') extra.endorsement={school:o.school};
+  if(stage==='approval') extra.endorsement={school:o.school, skipped:true};
+  const recTs=o.received ? Timestamp.fromDate(new Date(o.received+'T12:00:00')) : Timestamp.now();
+  const pub={status:stage, name:`${f.firstName} ${f.lastName}`.slice(0,80), at:serverTimestamp(), ...(stage==='approval'?{noHos:true}:{})};
+  try{
+    const b=writeBatch(db);
+    b.set(ref,{...answers, ...extra, submittedAt:recTs});
+    b.set(doc(db,REG_STATUS_COL,id),pub);
+    await b.commit();
+  }catch(e){
+    if(e.code!=='permission-denied') throw e;
+    // Some rule sets only accept a new form shaped exactly like the public one:
+    // create it that way first, then add the office details as staff.
+    const b=writeBatch(db);
+    b.set(ref,{...answers, declarations:true, status:'submitted', submittedAt:serverTimestamp()});
+    b.set(doc(db,REG_STATUS_COL,id),{status:'submitted', name:pub.name, at:serverTimestamp()});
+    await b.commit();
+    const b2=writeBatch(db);
+    b2.update(ref,{...extra, declarations:answers.declarations, status:stage, submittedAt:recTs, updatedAt:serverTimestamp()});
+    b2.set(doc(db,REG_STATUS_COL,id),pub);
+    await b2.commit();
+  }
+  return id;
+}
+const paperStageWord=st=>({submitted:'the Course Coordinator / Research Officer',endorsement:'the Head of School',approval:'the Associate Dean Research / RSC'}[st]||'the Research Office');
+function emailPaperApplicant(r){
+  const name=regName(r);
+  openRouteEmail([{name,email:r.email}], name, `Your CIHE supervisor registration (ref ${r.id})`,
+    `Dear ${studentFirstName({name})},\n\nThank you for your supervisor registration form. We have entered it into our online registration system, where it is now with ${paperStageWord(r.status)} for review. You do not need to fill in the form again.\n\nYour reference is: ${r.id}\nYou can check the status at any time:\n${REGISTER_URL}/${r.id}\n\nBest regards,\n${myDisplayName()}`);
+}
+/* Someone with this email already has a registration, or is already in the pool. */
+function paperDupInfo(email){
+  const e=lc(email); if(!e) return null;
+  const r=REGS.find(x=>lc(x.email)===e), p=POOL.find(x=>lc(x.email)===e);
+  return r ? {kind:'reg', r, text:`already has a registration (${REG_STATUS[r.status]?.l||r.status}, ref ${r.id})`}
+       : p ? {kind:'pool', p, text:'is already in the supervisor pool (approved)'} : null;
+}
+
+/* ── Enter one form by hand ── */
+function openPaperReg(prefill){
+  if(!isAdminUser()) return;
+  const v=prefill||{};
+  const max=k=>RG_MAX[k]||200;
+  const inp=(k,lbl,{req,type='text',ph='',wide}={})=>`<div class="form-group ${wide?'wide':''}"><label>${esc(lbl)}${req?' <span class="req">*</span>':''}</label><input type="${type}" data-pr="${k}" maxlength="${max(k)}" placeholder="${esc(ph)}" value="${esc(v[k]||'')}"/></div>`;
+  const ta=(k,lbl,{req}={})=>`<div class="form-group wide"><label>${esc(lbl)}${req?' <span class="req">*</span>':''}</label><textarea data-pr="${k}" rows="2" maxlength="${max(k)}">${esc(v[k]||'')}</textarea></div>`;
+  const sel=(k,lbl,list)=>`<div class="form-group"><label>${esc(lbl)}</label><select data-pr="${k}"><option value="">— Not given —</option>${optsHTML(list,v[k]||'')}</select></div>`;
+  const h=t=>`<div class="sub-head wide" style="grid-column:1/-1;margin-top:16px">${t}</div>`;
+  el('reg-modal-title').textContent='Enter a registration received as a Word file';
+  el('reg-modal-body').innerHTML=`
+    <div class="alert alert-info" style="margin-top:8px">Copy the answers from the applicant's Word form. Only <strong>name, email and discipline</strong> are needed to save it; anything left blank can be completed later with <strong>Correct answers</strong>. It joins the registrations queue and goes through the usual review steps.</div>
+    <div class="ae-grid">
+      ${h('1 · Registration type')}
+      <div class="form-group wide"><label>Master of Research discipline(s) <span class="req">*</span></label><div>${discChecksHTML('pr-disc',regDisciplines(v.discipline))}</div></div>
+      ${sel('level','Supervision level sought',REG_OPTS.level)}
+      <div class="form-group"><label>Preferred campus / location</label><div class="sem-box"><div class="sem-list" style="border:none;margin:0;padding:0;grid-template-columns:1fr">${CAMPUSES.map(c=>`<label class="check-row"><input type="checkbox" data-pr-campus="${c.id}" ${(v.campusIds||[]).includes(c.id)?'checked':''}/> <span>${esc(campusLabel(c))}</span></label>`).join('')||'<span class="text-sm text-muted">No campuses set up yet</span>'}</div></div></div>
+      ${h('2 · Personal details')}
+      ${sel('title','Title',REG_OPTS.title)}
+      ${inp('firstName','First name',{req:1})}
+      ${inp('lastName','Last name',{req:1})}
+      ${inp('email','Email address',{req:1,type:'email'})}
+      ${inp('phone','Phone number')}
+      <div class="form-group"><label>Australian citizen / PR?</label><select data-pr="citizen"><option value="">— Not given —</option>${optsHTML(['Yes','No'],v.citizen||'')}</select></div>
+      ${ta('address','Residential address')}
+      ${h('3 · Academic &amp; professional profile')}
+      ${inp('position','Current position title')}
+      ${inp('institution','Employing institution')}
+      ${ta('institutionAddress','Institution address')}
+      ${inp('phd','PhD / doctoral qualification (degree, institution, year)',{wide:1})}
+      ${ta('researchAreas','Research areas & specialisations')}
+      ${inp('profileLink','ORCID iD / Google Scholar link',{wide:1,ph:'https://orcid.org/…'})}
+      ${sel('hdrCompleted','HDR students supervised to completion',REG_OPTS.hdrCompleted)}
+      ${sel('hdrCurrent','Current HDR students supervising',REG_OPTS.hdrCurrent)}
+      ${sel('mode','Supervision mode',REG_OPTS.mode)}
+      ${h('Supporting documents')}
+      <div class="form-group wide"><label>How were the documents provided?</label><select data-pr="docMethod" id="pr-docmethod">
+        <option value="paper" ${(v.docMethod||'paper')==='paper'?'selected':''}>Sent with the Word form (kept by the Research Office)</option>
+        <option value="links" ${v.docMethod==='links'?'selected':''}>Shared links (Google Drive / OneDrive …)</option>
+        <option value="email" ${v.docMethod==='email'?'selected':''}>Still to be emailed to the Research Office</option></select></div>
+      <div class="wide ${v.docMethod==='links'?'':'hidden'}" id="pr-doc-links" style="grid-column:1/-1"><div class="ae-grid" style="margin-top:0">
+        ${inp('docFolder','Shared folder link',{type:'url',ph:'https://…'})}${inp('docCv','CV link',{type:'url',ph:'https://…'})}
+        ${inp('docPhd','PhD certificate link',{type:'url',ph:'https://…'})}${inp('docTranscripts','Transcripts link',{type:'url',ph:'https://…'})}
+        ${inp('docOther','Other documents link',{type:'url',ph:'https://…',wide:1})}</div></div>
+      ${h('5 · Declaration &amp; signature (from the Word form)')}
+      <label class="check-row wide" style="grid-column:1/-1"><input type="checkbox" id="pr-decl" checked/> <span>The applicant ticked <strong>every declaration</strong> on the Word form, including the Conflict of Interest Declaration</span></label>
+      ${inp('signature','Print full name (as signed)',{ph:'Defaults to the applicant\'s name'})}
+      <div class="form-group"><label>Date on the form <span class="opt">(or when it was received)</span></label><input type="date" id="pr-date" value="${esc(v.received||todayISO())}"/></div>
+      <div class="form-group wide"><label>Signature image <span class="opt">(optional — copy the signature out of the Word file and paste it, or upload a scan)</span></label>${sigPadHTML('pr-sig')}</div>
+      <div class="form-group wide"><label>Link to the original Word file <span class="opt">(optional — e.g. on SharePoint / OneDrive)</span></label><input type="url" id="pr-file" placeholder="https://…" value="${esc(v.file||'')}"/></div>
+      ${h('Where it starts in the review')}
+      <div class="form-group"><label>Send it to</label><select id="pr-stage">${PAPER_STAGES.map(([k,l])=>`<option value="${k}">${esc(l)}</option>`).join('')}</select></div>
+      <div class="form-group"><label>School / Division <span class="opt">(needed unless it starts with the Research Officer)</span></label><select id="pr-school"><option value="">— From the discipline —</option>${optsHTML(REG_OPTS.school,'')}</select></div>
+      <div class="form-group wide"><label>Note for the history <span class="opt">(optional, staff only)</span></label><input type="text" id="pr-note" maxlength="300" placeholder="e.g. Word form emailed by the applicant on 3 Nov 2026"/></div>
+    </div>
+    <div class="form-actions mt-16"><button class="btn btn-primary" id="pr-save">${icon('i-check')}Save registration</button><button class="btn" id="pr-save-next">${icon('i-userplus')}Save and enter another</button><button class="btn btn-ghost" id="pr-cancel">Cancel</button></div>`;
+  el('reg-modal').classList.remove('hidden');
+  el('reg-modal').querySelector('.modal-box').scrollTop=0;
+  delete SIG['pr-sig']; initSigPad('pr-sig');
+  el('pr-docmethod').onchange=e=>el('pr-doc-links').classList.toggle('hidden', e.target.value!=='links');
+  el('pr-cancel').onclick=closeReg;
+  el('pr-save').onclick=()=>savePaperReg(false);
+  el('pr-save-next').onclick=()=>savePaperReg(true);
+  setTimeout(()=>el('reg-modal-body').querySelector('[data-pr="firstName"]')?.focus(),80);
+}
+async function savePaperReg(another){
+  const body=el('reg-modal-body');
+  const q=k=>body.querySelector(`[data-pr="${k}"]`)?.value.trim()||'';
+  const f=blankRegAnswers();
+  RG_FIELDS.forEach(([k])=>{ if(k!=='discipline') f[k]=q(k).slice(0,RG_MAX[k]||300); });
+  f.discipline=discText(readDiscChecks('pr-disc'));
+  f.citizen=q('citizen'); f.docMethod=q('docMethod')||'paper';
+  f.campusIds=[...body.querySelectorAll('[data-pr-campus]:checked')].map(c=>c.dataset.prCampus);
+  f.campusNames=f.campusIds.map(id=>campusLabel(CAMPUSES.find(c=>c.id===id)));
+  if(f.docMethod!=='links') ['docFolder','docCv','docPhd','docTranscripts','docOther'].forEach(k=>f[k]='');
+  const bad=(m,k)=>{ toast(m,'error'); const e=k&&body.querySelector(`[data-pr="${k}"]`); if(e){ e.focus(); e.scrollIntoView({block:'center',behavior:'smooth'}); } };
+  if(!f.firstName) return bad('First name is required','firstName');
+  if(!f.lastName) return bad('Last name is required','lastName');
+  if(!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(f.email)) return bad('Enter a valid email address','email');
+  if(!f.discipline) return bad('Tick at least one discipline');
+  for(const k of ['docFolder','docCv','docPhd','docTranscripts','docOther']) if(f[k] && !safeUrl(f[k])) return bad(`${FIELD_LABELS[k]} must start with https://`,k);
+  if(!f.signature) f.signature=`${f.firstName} ${f.lastName}`.slice(0,120);
+  const stage=el('pr-stage').value, school=el('pr-school').value || regSchool(f);
+  if(stage!=='submitted' && !school){ toast('This applicant covers disciplines in more than one school — choose the School / Division, or start with the Research Officer','error'); el('pr-school').focus(); return; }
+  let sigImg='';
+  if(SIG['pr-sig'] && !SIG['pr-sig'].empty()){ sigImg=SIG['pr-sig'].data(); if(sigImg.length>SIG_MAX){ toast('That signature image is too detailed to save — crop it to just the signature, or leave it out','error'); return; } }
+  const fileLink=el('pr-file').value.trim();
+  if(fileLink && !safeUrl(fileLink)){ toast('The Word file link must start with https://','error'); el('pr-file').focus(); return; }
+  try{ if(!REGS.length) await loadRegs(); if(!POOL_LOADED) await loadPool(); }catch{}
+  const dup=paperDupInfo(f.email);
+  if(dup && !confirm(`${regName(f)} (${f.email}) ${dup.text}.\n\nEnter this Word form as a new registration anyway?`)) return;
+  const blanks=paperBlanks(f);
+  if(blanks.length && !confirm(`Some answers are blank: ${blanks.join(', ')}.\n\nSave anyway? The Research Officer can complete them later with "Correct answers".`)) return;
+  const btns=[el('pr-save'),el('pr-save-next')]; btns.forEach(b=>b.disabled=true);
+  try{
+    const id=await createPaperReg(f,{stage, school, how:'manual', received:el('pr-date').value, file:fileLink, declarations:el('pr-decl').checked, sigImg, note:el('pr-note').value.trim()});
+    logAct('reg.paper', regName(f), `Word form · now with ${paperStageWord(stage)}`, id);
+    await loadRegs(); if(REG_HOST) renderRegQueue();
+    toast(`${regName(f)} added to the registrations queue (ref ${id})`,'success',5000);
+    if(another){ openPaperReg(); return; }
+    openReg(id);
+    const r=REGS.find(x=>x.id===id);
+    if(r && confirm(`Saved. Open an email to ${regName(f)} with their reference code, so they can follow their registration online?`)){ closeReg(); emailPaperApplicant(r); }
+  }catch(e){
+    btns.forEach(b=>b.disabled=false);
+    toast(e.code==='permission-denied' ? 'The database refused to save it (permission-denied). Run General settings → Check database rules, and publish the latest Firestore rules.' : 'Could not save: '+e.message,'error',8000);
+  }
+}
+
+/* ── Import several from a CSV ── */
+const PAPER_CSV_COLS=['Title','First Name','Last Name','Email','Phone','Australian Citizen / PR','Residential Address','Discipline','Supervision Level','Campus','Position','Institution','Institution Address','PhD / Doctoral Qualification','Research Areas','ORCID / Google Scholar','HDR Completed','HDR Current','Supervision Mode','Documents Provided','Shared Folder Link','CV Link','PhD Certificate Link','Transcripts Link','Other Documents Link','Signed Name','Date on Form','Word File Link','Notes'];
+function paperTemplate(){
+  downloadCSV([PAPER_CSV_COLS.map(csvCell),
+    ['Dr.','Jane','Citizen','jane.citizen@example.edu.au','+61 400 000 000','Yes','1 Example St, Sydney NSW 2000','IT; Accounting','Both','Sydney Campus; Canberra Campus','Senior Lecturer','Example University','2 Uni Rd, Sydney NSW 2000','PhD Computer Science, Example University, 2015','Cyber security; machine learning','https://orcid.org/0000-0002-1825-0097','3–5','1–2','Hybrid','With the Word form','','','','','','Jane Citizen','03/11/2026','https://example.sharepoint.com/…/Jane_Citizen.docx','Emailed to the Research Office'].map(csvCell),
+    ['Prof','Sam','Lee','sam.lee@example.edu.au','','No','','Business','Principal','Sydney Campus','Professor','Example University','','','Accounting; corporate governance','','6–10','0','Remote','Links','https://drive.google.com/drive/folders/EXAMPLE','','','','','Sam Lee','2026-10-28','',''].map(csvCell)],
+    'word-form-registrations-template.csv');
+}
+let PAPER_ROWS=null;
+function paperRowFromCSV(r){
+  const keyN=h=>lc(h).replace(/[^a-z0-9]/g,'');
+  const map={}; Object.keys(r).forEach(h=>map[keyN(h)]=r[h]);
+  const g=(...ks)=>{ for(const k of ks){ const v=map[keyN(k)]; if(v!=null && String(v).trim()) return String(v).trim(); } return ''; };
+  let first=g('First Name','Firstname','Given Name','Given Names'), last=g('Last Name','Surname','Family Name'), title=normTitle(g('Title','Salutation'));
+  const full=g('Name','Full Name','Applicant','Applicant Name');
+  if(!first && !last && full){ const parts=full.split(/\s+/); if(parts.length>1 && /^(dr|prof|professor|assoc|a\/prof|mr|mrs|ms|miss)\.?$/i.test(parts[0])) title=title||normTitle(parts.shift()); last=parts.pop()||''; first=parts.join(' '); }
+  const cm=matchCampuses(g('Campus','Campuses','Preferred Campus','Preferred Campus / Location','Location'));
+  const links={docFolder:g('Shared Folder Link','Documents Folder','Folder Link','Shared Folder'),docCv:g('CV Link','CV'),docPhd:g('PhD Certificate Link','PhD Certificate'),docTranscripts:g('Transcripts Link','Transcripts','Academic Transcripts'),docOther:g('Other Documents Link','Other Documents')};
+  const warn=[];
+  Object.keys(links).forEach(k=>{ if(links[k] && !safeUrl(links[k])){ warn.push(`${FIELD_LABELS[k]} is not a link — left out`); links[k]=''; } });
+  const hasLinks=Object.values(links).some(Boolean);
+  const f={...blankRegAnswers(), title, firstName:first, lastName:last, email:g('Email','Email Address','E-mail'), phone:g('Phone','Phone Number','Mobile','Contact Number'),
+    citizen:normYesNo(g('Australian Citizen / PR','Australian Citizen','Citizen / PR','Citizen','Citizenship','PR')), address:g('Residential Address','Address','Home Address'),
+    discipline:discText(normDiscList(g('Discipline','Disciplines','Master of Research Discipline','School'))), level:normLevel(g('Supervision Level','Supervision Level Sought','Level','Role')),
+    campusIds:cm.ids, campusNames:cm.names, position:g('Position','Current Position','Position Title','Current Position Title'), institution:g('Institution','Employing Institution','University','Organisation','Organization'),
+    institutionAddress:g('Institution Address'), phd:g('PhD / Doctoral Qualification','PhD','PhD Details','Doctoral Qualification','Qualification'), researchAreas:g('Research Areas','Research Areas & Specialisations','Research Areas and Specialisations','Expertise','Specialisations'),
+    profileLink:g('ORCID / Google Scholar','ORCID','Google Scholar','ORCID iD','Profile Link','Research Profile'),
+    hdrCompleted:normHdr(g('HDR Completed','HDR Students Supervised to Completion','HDR Completions','Completed HDR'),REG_OPTS.hdrCompleted), hdrCurrent:normHdr(g('HDR Current','Current HDR Students','Current HDR','HDR Students Currently Supervising'),REG_OPTS.hdrCurrent),
+    mode:normMode(g('Supervision Mode','Mode')), docMethod:normDocMethod(g('Documents Provided','Documents','How Documents Provided','Document Method'),hasLinks), ...links,
+    signature:g('Signed Name','Print Full Name','Signature','Signed By')};
+  RG_FIELDS.forEach(([k,,,max])=>{ if(typeof f[k]==='string') f[k]=f[k].slice(0,max); });
+  if(!f.signature) f.signature=[first,last].filter(Boolean).join(' ').slice(0,120);
+  const rawDate=g('Date on Form','Date Signed','Date Received','Signed On','Date');
+  const received=parseDateISO(rawDate); if(rawDate && !received) warn.push(`Date "${rawDate}" not recognised — today used`);
+  const fileRaw=g('Word File Link','Form Link','File Link','Original Form');
+  if(fileRaw && !safeUrl(fileRaw)) warn.push('Word file link is not a link — left out');
+  return {f, received, file:safeUrl(fileRaw), note:g('Notes','Note','Comments'), warn, rawDisc:g('Discipline','Disciplines','Master of Research Discipline')};
+}
+async function previewPaperImport(file){
+  if(!file) return;
+  const pv=el('reg-paper-preview'); pv.classList.remove('hidden');
+  pv.innerHTML=`<div class="text-sm text-muted">Reading ${esc(file.name)}…</div>`;
+  let raw;
+  try{ raw=parseCSVFull(await file.text()); }catch(e){ pv.innerHTML=`<div class="alert alert-danger">Could not read the file: ${esc(e.message)}</div>`; return; }
+  try{ await Promise.all([REGS.length?null:loadRegs(), POOL_LOADED?null:loadPool()]); }catch{}
+  const seen=new Set(), ok=[], skipped=[];
+  raw.forEach((r,i)=>{
+    const x=paperRowFromCSV(r), f=x.f, nm=regName(f)||f.email||`Row ${i+2}`;
+    if(!f.firstName || !f.lastName){ skipped.push(`${nm} (row ${i+2}) — needs a first and last name`); return; }
+    if(!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(f.email)){ skipped.push(`${nm} (row ${i+2}) — needs a valid email address`); return; }
+    if(!f.discipline){ skipped.push(`${nm} (row ${i+2}) — discipline "${x.rawDisc||'blank'}" not recognised (use Business, Accounting, IT and/or Early Childhood Education)`); return; }
+    if(seen.has(lc(f.email))){ skipped.push(`${nm} (row ${i+2}) — the same email appears earlier in the file`); return; }
+    seen.add(lc(f.email));
+    const dup=paperDupInfo(f.email);
+    ok.push({...x, row:i+2, dup, blanks:paperBlanks(f), use:!dup});
+  });
+  PAPER_ROWS={ok, skipped, fileName:file.name};
+  renderPaperPreview();
+}
+function renderPaperPreview(){
+  const pv=el('reg-paper-preview'), P=PAPER_ROWS; if(!pv||!P) return;
+  const n=P.ok.filter(x=>x.use).length, dups=P.ok.filter(x=>x.dup).length;
+  pv.innerHTML=`
+    ${P.ok.length?`<div class="alert alert-info"><strong>${P.ok.length}</strong> registration${P.ok.length===1?'':'s'} found in ${esc(P.fileName)}${P.skipped.length?`; <strong>${P.skipped.length}</strong> row${P.skipped.length===1?'':'s'} can't be imported (see below)`:''}.${dups?` <strong>${dups}</strong> ${dups===1?'person already has':'people already have'} a registration or ${dups===1?'is':'are'} in the pool — left unticked.`:''}</div>`:`<div class="alert alert-warning">Nothing to import from ${esc(P.fileName)}. Check the column names against the CSV template.</div>`}
+    ${P.skipped.length?`<details class="text-sm mb-8"><summary>Rows that can't be imported (${P.skipped.length})</summary><ul style="margin:6px 0 0 18px">${P.skipped.map(s=>`<li>${esc(s)}</li>`).join('')}</ul></details>`:''}
+    ${P.ok.length?`
+    <div class="g3">
+      <div class="form-group"><label>Send them to</label><select id="pi-stage">${PAPER_STAGES.map(([k,l])=>`<option value="${k}">${esc(l)}</option>`).join('')}</select></div>
+      <div class="form-group"><label>School / Division <span class="opt">(only where the discipline doesn't decide it)</span></label><select id="pi-school"><option value="">— From each discipline —</option>${optsHTML(REG_OPTS.school,'')}</select></div>
+      <div class="form-group"><label>&nbsp;</label><label class="check-row" style="margin:0"><input type="checkbox" id="pi-decl" checked/> <span>Every applicant ticked all the declarations on their Word form</span></label></div>
+    </div>
+    <div class="scroll-wrap"><div class="tw scroll-box" tabindex="0" style="max-height:420px"><table><thead><tr><th style="width:34px"><input type="checkbox" id="pi-all" ${n===P.ok.length?'checked':''} title="Tick all"/></th><th>Applicant</th><th>Discipline · level</th><th>Campus</th><th>Date on form</th><th>Blank answers</th></tr></thead><tbody>
+      ${P.ok.map((x,i)=>`<tr><td><input type="checkbox" data-pi="${i}" ${x.use?'checked':''}/></td>
+        <td><div class="fw-600">${esc(regName(x.f))}</div><div class="text-xs text-muted">${esc(x.f.email)} · row ${x.row}</div>${x.dup?`<div class="text-xs c-amber" style="margin-top:2px">${esc(x.dup.text)}</div>`:''}${x.warn.length?`<div class="text-xs c-amber" style="margin-top:2px">${esc(x.warn.join(' · '))}</div>`:''}</td>
+        <td class="text-sm">${esc(x.f.discipline)}<div class="text-xs text-muted">${esc(LEVEL_SHORT[x.f.level]||x.f.level||'Level not given')}</div></td>
+        <td class="text-xs">${esc((x.f.campusNames||[]).join(', ')||'—')}</td>
+        <td class="text-xs">${esc(x.received?dmy(x.received):'— (today)')}</td>
+        <td class="text-xs">${x.blanks.length?`<span class="c-amber" title="${esc(x.blanks.join(', '))}">${x.blanks.length} blank</span>`:'<span class="c-green">Complete</span>'}</td></tr>`).join('')}
+    </tbody></table></div></div>
+    <div class="form-actions mt-16"><button class="btn btn-primary" id="pi-go" ${n?'':'disabled'}>${icon('i-upload')}Add ${n} registration${n===1?'':'s'} to the queue</button><button class="btn btn-ghost" id="pi-cancel">Cancel</button><span class="text-xs text-muted" id="pi-progress"></span></div>`:''}`;
+  refreshScrollWraps(pv);
+  el('pi-cancel')?.addEventListener('click',()=>{ PAPER_ROWS=null; pv.classList.add('hidden'); pv.innerHTML=''; });
+  pv.querySelectorAll('[data-pi]').forEach(c=>c.onchange=()=>{ P.ok[+c.dataset.pi].use=c.checked; const m=P.ok.filter(x=>x.use).length; const go=el('pi-go'); go.disabled=!m; go.innerHTML=`${icon('i-upload')}Add ${m} registration${m===1?'':'s'} to the queue`; el('pi-all').checked=m===P.ok.length; });
+  el('pi-all')?.addEventListener('change',e=>{ P.ok.forEach(x=>x.use=e.target.checked); const keep={stage:el('pi-stage').value, school:el('pi-school').value, decl:el('pi-decl').checked}; renderPaperPreview(); el('pi-stage').value=keep.stage; el('pi-school').value=keep.school; el('pi-decl').checked=keep.decl; });
+  el('pi-go')?.addEventListener('click',importPaperRows);
+}
+async function importPaperRows(){
+  const P=PAPER_ROWS; if(!P) return;
+  const list=P.ok.filter(x=>x.use); if(!list.length) return;
+  const stage=el('pi-stage').value, fbSchool=el('pi-school').value, decl=el('pi-decl').checked;
+  if(!confirm(`Add ${list.length} Word-form registration${list.length===1?'':'s'} to the queue, starting with ${paperStageWord(stage)}?`)) return;
+  const go=el('pi-go'); go.disabled=true;
+  const done=[], failed=[], heldBack=[];
+  for(let i=0;i<list.length;i++){
+    const x=list[i]; el('pi-progress').textContent=`Adding ${i+1} of ${list.length}…`;
+    let st=stage, school=regSchool(x.f)||fbSchool;
+    if(st!=='submitted' && !school){ st='submitted'; heldBack.push(regName(x.f)); }
+    try{
+      const id=await createPaperReg(x.f,{stage:st, school, how:'csv', received:x.received, file:x.file, declarations:decl, note:x.note});
+      done.push({x,id,st});
+    }catch(e){
+      failed.push(`${regName(x.f)}: ${e.code==='permission-denied'?'the database refused it (permission-denied)':e.message}`);
+      if(e.code==='permission-denied') break; // the rest would fail the same way
+    }
+  }
+  if(done.length) logAct('reg.paperImport', `${done.length} registration${done.length===1?'':'s'}`, `From ${P.fileName}${stage!=='submitted'?' · sent to '+paperStageWord(stage):''}`);
+  try{ await loadRegs(); if(REG_HOST) renderRegQueue(); }catch{}
+  const pv=el('reg-paper-preview');
+  pv.innerHTML=`${done.length?`<div class="alert alert-success"><strong>${done.length}</strong> registration${done.length===1?'':'s'} added to the queue below (marked <em>Word form</em>).${heldBack.length?` ${heldBack.length} cover${heldBack.length===1?'s':''} disciplines in more than one school, so ${heldBack.length===1?'it starts':'they start'} with the Research Officer: ${esc(heldBack.join(', '))}.`:''}</div>`:''}
+    ${failed.length?`<div class="alert alert-danger"><strong>${failed.length}</strong> could not be added:<ul style="margin:6px 0 0 18px">${failed.map(f=>`<li>${esc(f)}</li>`).join('')}</ul>${failed.some(f=>f.includes('permission-denied'))?'<div class="text-sm" style="margin-top:6px">Run <strong>General settings → Check database rules</strong> and publish the latest Firestore rules, then import again — rows already added are listed above and will be flagged as duplicates.</div>':''}</div>`:''}
+    ${done.length?`<p class="text-sm text-muted">Each applicant has a reference code for following their registration online. Download the list to email it to them, or use <strong>Email applicant</strong> on each form.</p>
+    <div class="form-actions"><button class="btn btn-sm" id="pi-refs">${icon('i-download')}Download references (CSV)</button><button class="btn btn-sm btn-ghost" id="pi-close">Close</button></div>`:`<div class="form-actions"><button class="btn btn-sm btn-ghost" id="pi-close">Close</button></div>`}`;
+  el('pi-refs')?.addEventListener('click',()=>downloadCSV([['Name','Email','Reference','Starts with','Status page'].map(csvCell),...done.map(({x,id,st})=>[regName(x.f),x.f.email,id,paperStageWord(st),`${REGISTER_URL}/${id}`].map(csvCell))],`word-form-registrations_references_${todayISO()}.csv`));
+  el('pi-close').onclick=()=>{ PAPER_ROWS=null; pv.classList.add('hidden'); pv.innerHTML=''; };
+  toast(done.length?`${done.length} Word-form registration${done.length===1?'':'s'} added`:'Nothing was added', done.length?'success':'error');
+}
+function initPaperRegTools(){
+  const dz=el('reg-paper-drop'); if(!dz || dz.dataset.bound) return;
+  dz.dataset.bound='1';
+  dz.onclick=()=>el('reg-paper-csv').click();
+  dz.ondragover=e=>{ e.preventDefault(); dz.classList.add('dragging'); };
+  dz.ondragleave=()=>dz.classList.remove('dragging');
+  dz.ondrop=e=>{ e.preventDefault(); dz.classList.remove('dragging'); previewPaperImport(e.dataTransfer.files[0]); };
+  el('reg-paper-csv').onchange=e=>{ previewPaperImport(e.target.files[0]); e.target.value=''; };
+  el('reg-paper-add').onclick=()=>openPaperReg();
+  el('reg-paper-template').onclick=paperTemplate;
+}
+
 function regActionHTML(r){
   const mine=myStages(), adm=isAdminUser(), st=r.status;
   const box=(title,inner)=>`<div class="reg-act" style="margin-top:12px"><h4 class="sub-head" style="margin-top:0">${title}</h4>${inner}</div>`;
@@ -6392,9 +6740,11 @@ function regActionHTML(r){
 }
 function openReg(id){
   const r=REGS.find(x=>x.id===id); if(!r) return;
+  const fresh=el('reg-modal').classList.contains('hidden') || !!el('pr-save'); // newly opened (or coming from the Word-form entry): start at the top
   el('reg-modal-title').textContent=regName(r);
   el('reg-modal-body').innerHTML=regDetailHTML(r);
   el('reg-modal').classList.remove('hidden');
+  if(fresh) el('reg-modal').querySelector('.modal-box').scrollTop=0;
   if(el('ra-sem-box')) renderSemChecks('ra-sem-box', defaultSemList());
   delete SIG['ra-sig']; if(el('ra-sig')) initSigPad('ra-sig');
   const rs=el('ra-school'), fb=el('ra-forward-btn');
@@ -6749,7 +7099,7 @@ function initRegistrationsTab(){
   };
   loadRegs().then(updateRegBadges).catch(()=>{});
 }
-async function openRegistrationsTab(){ await Promise.all([openRegQueue('admin-reg-host'), loadAllUsers().catch(()=>{})]); renderOfficers(); }
+async function openRegistrationsTab(){ initPaperRegTools(); await Promise.all([openRegQueue('admin-reg-host'), loadAllUsers().catch(()=>{})]); renderOfficers(); }
 function renderOfficers(){
   const list=el('officers-list'); if(!list) return;
   const sel=el('of-user'), cur=sel.value;
@@ -6903,15 +7253,15 @@ function buildRegDocx(r){
   const e=r.endorsement||{}, d=r.decision||{}, ck=r.checklist||{}, docs=r.officeReview?.docs||{};
   const st=REG_STATUS[r.status]||{l:r.status};
   // A signature cell: the drawn signature if there is one, then who signed and when.
-  const sigCell=(img,name,dateTxt,note)=>{
+  const sigCell=(img,name,dateTxt,note,paperSig)=>{
     let xml='';
     if(okSig(img)){ media.push(b64Bytes(img)); xml+=wP(wImage('rIdSig'+media.length, media.length)); }
-    xml+=wP(wRun(name ? `${okSig(img)?'Signed':'Signed electronically (typed name)'}: ${name}${dateTxt?' · '+dateTxt:''}` : 'Not yet signed',{i:1,color:'555555',sz:18}));
+    xml+=wP(wRun(name ? `${okSig(img)?'Signed':paperSig?'Signed on the Word / paper form':'Signed electronically (typed name)'}: ${name}${dateTxt?' · '+dateTxt:''}` : 'Not yet signed',{i:1,color:'555555',sz:18}));
     if(note) xml+=wP(wRun(note,{i:1,color:'555555',sz:16}));
     return {xml};
   };
   const tick=on=>on?'☑':'☐';
-  const docLine=(url,got)=> url || (got ? 'Received by the Research Office' : r.docFolder ? 'See the shared folder' : r.docMethod==='email' ? 'To be emailed to the Research Office' : 'Not provided');
+  const docLine=(url,got)=> url || (got ? 'Received by the Research Office' : r.docFolder ? 'See the shared folder' : r.docMethod==='paper' ? 'With the Word / paper form' : r.docMethod==='email' ? 'To be emailed to the Research Office' : 'Not provided');
   const policies=[...document.querySelectorAll('#page-register .policy-list li')].map(li=>li.textContent.trim()).filter(Boolean);
   const acct=uid=>{ const n=uid && personName(uid); return n && n!=='you' ? n : (uid===PROFILE?.uid ? (PROFILE.name||PROFILE.email) : ''); };
   const eAcct=acct(e.uid), dAcct=acct(d.uid);
@@ -6927,7 +7277,9 @@ function buildRegDocx(r){
   body+=wTable([{head:'SECTION 4: Relevant Policies'},{full:wP(wRun('As a supervisor at CIHE Australia, you are required to read and comply with the following:'))+policies.map(t=>wP(wRun('•  '+t),{before:10,after:10})).join('')}]);
   body+=wTable([{head:'SECTION 5: Supervisor Declaration'},
     {full:DECLARATIONS.map((t,i)=>(i===COI_FROM?wP(wRun('Conflict of Interest Declaration',{b:1}),{before:100}):'')+wP(wRun(`${tick(r.declarations===true)}  ${t}`),{before:30,after:30})).join('')},
-    ['Signature',sigCell(r.signatureImg,r.signature,dmy(r.signedOn),'Signed by the applicant on the online registration form.')],
+    ['Signature', r.source==='paper'
+      ? sigCell(r.signatureImg,r.signature,dmy(r.signedOn),`Received as a Word / paper form${r.paper?.received?' dated '+dmy(r.paper.received):''} and entered into Assign Supervisor by ${r.paper?.by||'an administrator'}${r.paper?.at?' on '+fmtDate(r.paper.at):''}. The original is kept by the Research Office.`,true)
+      : sigCell(r.signatureImg,r.signature,dmy(r.signedOn),'Signed by the applicant on the online registration form.')],
     ['Print Full Name',r.signature],['Date',dmy(r.signedOn)]]);
   body+=wP(wRun('OFFICE USE ONLY',{b:1,sz:24}),{before:160,after:80,keep:1});
   const revKeys=['office','adr'].filter(k=>hasRev(r.reviews?.[k]));
@@ -6972,7 +7324,7 @@ function downloadRegDocx(r){
     a.download=`CIHE_Supervisor_Registration_${safeFile(r.lastName)}_${safeFile(r.firstName)}_${r.id}.docx`;
     document.body.appendChild(a); a.click(); a.remove();
     setTimeout(()=>URL.revokeObjectURL(a.href),4000);
-    const missing=[!okSig(r.signatureImg)&&'applicant', ['approval','deferred','approved','registered','declined'].includes(r.status)&&!okSig(r.endorsement?.sig)&&'School / Division', ['approved','registered','declined','deferred'].includes(r.status)&&!okSig(r.decision?.sig)&&'Associate Dean Research / RSC'].filter(Boolean);
+    const missing=[!okSig(r.signatureImg)&&r.source!=='paper'&&'applicant', ['approval','deferred','approved','registered','declined'].includes(r.status)&&!okSig(r.endorsement?.sig)&&'School / Division', ['approved','registered','declined','deferred'].includes(r.status)&&!okSig(r.decision?.sig)&&'Associate Dean Research / RSC'].filter(Boolean);
     const open=!['registered','declined','closed'].includes(r.status);
     toast(open ? 'Word file downloaded. This registration is still in progress — download it again once it is complete for the final copy.'
       : missing.length ? `Word file downloaded. No drawn signature on record for: ${missing.join(', ')} (typed name shown instead).` : 'Word file downloaded', open||missing.length?'warning':'success', 6000);
