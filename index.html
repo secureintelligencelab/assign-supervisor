@@ -278,6 +278,17 @@ label.pick-row.on{background:color-mix(in srgb,var(--primary) 9%,transparent)}
 .pool-links a{display:inline-flex;align-items:center;gap:3px}
 .pool-note{display:flex;gap:7px;align-items:flex-start;margin-top:7px;padding:7px 10px;border-radius:9px;background:var(--b-amber-bg);color:var(--b-amber-fg);border:1px solid var(--b-amber-bd);font-size:12px;line-height:1.45;max-width:420px}
 .pool-note .ic{flex:none;margin-top:2px}
+/* Supervisor pool: staff self-add links */
+.plk-list{display:grid;gap:8px;margin-top:12px}
+.plk-row{display:grid;grid-template-columns:minmax(0,1fr) auto;gap:10px 16px;align-items:center;padding:10px 12px;border:1px solid var(--border);border-radius:11px;background:var(--bg3)}
+.plk-row.off{opacity:.62}
+.plk-row .link-field{margin-top:6px;max-width:none}
+.plk-meta{display:flex;flex-wrap:wrap;gap:4px 12px;font-size:12px;color:var(--text2);margin-top:5px}
+.plk-acts{display:flex;gap:6px;flex-wrap:wrap;justify-content:flex-end}
+@media(max-width:760px){.plk-row{grid-template-columns:1fr}.plk-acts{justify-content:flex-start}}
+.plk-opts{display:grid;gap:8px;margin:2px 0 14px}
+.plk-filter{display:inline-flex;align-items:center;gap:6px;font-size:12px;padding:3px 6px 3px 10px;border-radius:999px;background:var(--primary-soft);color:var(--accent);border:1px solid var(--b-blue-bd)}
+.plk-filter button{border:none;background:none;color:inherit;cursor:pointer;font-size:14px;line-height:1;padding:0 3px;font-family:var(--font)}
 select.sel-as{width:auto;min-width:150px;height:32px;font-size:12.5px}
 tr.row-sel td{background:color-mix(in srgb,var(--accent2) 5%,transparent)}
 tr.row-inv td{background:color-mix(in srgb,var(--primary) 4%,transparent)}
@@ -1306,7 +1317,21 @@ button.sup-chip:hover{border-color:currentColor}
         </div></div>
         <div class="jump-links">Jump to:
           <a href="#" data-jump="admin-pool-host"><svg class="ic ic-sm"><use href="#i-users"/></svg>Supervisor list</a>
+          <a href="#" data-jump="pool-links-card"><svg class="ic ic-sm"><use href="#i-link"/></svg>Staff self-add links</a>
           <a href="#" data-jump="pool-admin-tools"><svg class="ic ic-sm"><use href="#i-upload"/></svg>Import or add supervisors</a>
+        </div>
+        <div class="card share-card mb-16" id="pool-links-card" style="display:block">
+          <div class="share-main">
+            <span class="share-ic"><svg class="ic"><use href="#i-link"/></svg></span>
+            <div style="min-width:0;flex:1">
+              <div class="flex items-center justify-between gap-12" style="flex-wrap:wrap">
+                <h3>Staff self-add links</h3>
+                <button class="btn btn-primary btn-sm" id="plk-new-btn"><svg class="ic"><use href="#i-link"/></svg>Create a staff link</button>
+              </div>
+              <p class="text-sm text-muted" style="margin-top:2px;max-width:860px">For <strong>CIHE Australia internal staff</strong> (full-time, or sessional / casual). Share the link with them; whoever fills in the form is <strong>added straight to the supervisor pool</strong>, exactly as if you had added them, with <strong>no registration review</strong>. Use the public <a href="#" data-goto-tab="tab-registrations">registration form</a> for external supervisors.</p>
+              <div id="plk-host"><div class="text-sm text-muted mt-8">Loading…</div></div>
+            </div>
+          </div>
         </div>
         <div id="admin-pool-host"></div>
         <div class="grid-2 mt-16" id="pool-admin-tools">
@@ -1320,7 +1345,10 @@ button.sup-chip:hover{border-color:currentColor}
           <div class="card">
             <div class="card-header"><h3><svg class="ic"><use href="#i-userplus"/></svg>Add a supervisor</h3></div>
             <p class="card-sub">Add one person who was approved outside this system.</p>
-            <button class="btn btn-primary" id="pool-add-btn"><svg class="ic"><use href="#i-userplus"/></svg>Add to the pool</button>
+            <div class="flex gap-8" style="flex-wrap:wrap">
+              <button class="btn btn-primary" id="pool-add-btn"><svg class="ic"><use href="#i-userplus"/></svg>Add to the pool</button>
+              <button class="btn" data-jump="pool-links-card" title="Send internal staff a link so they enter their own details"><svg class="ic"><use href="#i-link"/></svg>Let staff add themselves</button>
+            </div>
           </div>
         </div>
       </div>
@@ -1732,7 +1760,7 @@ button.sup-chip:hover{border-color:currentColor}
 
           <div class="card">
             <div class="card-header"><h3><svg class="ic"><use href="#i-db"/></svg>Check database rules</h3></div>
-            <p class="card-sub">Tests the live Firebase rules the way the app uses them, including a real test submission of the public registration form (removed again straight away). Run it after publishing new rules, or whenever something is refused.</p>
+            <p class="card-sub">Tests the live Firebase rules the way the app uses them, including a real test submission of the public registration form and of a staff self-add link (both removed again straight away). Run it after publishing new rules, or whenever something is refused.</p>
             <button class="btn btn-primary" id="dbcheck-btn" onclick="runDbCheck()"><svg class="ic"><use href="#i-shield"/></svg>Run the check</button>
             <div id="dbcheck-out" class="mt-16"></div>
           </div>
@@ -1966,6 +1994,84 @@ button.sup-chip:hover{border-color:currentColor}
   <footer class="app-foot">Enquiries: <a data-office-mail href="mailto:research.office@cihe.edu.au">research.office@cihe.edu.au</a> · <a href="https://www.cihe.edu.au" target="_blank" rel="noopener">www.cihe.edu.au</a></footer>
 </div>
 
+<!-- ═══════════════ STAFF SELF-ADD TO THE SUPERVISOR POOL (public, opened from a link an admin shares) ═══════════════ -->
+<div id="page-join" class="page">
+  <nav class="navbar">
+    <div class="navbar-brand">
+      <span class="brand-mark"><svg class="ic"><use href="#i-cap"/></svg></span>
+      <div class="brand-text"><span class="brand-name">Assign Supervisor</span><span class="brand-sub">Supervisor pool · CIHE staff</span></div>
+    </div>
+    <div class="navbar-right">
+      <button class="icon-btn theme-toggle" title="Switch light / dark" aria-label="Switch light or dark theme"><svg class="ic i-moon"><use href="#i-moon"/></svg><svg class="ic i-sun"><use href="#i-sun"/></svg></button>
+      <button class="btn btn-sm" id="join-to-login-btn"><svg class="ic"><use href="#i-user"/></svg>Staff sign in</button>
+    </div>
+  </nav>
+  <div class="reg-wrap">
+    <div style="text-align:center;margin-bottom:24px">
+      <span class="eyebrow">CIHE Australia · Master of Research</span>
+      <h1 style="font-size:clamp(1.7rem,4vw,2.2rem);margin:8px 0 10px">Join the supervisor pool</h1>
+      <p style="color:var(--text2);font-size:14.5px;max-width:640px;margin:0 auto">For <strong>CIHE Australia staff</strong> who would like to be considered as supervisors for Master of Research students. Your details go <strong>straight into the supervisor pool</strong> — there is no separate registration form or approval step. Fields marked <span class="req">*</span> are required.</p>
+    </div>
+
+    <div id="jn-state"><div class="card" style="text-align:center;padding:36px"><div class="spinner"></div><div class="text-sm text-muted" style="margin-top:10px">Checking your link…</div></div></div>
+
+    <div id="jn-form-wrap" class="hidden">
+      <div class="alert alert-info" id="jn-for"></div>
+
+      <div class="card">
+        <div class="card-header"><h3><span class="reg-num">1</span>Your details</h3></div>
+        <div class="g3">
+          <div class="form-group"><label for="jn-title">Title</label><select id="jn-title"></select></div>
+          <div class="form-group"><label for="jn-first">First name <span class="req">*</span></label><input type="text" id="jn-first" maxlength="60" autocomplete="given-name"/></div>
+          <div class="form-group"><label for="jn-last">Last name <span class="req">*</span></label><input type="text" id="jn-last" maxlength="60" autocomplete="family-name"/></div>
+        </div>
+        <div class="g2">
+          <div class="form-group"><label for="jn-email">Work email address <span class="req">*</span></label><input type="email" id="jn-email" maxlength="120" placeholder="you@cihe.edu.au" autocomplete="email"/><p class="hint">Use the address you want supervision emails and your sign-in details sent to.</p></div>
+          <div class="form-group"><label for="jn-phone">Phone number</label><input type="tel" id="jn-phone" maxlength="40" autocomplete="tel"/></div>
+        </div>
+        <div class="form-group hidden" id="jn-aff-row"><label>Employment at CIHE Australia <span class="req">*</span></label>
+          <div class="radio-row"><label><input type="radio" name="jn-aff" value="internal-ft"/> Full-time staff</label><label><input type="radio" name="jn-aff" value="internal-sess"/> Sessional / casual staff</label></div>
+        </div>
+        <div class="g2">
+          <div class="form-group"><label for="jn-position">Position title <span class="req">*</span></label><input type="text" id="jn-position" maxlength="120" placeholder="e.g. Lecturer, Senior Lecturer"/></div>
+          <div class="form-group"><label for="jn-institution">Institution</label><input type="text" id="jn-institution" maxlength="160" value="CIHE Australia"/></div>
+        </div>
+      </div>
+
+      <div class="card">
+        <div class="card-header"><h3><span class="reg-num">2</span>What you can supervise</h3></div>
+        <div class="form-group"><label>Master of Research discipline(s) <span class="req">*</span> <span class="opt">(tick all that apply)</span></label><div id="jn-disc-box" style="padding-top:6px"></div></div>
+        <div class="form-group"><label for="jn-level">Supervision role you would like <span class="req">*</span></label><select id="jn-level"></select></div>
+        <div class="form-group" style="margin-bottom:0"><label>Campus(es) where you can supervise <span class="req">*</span></label>
+          <div class="sem-box" id="jn-campus-box"><span class="text-sm text-muted">Loading campuses…</span></div>
+        </div>
+      </div>
+
+      <div class="card">
+        <div class="card-header"><h3><span class="reg-num">3</span>Research &amp; supervision experience</h3></div>
+        <div class="form-group"><label for="jn-areas">Research areas &amp; specialisations <span class="req">*</span></label><textarea id="jn-areas" rows="3" maxlength="1000"></textarea></div>
+        <div class="g2">
+          <div class="form-group"><label for="jn-hdr-done">HDR students supervised to completion <span class="req">*</span></label><select id="jn-hdr-done"></select></div>
+          <div class="form-group"><label for="jn-hdr-now">Current HDR students supervising <span class="req">*</span></label><select id="jn-hdr-now"></select></div>
+        </div>
+        <div class="alert alert-info" style="margin:0 0 14px"><strong>Note:</strong> Capstone project supervision is not considered HDR supervision.</div>
+        <div class="form-group"><label for="jn-profile">ORCID iD / Google Scholar profile link</label><input type="text" id="jn-profile" maxlength="300" placeholder="https://orcid.org/0000-0000-0000-0000"/></div>
+        <div class="form-group"><label for="jn-cv">CV link <span class="opt">(Google Drive / OneDrive — set to "anyone with the link can view")</span></label><input type="url" id="jn-cv" maxlength="500" placeholder="https://…"/></div>
+        <div class="form-group"><label for="jn-notes">Anything else the Research Office should know <span class="opt">(optional)</span></label><textarea id="jn-notes" rows="2" maxlength="1000" placeholder="e.g. Available from Semester 2; happy to co-supervise only at first."></textarea></div>
+        <input type="text" id="jn-website" class="hp-field" tabindex="-1" autocomplete="off" aria-hidden="true"/>
+        <label class="check-row"><input type="checkbox" id="jn-confirm"/> <span>I confirm these details are correct, and I agree to them being kept in the CIHE Australia supervisor pool and used to plan Master of Research supervision. <span class="req">*</span></span></label>
+        <div id="jn-error" class="alert alert-danger hidden mt-16"></div>
+        <div class="form-actions mt-16">
+          <button class="btn btn-primary" id="jn-submit-btn" style="height:42px;padding:0 22px"><svg class="ic"><use href="#i-send"/></svg>Add me to the supervisor pool</button>
+        </div>
+      </div>
+    </div>
+
+    <div id="jn-done" class="hidden"></div>
+  </div>
+  <footer class="app-foot">Enquiries: <a data-office-mail href="mailto:research.office@cihe.edu.au">research.office@cihe.edu.au</a> · <a href="https://www.cihe.edu.au" target="_blank" rel="noopener">www.cihe.edu.au</a></footer>
+</div>
+
 <script type="module">
 import { initializeApp }                              from "https://www.gstatic.com/firebasejs/10.12.2/firebase-app.js";
 import { getAuth, signInWithEmailAndPassword,
@@ -2179,6 +2285,11 @@ const ACT = {
   'pool.inactive':     {v:'marked inactive in the pool:',        c:'reg', i:'i-x', t:'danger'},
   'pool.reactivate':   {v:'reactivated in the pool:',            c:'reg', i:'i-check'},
   'pool.delete':       {v:'removed from the supervisor pool:',   c:'reg', i:'i-trash', t:'danger'},
+  'pool.link.create':  {v:'created a staff self-add link for',   c:'reg', i:'i-link'},
+  'pool.link.off':     {v:'closed a staff self-add link:',       c:'reg', i:'i-x', t:'danger'},
+  'pool.link.on':      {v:'reopened a staff self-add link:',     c:'reg', i:'i-link'},
+  'pool.link.delete':  {v:'deleted a staff self-add link:',      c:'reg', i:'i-trash', t:'danger'},
+  'pool.link.merge':   {v:'merged a staff self-add entry into',  c:'reg', i:'i-refresh'},
   'settings.edit':     {v:'changed settings',                   c:'system', i:'i-sliders'},
   'admin.promote':     {v:'made an admin:',                     c:'system', i:'i-shield'},
   'log.clear':         {v:'cleared the activity log',           c:'system', i:'i-trash', t:'danger'},
@@ -2846,6 +2957,7 @@ onAuthStateChanged(auth, async user => {
         return;
       }
       if(window.location.hash.startsWith('#register')) openRegisterPortal(); // public form, also viewable while signed in
+      else if(window.location.hash.startsWith('#join/')) openJoinPortal();   // staff self-add link, also viewable while signed in
       else if(PROFILE.role==='admin') await mountAdmin();
       else if(PROFILE.role==='officer') await mountReview(); // review-only account
       else await mountSupervisor();
@@ -2854,6 +2966,7 @@ onAuthStateChanged(auth, async user => {
       // Public student lookup is reachable without logging in via #students.
       if(window.location.hash==='#students') openStudentPortal();
       else if(window.location.hash.startsWith('#register')) openRegisterPortal();
+      else if(window.location.hash.startsWith('#join/')) openJoinPortal();
       else showPage('page-login');
     }
   } catch(e) {
@@ -7911,7 +8024,7 @@ function buildSVDiscPills(){
 ══════════════════════════════════════════════════════════ */
 const POOL_COL='supervisorPool';
 let POOL=[], POOL_LOADED=false, POOL_CHECK=new Set();
-let poolSem=null, poolDisc=null, poolLevel='', poolCampus='', poolAffF='', poolView='all', poolQ='', poolMissF='', poolSort='name', POOL_HOST=null, POOL_CTX={};
+let poolSem=null, poolDisc=null, poolLevel='', poolCampus='', poolAffF='', poolView='all', poolQ='', poolMissF='', poolSort='name', poolLinkF='', POOL_HOST=null, POOL_CTX={};
 const poolAff=p=>p.affiliation || poolAccount(p)?.affiliation || '';
 const poolName=p=>p.name||[p.title,p.firstName,p.lastName].filter(Boolean).join(' ')||p.email||'—';
 const lc=s=>String(s||'').trim().toLowerCase();
@@ -8042,6 +8155,8 @@ async function openPool(hostId, ctx){
   host.innerHTML=`<div class="card" style="text-align:center;padding:36px"><div class="spinner"></div></div>`;
   try{
     await Promise.all([loadPool(), loadAllUsers().catch(()=>{})]);
+    const merged=await mergeLinkDuplicates().catch(e=>{ console.warn('pool link merge',e); return 0; });
+    if(merged) toast(`${merged} staff self-add entr${merged===1?'y was':'ies were'} merged into an existing pool record with the same email`,'info',5000);
     const added=await syncPoolWithAccounts().catch(e=>{ console.warn('pool sync',e); return 0; });
     await backfillPoolDocs().catch(e=>console.warn('pool CV backfill',e));
     if(added) toast(`${added} existing supervisor account(s) added to the pool`,'info',4000);
@@ -8055,6 +8170,7 @@ async function openPool(hostId, ctx){
 function poolFiltered(ignoreView){
   const term=lc(poolQ);
   return POOL.filter(p=>{
+    if(poolLinkF && p.linkId!==poolLinkF) return false;
     if(poolMissF){ const miss=poolMissing(p); if(poolMissF==='any' ? !miss.length : !miss.some(m=>m.k===poolMissF)) return false; }
     if(poolDisc && !((p.disciplines||[]).length===0 || discCovered(p.disciplines).includes(poolDisc))) return false;
     if(poolLevel && !levelMatch(p.level,poolLevel)) return false;
@@ -8152,7 +8268,8 @@ function renderPool(){
         <select data-pool-campus style="width:auto;min-width:170px;height:34px"><option value="">All campuses</option>${CAMPUSES.map(c=>`<option value="${c.id}" ${poolCampus===c.id?'selected':''}>${esc(campusLabel(c))}</option>`).join('')}</select>
         <select data-pool-sort title="Order of the list" style="width:auto;min-width:200px;height:34px"><option value="name" ${poolSort==='name'?'selected':''}>Sort: by surname</option><option value="done" ${poolSort==='done'?'selected':''}>Sort: most HDR completions</option><option value="now" ${poolSort==='now'?'selected':''}>Sort: most current HDR students</option></select>
         <select data-pool-miss title="Find people whose pool record is missing something — then tick them and email them" style="width:auto;min-width:190px;height:34px"><option value="">Any details</option><option value="any" ${poolMissF==='any'?'selected':''}>Missing any detail</option>${POOL_MISSING.map(m=>`<option value="${m.k}" ${poolMissF===m.k?'selected':''}>Missing: ${esc(m.short)}</option>`).join('')}</select>
-        ${poolQ||poolDisc||poolLevel||poolCampus||poolAffF||poolMissF?`<button class="btn btn-sm btn-ghost" data-pool-reset>Clear filters</button>`:''}
+        ${poolLinkF?`<span class="plk-filter">${icon('i-link','ic-sm')}Joined via “${esc(plkTitle(POOL_LINKS.find(l=>l.id===poolLinkF)||{id:poolLinkF}))}”<button type="button" data-pool-linkf-clear title="Show everyone" aria-label="Clear">×</button></span>`:''}
+        ${poolQ||poolDisc||poolLevel||poolCampus||poolAffF||poolMissF||poolLinkF?`<button class="btn btn-sm btn-ghost" data-pool-reset>Clear filters</button>`:''}
       </div>
       <div class="table-toolbar pool-bulk hidden" data-pool-bulkbar>
         <span class="fw-600 text-sm" data-pool-checked></span>
@@ -8177,7 +8294,8 @@ function renderPool(){
   q('[data-pool-campus]').onchange=e=>{ poolCampus=e.target.value; renderPool(); };
   q('[data-pool-aff]').onchange=e=>{ poolAffF=e.target.value; renderPool(); };
   q('[data-pool-export]').onclick=()=>exportPool(q('[data-pool-export-disc]').value);
-  q('[data-pool-reset]')?.addEventListener('click',()=>{ poolQ=''; poolDisc=''; poolLevel=''; poolCampus=''; poolAffF=''; poolMissF=''; poolSort='name'; renderPool(); });
+  q('[data-pool-reset]')?.addEventListener('click',()=>{ poolQ=''; poolDisc=''; poolLevel=''; poolCampus=''; poolAffF=''; poolMissF=''; poolLinkF=''; poolSort='name'; renderPool(); });
+  q('[data-pool-linkf-clear]')?.addEventListener('click',()=>{ poolLinkF=''; renderPool(); });
   host.querySelectorAll('[data-pool-bulk]').forEach(b=>b.onclick=()=>poolBulk(b.dataset.poolBulk));
   q('[data-pool-bulk-selas]')?.addEventListener('change',e=>{ const r=e.target.value; e.target.value=''; if(r) poolBulk('select',r); });
   q('[data-pool-invite-selected]')?.addEventListener('click',()=>invitePool(POOL.filter(p=>p.active!==false && poolSemState(p,poolSem)==='selected')));
@@ -8188,10 +8306,10 @@ function renderPool(){
 function renderPoolRows(){
   const host=el(POOL_HOST), body=host?.querySelector('[data-pool-rows]'); if(!body) return;
   const C=POOL_CTX, all=poolFiltered();
-  const pg=pageSlice('pool:'+POOL_HOST, all, [poolQ,poolDisc,poolLevel,poolCampus,poolAffF,poolMissF,poolSort,poolView,poolSem].join('|'));
+  const pg=pageSlice('pool:'+POOL_HOST, all, [poolQ,poolDisc,poolLevel,poolCampus,poolAffF,poolMissF,poolLinkF,poolSort,poolView,poolSem].join('|'));
   const rows=pg.rows, adminHere=POOL_HOST==='admin-pool-host' && isAdminUser();
   const valid=new Set(POOL.map(p=>p.id)); [...POOL_CHECK].forEach(id=>{ if(!valid.has(id)) POOL_CHECK.delete(id); });
-  const srcLbl={registration:'Approved registration',import:'Imported',manual:'Added by admin',account:'Existing account'};
+  const srcLbl={registration:'Approved registration',import:'Imported',manual:'Added by admin',account:'Existing account',link:'Added themselves via a staff link'};
   body.innerHTML = rows.length ? rows.map(p=>{
     const st=poolSemState(p,poolSem), acc=poolAccount(p), role=poolSelRole(p,poolSem);
     const stCell = st==='invited'
@@ -8213,7 +8331,7 @@ function renderPoolRows(){
     return `<tr class="${st==='selected'?'row-sel':st==='invited'?'row-inv':''}" style="${p.active===false?'opacity:.55':''}">
       <td><input type="checkbox" data-pool-check="${p.id}" ${POOL_CHECK.has(p.id)?'checked':''} style="width:auto"/></td>
       <td style="min-width:240px"><div class="fw-600">${esc(poolName(p))} ${affBadge(poolAff(p))}</div>${hdrChipsHTML(p)}<div class="text-xs text-muted">${esc(p.email||'no email')}${p.institution?' · '+esc(p.institution):''}</div>${(()=>{ const cv=safeUrl(poolCv(p)), fo=!cv&&safeUrl(p.docFolder), pr=safeUrl(p.profileLink); return cv||fo||pr?`<div class="text-xs pool-links">${cv?`<a href="${esc(cv)}" target="_blank" rel="noopener noreferrer">${icon('i-file','ic-sm')}CV</a>`:''}${fo?`<a href="${esc(fo)}" target="_blank" rel="noopener noreferrer">${icon('i-file','ic-sm')}Documents</a>`:''}${pr?`<a href="${esc(pr)}" target="_blank" rel="noopener noreferrer">${icon('i-ext','ic-sm')}Profile</a>`:''}</div>`:''; })()}
-        <div class="text-xs text-muted">${esc(srcLbl[p.source]||p.source||'')}${p.outcome==='Conditionally Approved'?' · <span class="c-amber">Conditional</span>':''}${acc?(acc.disabled?' · account disabled':(p.source==='account'?'':' · has an account')):' · no account yet'}</div>${poolMailedHTML(p)}${poolMissF?poolMissHTML(p):''}${poolNoteHTML(p)}${adminHere?xlinksHTML({acc, pool:p, here:'pool'}):''}</td>
+        <div class="text-xs text-muted">${esc(srcLbl[p.source]||p.source||'')}${p.source==='link'&&p.linkLabel?` (${esc(p.linkLabel)})`:''}${p.selfUpdatedAt&&p.source!=='link'?' · <span title="They updated their details through a staff self-add link">updated by them via a staff link</span>':''}${p.outcome==='Conditionally Approved'?' · <span class="c-amber">Conditional</span>':''}${acc?(acc.disabled?' · account disabled':(p.source==='account'?'':' · has an account')):' · no account yet'}</div>${poolMailedHTML(p)}${poolMissF?poolMissHTML(p):''}${poolNoteHTML(p)}${adminHere?xlinksHTML({acc, pool:p, here:'pool'}):''}</td>
       <td>${disc}<div class="text-xs text-muted" style="margin-top:3px">Applied as ${esc(LEVEL_SHORT[p.level]||p.level||'—')}</div>${poolRecHTML(p)}</td>
       <td class="text-sm">${esc((p.campusNames||[]).join(', ')||'—')}</td>
       <td>${stCell}</td>
@@ -8721,8 +8839,374 @@ async function previewPoolImport(file){
 }
 
 /* ── Entry points ── */
-async function openPoolTab(){ initPoolTools(); await openPool('admin-pool-host',{canSelect:true,canInvite:true,canEdit:true,canAccess:true,canComment:true,canEmail:true}); }
+async function openPoolTab(){ initPoolTools(); initPoolLinks(); loadPoolLinks().then(renderPoolLinks); await openPool('admin-pool-host',{canSelect:true,canInvite:true,canEdit:true,canAccess:true,canComment:true,canEmail:true}); renderPoolLinks(); }
 function poolCtxForMe(){ const admin=isAdminUser(), adr=admin||isADRUser(); return {canSelect:adr,canInvite:adr,canEdit:admin,canAccess:admin,canComment:admin,canEmail:adr}; }
+
+/* ══════════════════════════════════════════════════════════
+   STAFF SELF-ADD LINKS (supervisor pool)
+   An admin creates a link for CIHE Australia internal staff — full-time,
+   sessional / casual, or either (the person says which). Whoever opens
+   #join/<code> fills in a short form and is written straight into
+   `supervisorPool` (source 'link'), the same as an admin adding them by hand:
+   no registration, no review.
+     poolLinks/{code}   affiliation ('internal-ft' | 'internal-sess' | 'internal-any'),
+                        label, active, expiresAt (Timestamp or null), createdAt/By
+     supervisorPool/ln_<email>   one entry per email address through links, so
+                        the same person cannot add themselves twice.
+   The Firestore rules (POOL_LINK_RULES) let the public read one link by its
+   code (never list them) and create that one entry while the link is open.
+   When an admin opens the pool, a self-added entry whose email is already in
+   the pool (an older account, import or registration) is merged into it.
+══════════════════════════════════════════════════════════ */
+const POOL_LINK_COL='poolLinks';
+const JOIN_URL=code=>APP_URL+'#join/'+encodeURIComponent(code);
+const PLK_FOR={
+  'internal-ft':  {short:'Full-time staff',          long:'CIHE Australia full-time staff',                       desc:'They are recorded as Internal — full-time.'},
+  'internal-sess':{short:'Sessional / casual staff', long:'CIHE Australia sessional and casual staff',              desc:'They are recorded as Internal — sessional (casual staff included).'},
+  'internal-any': {short:'Any internal staff',       long:'CIHE Australia staff (full-time, sessional or casual)', desc:'One link for everyone: each person says whether they are full-time or sessional / casual.'},
+};
+const PLK_EXPIRY=[['7','7 days'],['14','14 days'],['30','30 days'],['90','90 days'],['180','6 months'],['','No end date']];
+let POOL_LINKS=[], POOL_LINKS_STATE='idle', plkBound=false;
+const plkTitle=l=>l.label||PLK_FOR[l.affiliation]?.short||'Staff link';
+const plkExpired=l=>{ const d=tsDate(l.expiresAt); return !!(d && d.getTime()<=Date.now()); };
+const plkOpen=l=>l.active!==false && !plkExpired(l);
+const plkJoined=l=>POOL.filter(p=>p.linkId===l.id).length;
+function plkToken(){ const a='ABCDEFGHJKLMNPQRSTUVWXYZabcdefghijkmnpqrstuvwxyz23456789', n=crypto.getRandomValues(new Uint32Array(22)); return [...n].map(x=>a[x%a.length]).join(''); }
+const JOIN_LEVELS=[REG_OPTS.level[0],REG_OPTS.level[1],REG_OPTS.level[3]]; // Industry Expert is for people outside CIHE
+
+const POOL_LINK_RULES=`// ── Staff self-add links (supervisor pool) ──
+// Paste inside:  match /databases/{database}/documents { … }
+// These blocks ADD to your existing rules; they do not replace them.
+match /poolLinks/{code} {
+  allow get: if true;   // anyone with the code can open that one link (no listing)
+  allow list, create, update, delete: if request.auth != null &&
+    get(/databases/$(database)/documents/users/$(request.auth.uid)).data.role == 'admin';
+}
+match /supervisorPool/{id} {
+  // Someone who has an open staff link may add ONE entry for themselves.
+  allow create: if poolSelfAdd(id, request.resource.data);
+}
+function selfStr(d, k, lo, hi) { return d[k] is string && d[k].size() >= lo && d[k].size() <= hi; }
+function poolSelfAdd(id, d) {
+  return d.keys().hasOnly(['title','firstName','lastName','name','email','emailLower','phone',
+      'affiliation','position','institution','disciplines','level','supervisorType','campusIds',
+      'campusNames','researchAreas','hdrCompleted','hdrCurrent','profileLink','docCv','notes',
+      'source','linkId','linkLabel','active','selected','invited','addedAt'])
+    && d.source == 'link' && d.active == true && d.selected == [] && d.invited == []
+    && d.addedAt == request.time
+    && selfStr(d,'email',5,120) && d.emailLower == d.email.lower() && id == 'ln_' + d.emailLower
+    && selfStr(d,'firstName',1,60) && selfStr(d,'lastName',1,60) && selfStr(d,'name',1,200)
+    && selfStr(d,'title',0,20) && selfStr(d,'phone',0,40) && selfStr(d,'position',1,120)
+    && selfStr(d,'institution',0,160) && selfStr(d,'level',1,80) && selfStr(d,'researchAreas',1,1000)
+    && selfStr(d,'hdrCompleted',1,10) && selfStr(d,'hdrCurrent',1,10) && selfStr(d,'profileLink',0,300)
+    && selfStr(d,'docCv',0,500) && selfStr(d,'notes',0,1000) && selfStr(d,'linkLabel',0,80)
+    && d.supervisorType in ['principal','co','both']
+    && d.disciplines is list && d.disciplines.size() >= 1 && d.disciplines.size() <= 4
+    && d.campusIds is list && d.campusIds.size() <= 30
+    && d.campusNames is list && d.campusNames.size() >= 1 && d.campusNames.size() <= 30
+    && selfStr(d,'linkId',16,40)
+    && exists(/databases/$(database)/documents/poolLinks/$(d.linkId))
+    && poolLinkAllows(get(/databases/$(database)/documents/poolLinks/$(d.linkId)).data, d);
+}
+function poolLinkAllows(l, d) {
+  return l.active == true
+    && (l.get('expiresAt', null) == null || request.time < l.expiresAt)
+    && (d.affiliation == l.affiliation
+        || (l.affiliation == 'internal-any' && d.affiliation in ['internal-ft', 'internal-sess']));
+}`;
+function plkRulesHintHTML(){
+  return `<div class="alert alert-warning mt-8" style="margin-bottom:0"><strong>The database doesn't allow staff links yet.</strong> In Firebase Console → Firestore Database → Rules, paste the rules below inside <code>match /databases/{database}/documents { … }</code> (keep everything already there), press <strong>Publish</strong>, then refresh this page. <button type="button" class="read-more-btn" data-plk-copy-rules>Copy the rules</button>
+    <pre class="chip-code" style="display:block;white-space:pre;overflow:auto;max-height:260px;padding:12px;margin-top:10px;font-size:11.5px;line-height:1.5;color:var(--text)">${esc(POOL_LINK_RULES)}</pre></div>`;
+}
+document.addEventListener('click',e=>{ if(e.target.closest('[data-plk-copy-rules]')) copyText(POOL_LINK_RULES,'Rules copied — paste them into Firebase Console → Firestore → Rules'); });
+
+async function loadPoolLinks(){
+  if(!isAdminUser()) return;
+  POOL_LINKS_STATE='loading';
+  try{ const s=await getDocs(collection(db,POOL_LINK_COL)); POOL_LINKS=s.docs.map(d=>({id:d.id,...d.data()})); POOL_LINKS_STATE='ok'; }
+  catch(e){ POOL_LINKS=[]; POOL_LINKS_STATE=e.code==='permission-denied'?'denied':'error'; console.warn('Staff self-add links:',e.code||e.message); }
+}
+function initPoolLinks(){
+  if(plkBound) return; plkBound=true;
+  el('plk-new-btn').onclick=()=>{ if(POOL_LINKS_STATE==='denied'){ toast('Publish the staff-link rules shown in the card first','error',5000); return; } openPoolLinkModal('internal-ft'); };
+}
+function plkRowHTML(l){
+  const open=plkOpen(l), url=JOIN_URL(l.id), exp=tsDate(l.expiresAt), n=plkJoined(l);
+  const state = l.active===false ? '<span class="badge badge-gray">Closed</span>' : plkExpired(l) ? '<span class="badge badge-amber">Expired</span>' : '<span class="badge badge-green badge-dot">Open</span>';
+  return `<div class="plk-row ${open?'':'off'}">
+    <div style="min-width:0">
+      <div class="flex items-center gap-8" style="flex-wrap:wrap"><span class="fw-600">${esc(plkTitle(l))}</span>${l.label?`<span class="text-xs text-muted">${esc(PLK_FOR[l.affiliation]?.short||'')}</span>`:''}${affBadge(l.affiliation)}${state}</div>
+      ${open?`<div class="link-field"><code>${esc(url)}</code><button class="btn btn-sm" data-plk="copy" data-id="${esc(l.id)}">${icon('i-copy')}Copy</button><a class="btn btn-sm btn-ghost" href="${esc(url)}" target="_blank" rel="noopener" title="Open the form as staff will see it">${icon('i-ext')}</a></div>`:''}
+      <div class="plk-meta"><span>${exp?`${plkExpired(l)?'Expired':'Open until'} ${esc(fmtWhen(exp))}`:'No end date'}</span><span>Created ${esc(fmtDate(l.createdAt))}${l.createdByName?' by '+esc(l.createdByName):''}</span>${n?`<button type="button" class="read-more-btn" style="padding:0" data-plk="show" data-id="${esc(l.id)}">${n} joined — show them</button>`:'<span>Nobody has joined yet</span>'}</div>
+    </div>
+    <div class="plk-acts">
+      ${open?`<button class="btn btn-sm" data-plk="share" data-id="${esc(l.id)}" title="Email text to send to staff">${icon('i-mail')}Email to staff</button><button class="btn btn-sm" data-plk="off" data-id="${esc(l.id)}" title="Stop anyone else using this link">${icon('i-x')}Close</button>`
+            :`<button class="btn btn-sm" data-plk="on" data-id="${esc(l.id)}">${icon('i-refresh')}Reopen</button>`}
+      <button class="btn btn-sm btn-ghost" data-plk="del" data-id="${esc(l.id)}" title="Delete this link (people who joined stay in the pool)" aria-label="Delete link">${icon('i-trash')}</button>
+    </div></div>`;
+}
+function renderPoolLinks(){
+  const host=el('plk-host'); if(!host) return;
+  if(POOL_LINKS_STATE==='denied'){ host.innerHTML=plkRulesHintHTML(); return; }
+  if(POOL_LINKS_STATE==='error'){ host.innerHTML=`<div class="alert alert-danger mt-8" style="margin-bottom:0">Could not load the staff links. Check your connection and open this page again.</div>`; return; }
+  if(POOL_LINKS_STATE!=='ok'){ host.innerHTML=`<div class="text-sm text-muted mt-8">Loading…</div>`; return; }
+  const t=l=>tsDate(l.createdAt)?.getTime()||Date.now();
+  const sorted=[...POOL_LINKS].sort((a,b)=>t(b)-t(a)), open=sorted.filter(plkOpen), closed=sorted.filter(l=>!plkOpen(l));
+  host.innerHTML=(open.length ? `<div class="plk-list">${open.map(plkRowHTML).join('')}</div>`
+      : `<div class="flex gap-8 mt-8" style="flex-wrap:wrap;align-items:center"><span class="text-sm text-muted">No open links. Quick start:</span><button class="btn btn-sm" data-plk-quick="internal-ft">${icon('i-link')}Link for full-time staff</button><button class="btn btn-sm" data-plk-quick="internal-sess">${icon('i-link')}Link for sessional / casual staff</button></div>`)
+    + (closed.length ? `<details class="mt-8"><summary class="text-sm text-muted" style="cursor:pointer">${closed.length} closed or expired link${closed.length===1?'':'s'}</summary><div class="plk-list">${closed.map(plkRowHTML).join('')}</div></details>` : '');
+  host.querySelectorAll('[data-plk-quick]').forEach(b=>b.onclick=()=>openPoolLinkModal(b.dataset.plkQuick));
+  host.querySelectorAll('[data-plk]').forEach(b=>b.onclick=()=>poolLinkAct(b.dataset.plk, POOL_LINKS.find(l=>l.id===b.dataset.id), b));
+}
+async function poolLinkAct(kind, l, btn){
+  if(!l) return;
+  if(kind==='copy') return copyText(JOIN_URL(l.id),'Staff link copied');
+  if(kind==='share') return openPlkShare(l,false);
+  if(kind==='show'){ poolLinkF=l.id; poolView='all'; POOL_CHECK.clear(); renderPool(); el('admin-pool-host')?.scrollIntoView({behavior:'smooth',block:'start'}); return; }
+  try{
+    if(kind==='off'){
+      if(!confirm(`Close "${plkTitle(l)}"?\n\nNobody else can use it. People who already joined stay in the pool. You can reopen it later.`)) return;
+      btn.disabled=true;
+      await updateDoc(doc(db,POOL_LINK_COL,l.id),{active:false, closedAt:serverTimestamp(), closedBy:ME.uid});
+      logAct('pool.link.off', plkTitle(l), affLabel(l.affiliation)||PLK_FOR[l.affiliation]?.short, l.id);
+      toast('Link closed','success');
+    } else if(kind==='on'){
+      btn.disabled=true;
+      const patch={active:true};
+      if(plkExpired(l)) patch.expiresAt=Timestamp.fromMillis(Date.now()+30*86400000);
+      await updateDoc(doc(db,POOL_LINK_COL,l.id),patch);
+      logAct('pool.link.on', plkTitle(l), patch.expiresAt?'Open for another 30 days':'', l.id);
+      toast(patch.expiresAt?'Link reopened for another 30 days':'Link reopened','success');
+    } else if(kind==='del'){
+      if(!confirm(`Delete "${plkTitle(l)}"?\n\nThe link stops working straight away. The ${plkJoined(l)} people who joined through it stay in the pool.`)) return;
+      btn.disabled=true;
+      await deleteDoc(doc(db,POOL_LINK_COL,l.id));
+      logAct('pool.link.delete', plkTitle(l), `${plkJoined(l)} had joined`, l.id);
+      if(poolLinkF===l.id){ poolLinkF=''; renderPool(); }
+      toast('Link deleted','success');
+    }
+  }catch(e){ toast(e.code==='permission-denied'?'The database refused the change. Publish the staff-link rules (shown in the card) and try again.':'Error: '+e.message,'error',6000); if(btn) btn.disabled=false; return; }
+  await loadPoolLinks(); renderPoolLinks();
+}
+function openPoolLinkModal(pre){
+  const m=miniModal('plk-modal', `${icon('i-link','ic-sm')}Supervisor pool`);
+  m.querySelector('[data-mm-title]').textContent='Create a staff self-add link';
+  const body=m.querySelector('[data-mm-body]');
+  body.innerHTML=`<p class="modal-desc">Whoever opens this link and fills in the form is <strong>added straight to the supervisor pool</strong>, with the affiliation you choose here, just as if you had added them. There is no review step, so send it only to CIHE Australia staff, for example from your work email.</p>
+    <label>Who is this link for?</label>
+    <div class="plk-opts">${Object.entries(PLK_FOR).map(([k,v])=>`<label class="doc-opt"><input type="radio" name="plk-for" value="${k}" ${k===pre?'checked':''}/> <span><strong>${esc(v.short)}</strong><br><span class="text-sm text-muted">${esc(v.desc)}</span></span></label>`).join('')}</div>
+    <div class="g2">
+      <div class="form-group"><label for="plk-label">Name for this link <span class="opt">(optional — helps you tell links apart)</span></label><input type="text" id="plk-label" maxlength="80" placeholder="e.g. School of IT full-time staff, Nov 2026"/></div>
+      <div class="form-group"><label for="plk-exp">Link stays open for</label><select id="plk-exp">${PLK_EXPIRY.map(([v,l])=>`<option value="${v}" ${v==='30'?'selected':''}>${esc(l)}</option>`).join('')}</select></div>
+    </div>
+    <div class="form-actions"><button class="btn btn-primary" id="plk-create">${icon('i-link')}Create link</button><button class="btn btn-ghost" data-mm-close>Cancel</button></div>`;
+  el('plk-create').onclick=async()=>{
+    const aff=body.querySelector('input[name="plk-for"]:checked')?.value;
+    if(!PLK_FOR[aff]){ toast('Choose who the link is for','info'); return; }
+    const days=parseInt(el('plk-exp').value,10);
+    const code=plkToken();
+    const l={affiliation:aff, label:el('plk-label').value.trim().slice(0,80), active:true,
+      expiresAt: days>0 ? Timestamp.fromMillis(Date.now()+days*86400000) : null,
+      createdAt:serverTimestamp(), createdBy:ME.uid, createdByName:String(myDisplayName()).slice(0,60)};
+    const b=el('plk-create'); b.disabled=true;
+    try{
+      await setDoc(doc(db,POOL_LINK_COL,code),l);
+      logAct('pool.link.create', PLK_FOR[aff].short, (l.label?l.label+' · ':'')+(days>0?`open ${days} days`:'no end date'), code);
+      await loadPoolLinks(); renderPoolLinks();
+      openPlkShare(POOL_LINKS.find(x=>x.id===code)||{id:code,...l,createdAt:Timestamp.now()}, true);
+    }catch(e){
+      b.disabled=false;
+      if(e.code==='permission-denied'){ body.insertAdjacentHTML('beforeend', plkRulesHintHTML()); POOL_LINKS_STATE='denied'; renderPoolLinks(); }
+      else toast('Error: '+e.message,'error');
+    }
+  };
+  m.classList.remove('hidden');
+}
+function plkEmail(l){
+  const exp=tsDate(l.expiresAt), who=PLK_FOR[l.affiliation]?.long||'CIHE Australia staff';
+  return {subject:'Join the CIHE Australia Master of Research supervisor pool',
+    body:`Dear colleagues,\n\nIf you would like to be considered as a supervisor for Master of Research students, please add your details to the CIHE Australia supervisor pool using this short form (about 5 minutes):\n${JOIN_URL(l.id)}\n\nThis link is for ${who}. You are added to the pool straight away — there is no separate registration form or approval step. It helps to have your research areas, your HDR supervision numbers, your ORCID / Google Scholar link and a link to your CV ready.\n\nBeing in the pool does not mean you will be asked to supervise. Supervisors are selected each semester; if you are selected, you will receive an email with your sign-in details.${exp?`\n\nThe form is open until ${fmtWhen(exp)}.`:''}\n\nKind regards,\n${myDisplayName()}`};
+}
+function openPlkShare(l, fresh){
+  const m=miniModal('plk-modal', `${icon('i-link','ic-sm')}Supervisor pool · staff link`);
+  m.querySelector('[data-mm-title]').textContent = fresh ? 'Your staff link is ready' : plkTitle(l);
+  const t=plkEmail(l), url=JOIN_URL(l.id), exp=tsDate(l.expiresAt);
+  const body=m.querySelector('[data-mm-body]');
+  body.innerHTML=`${fresh?`<div class="alert alert-success">Anyone who fills in this form joins the pool as <strong>${esc(l.affiliation==='internal-any'?'Internal — full-time or sessional (they choose)':affLabel(l.affiliation))}</strong>${exp?`, until ${esc(fmtWhen(exp))}`:''}. You can close the link at any time.</div>`:''}
+    <div class="form-group"><label>Link</label><div class="link-field" style="margin-top:0"><code>${esc(url)}</code><button class="btn btn-sm" data-ps="link">${icon('i-copy')}Copy</button><a class="btn btn-sm btn-ghost" href="${esc(url)}" target="_blank" rel="noopener" title="Open the form">${icon('i-ext')}</a></div></div>
+    <div class="form-group"><label for="ps-subject">Email to staff — subject</label><input type="text" id="ps-subject" value="${esc(t.subject)}"/></div>
+    <div class="form-group"><label for="ps-body">Message <span class="opt">(edit as you like)</span></label><textarea id="ps-body" rows="11">${esc(t.body)}</textarea></div>
+    <p class="hint" style="margin-top:-6px">Opens your own email app with the message filled in and no recipients: add the staff (or a staff mailing list) yourself, ideally as Bcc.</p>
+    <div class="form-actions mt-8"><button class="btn btn-primary" data-ps="mail">${icon('i-send')}Open in email app</button><button class="btn" data-ps="copy">${icon('i-copy')}Copy message</button><button class="btn btn-ghost" data-mm-close>Done</button></div>`;
+  body.querySelector('[data-ps="link"]').onclick=()=>copyText(url,'Staff link copied');
+  body.querySelector('[data-ps="copy"]').onclick=()=>copyText(el('ps-subject').value+'\n\n'+el('ps-body').value,'Message copied');
+  body.querySelector('[data-ps="mail"]').onclick=()=>{
+    const href=`mailto:?subject=${encodeURIComponent(el('ps-subject').value)}&body=${encodeURIComponent(el('ps-body').value)}`;
+    if(href.length>1900) toast('This email is long — some email apps cut very long pre-filled messages. If text is missing, use "Copy message".','warning',7000);
+    window.location.href=href;
+  };
+  m.classList.remove('hidden');
+}
+
+/* Admin: a self-added entry whose email is already in the pool (an existing account, an
+   import, a manual entry or an approved registration) is merged into that record. The
+   person's own, newer answers replace the older ones where they gave them; selection,
+   semester lists, the account link, reviews and admin notes stay as they were. */
+const LINK_PROFILE_KEYS=['title','firstName','lastName','name','phone','position','institution','disciplines','level','campusIds','campusNames','researchAreas','hdrCompleted','hdrCurrent','profileLink','docCv'];
+async function mergeLinkDuplicates(){
+  if(!isAdminUser()) return 0;
+  const key=p=>lc(p.emailLower||p.email);
+  const pairs=POOL.filter(p=>p.source==='link' && key(p)).map(p=>[p,POOL.find(q=>q.id!==p.id && q.source!=='link' && key(q)===key(p))]).filter(x=>x[1]);
+  if(!pairs.length) return 0;
+  for(const [p,q] of pairs){
+    const patch={};
+    LINK_PROFILE_KEYS.forEach(k=>{ const v=p[k]; if(Array.isArray(v)?v.length:String(v??'').trim()) patch[k]=v; });
+    if(p.affiliation) patch.affiliation=p.affiliation;
+    if(p.supervisorType && q.source!=='registration') patch.supervisorType=p.supervisorType; // keep the ADR-approved role
+    if(String(p.notes||'').trim()) patch.notes=[q.notes,`Added via staff link (${fmtDate(p.addedAt)}): ${p.notes}`].filter(Boolean).join('\n').slice(0,2000);
+    patch.linkId=p.linkId||''; patch.linkLabel=p.linkLabel||''; patch.selfUpdatedAt=p.addedAt||serverTimestamp(); patch.updatedAt=serverTimestamp();
+    const b=writeBatch(db);
+    b.update(doc(db,POOL_COL,q.id),patch);
+    b.delete(doc(db,POOL_COL,p.id));
+    const acc=poolAccount(q);
+    if(acc && patch.affiliation && (acc.affiliation||'')!==patch.affiliation) b.update(doc(db,'users',acc.id),{affiliation:patch.affiliation});
+    await b.commit();
+    if(acc && patch.affiliation) [...ALL_USERS,...SUPS].forEach(u=>{ if(u.id===acc.id) u.affiliation=patch.affiliation; });
+    logAct('pool.link.merge', poolName(q), `${q.email||p.email} · their details from the staff link replaced the older ones`, q.id);
+  }
+  await loadPool();
+  return pairs.length;
+}
+
+/* ── Public form: #join/<code> ── */
+let JOIN_LINK=null, joinBound=false, JN_CAMPUSES=null;
+/* The pool entry the form writes. The database check builds its test entry with this too. */
+function joinEntry(d, link){
+  const emailLower=lc(d.email);
+  return {title:d.title||'', firstName:d.firstName, lastName:d.lastName, name:[d.title,d.firstName,d.lastName].filter(Boolean).join(' '),
+    email:d.email, emailLower, phone:d.phone||'', affiliation:d.affiliation, position:d.position, institution:d.institution||'',
+    disciplines:d.disciplines, level:d.level, supervisorType:LEVEL_TYPE[d.level]||'both', campusIds:d.campusIds||[], campusNames:d.campusNames,
+    researchAreas:d.researchAreas, hdrCompleted:d.hdrCompleted, hdrCurrent:d.hdrCurrent, profileLink:d.profileLink||'', docCv:d.docCv||'', notes:d.notes||'',
+    source:'link', linkId:link.id, linkLabel:String(link.label||'').slice(0,80), active:true, selected:[], invited:[], addedAt:serverTimestamp()};
+}
+const joinDocId=email=>'ln_'+lc(email);
+function joinClosed(kind, l){
+  JOIN_LINK=null;
+  hide('jn-form-wrap'); hide('jn-done'); show('jn-state');
+  const exp=l&&tsDate(l.expiresAt);
+  const [h,msg]={
+    bad:['This link is not valid','Check that you copied the whole link from the email. If it still does not open, ask the Research Office for a new one.'],
+    closed:['This link has been closed','It is no longer accepting new details. If you would still like to join the supervisor pool, please contact the Research Office.'],
+    expired:['This link has expired',`It was open until ${exp?fmtWhen(exp):'recently'}. If you would still like to join the supervisor pool, please ask the Research Office for a new link.`],
+    error:['The link could not be checked','Please check your connection and reload the page. If this keeps happening, let the Research Office know.'],
+  }[kind]||[];
+  el('jn-state').innerHTML=`<div class="card" style="text-align:center;padding:34px 22px"><span class="share-ic" style="margin:0 auto 12px;background:var(--amber)">${icon('i-link')}</span><h2>${esc(h)}</h2><p class="text-muted" style="margin:6px auto 0;max-width:520px">${esc(msg)} <a href="mailto:${esc(RESEARCH_OFFICE_EMAIL)}">${esc(RESEARCH_OFFICE_EMAIL)}</a></p></div>`;
+}
+async function openJoinPortal(){
+  showPage('page-join');
+  if(!joinBound){
+    joinBound=true;
+    el('jn-title').innerHTML=`<option value="">— Select —</option>`+optsHTML(REG_OPTS.title);
+    el('jn-level').innerHTML=`<option value="">— Select —</option>`+optsHTML(JOIN_LEVELS);
+    el('jn-hdr-done').innerHTML=`<option value="">— Select —</option>`+optsHTML(REG_OPTS.hdrCompleted);
+    el('jn-hdr-now').innerHTML=`<option value="">— Select —</option>`+optsHTML(REG_OPTS.hdrCurrent);
+    el('jn-disc-box').innerHTML=discChecksHTML('jn-disc',[]);
+    el('jn-submit-btn').onclick=()=>submitJoin().catch(e=>{ console.error('Staff link form:',e); joinError('Something went wrong: '+(e?.message||e)+'. Please try again.'); el('jn-submit-btn').disabled=false; });
+    el('join-to-login-btn').onclick=()=>{ window.location.hash=''; if(ME) window.location.reload(); else showPage('page-login'); };
+  }
+  if(ME) el('join-to-login-btn').innerHTML=`${icon('i-back')}Back to Assign Supervisor`;
+  hide('jn-form-wrap'); hide('jn-done'); show('jn-state');
+  el('jn-state').innerHTML=`<div class="card" style="text-align:center;padding:36px"><div class="spinner"></div><div class="text-sm text-muted" style="margin-top:10px">Checking your link…</div></div>`;
+  const code=decodeURIComponent(window.location.hash.slice('#join/'.length)).trim();
+  if(!/^[A-Za-z0-9]{16,40}$/.test(code)) return joinClosed('bad');
+  let snap;
+  try{ snap=await getDoc(doc(db,POOL_LINK_COL,code)); }
+  catch(e){ console.warn('Staff link check:',e.code||e.message); return joinClosed('error'); }
+  if(!snap.exists()) return joinClosed('bad');
+  const l={id:code,...snap.data()};
+  if(l.active===false) return joinClosed('closed',l);
+  if(plkExpired(l)) return joinClosed('expired',l);
+  JOIN_LINK=l;
+  const any=l.affiliation==='internal-any', exp=tsDate(l.expiresAt);
+  el('jn-aff-row').classList.toggle('hidden',!any);
+  el('jn-for').innerHTML=(any
+      ? `This form is for <strong>CIHE Australia staff</strong>. Please tell us below whether you are full-time or sessional / casual.`
+      : `This form is for <strong>${esc(PLK_FOR[l.affiliation]?.long||'CIHE Australia staff')}</strong>. You will be recorded in the pool as <strong>${esc(affLabel(l.affiliation))}</strong>.`)
+    + (exp?` <span class="text-sm text-muted">The form is open until ${esc(fmtWhen(exp))}.</span>`:'');
+  hide('jn-state'); show('jn-form-wrap');
+  loadJoinCampuses();
+}
+async function loadJoinCampuses(){
+  const box=el('jn-campus-box'); if(box.dataset.done) return;
+  if(!JN_CAMPUSES){
+    try{ const s=await getDocs(collection(db,'campuses')); JN_CAMPUSES=s.docs.map(d=>({id:d.id,...d.data()})).sort((a,b)=>String(a.name||'').localeCompare(String(b.name||''))); }
+    catch(e){ JN_CAMPUSES=[]; }
+  }
+  box.dataset.done='1';
+  box.innerHTML = JN_CAMPUSES.length
+    ? `<div class="sem-list" style="border:none;margin:0;padding:0">${JN_CAMPUSES.map(c=>`<label class="check-row"><input type="checkbox" data-jn-campus="${esc(c.id)}"/> <span>${esc(campusLabel(c))}</span></label>`).join('')}</div>`
+    : `<input type="text" id="jn-campus-text" maxlength="120" placeholder="e.g. Sydney (NSW), Canberra (ACT), Perth (WA)" style="margin:6px 0"/>`;
+}
+function joinError(msg, focusId){
+  const e=el('jn-error'); e.textContent=msg; e.classList.remove('hidden');
+  const f=focusId && el(focusId); if(f){ f.focus({preventScroll:true}); f.scrollIntoView({behavior:'smooth',block:'center'}); }
+  else e.scrollIntoView({behavior:'smooth',block:'center'});
+}
+async function submitJoin(){
+  hide('jn-error');
+  const link=JOIN_LINK; if(!link) return;
+  const v=id=>(el(id)?.value||'').trim();
+  const d={title:v('jn-title'), firstName:v('jn-first'), lastName:v('jn-last'), email:v('jn-email'), phone:v('jn-phone'), position:v('jn-position'), institution:v('jn-institution'),
+    level:v('jn-level'), researchAreas:v('jn-areas'), hdrCompleted:v('jn-hdr-done'), hdrCurrent:v('jn-hdr-now'), profileLink:v('jn-profile'), docCv:v('jn-cv'), notes:v('jn-notes')};
+  if(!d.firstName) return joinError('Please enter your first name.','jn-first');
+  if(!d.lastName) return joinError('Please enter your last name.','jn-last');
+  if(!/^[^\s@\/]+@[^\s@\/]+\.[^\s@\/]+$/.test(d.email)) return joinError('Please enter a valid email address.','jn-email');
+  d.affiliation = link.affiliation==='internal-any' ? (document.querySelector('input[name="jn-aff"]:checked')?.value||'') : link.affiliation;
+  if(!d.affiliation){ joinError('Please say whether you are full-time or sessional / casual staff.'); document.querySelector('input[name="jn-aff"]')?.focus(); return; }
+  if(!d.position) return joinError('Please enter your position title.','jn-position');
+  d.disciplines=readDiscChecks('jn-disc');
+  if(!d.disciplines.length){ joinError('Please tick at least one discipline you can supervise.'); el('jn-disc-box').scrollIntoView({behavior:'smooth',block:'center'}); return; }
+  if(!d.level) return joinError('Please choose the supervision role you would like.','jn-level');
+  d.campusIds=[...document.querySelectorAll('#jn-campus-box [data-jn-campus]:checked')].map(c=>c.dataset.jnCampus);
+  d.campusNames = d.campusIds.length ? d.campusIds.map(id=>JN_CAMPUSES.find(c=>c.id===id)).filter(Boolean).map(c=>campusLabel(c).slice(0,200)) : [v('jn-campus-text')].filter(Boolean);
+  if(!d.campusNames.length){ joinError('Please choose at least one campus where you can supervise.'); el('jn-campus-box').scrollIntoView({behavior:'smooth',block:'center'}); return; }
+  if(!d.researchAreas) return joinError('Please describe your research areas and specialisations.','jn-areas');
+  if(!d.hdrCompleted) return joinError('Please choose how many HDR students you have supervised to completion (0 is fine).','jn-hdr-done');
+  if(!d.hdrCurrent) return joinError('Please choose how many HDR students you supervise now (0 is fine).','jn-hdr-now');
+  if(d.docCv && !safeUrl(d.docCv)) return joinError('The CV link must start with https:// — copy it from the Share window.','jn-cv');
+  if(!el('jn-confirm').checked){ joinError('Please tick the box to confirm your details.'); el('jn-confirm').focus(); return; }
+  const btn=el('jn-submit-btn'); btn.disabled=true;
+  const done=()=>{
+    hide('jn-form-wrap');
+    el('jn-done').innerHTML=`<div class="card" style="text-align:center;padding:34px 22px">
+      <span class="share-ic" style="margin:0 auto 12px;background:var(--green)">${icon('i-check')}</span>
+      <h2>You're in the supervisor pool</h2>
+      <p class="text-muted" style="margin:6px auto 16px;max-width:540px">Thank you, ${esc(d.firstName)}. Your details have been added to the CIHE Australia Master of Research supervisor pool as <strong>${esc(affLabel(d.affiliation))}</strong>.</p>
+      <ul class="policy-list" style="text-align:left;max-width:540px;margin:0 auto">
+        <li>${icon('i-check','ic-sm')}<span>Each semester the Associate Dean Research selects supervisors from the pool.</span></li>
+        <li>${icon('i-mail','ic-sm')}<span>If you are selected, you will receive an email at <strong>${esc(d.email)}</strong> with a link to sign in to Assign Supervisor and choose your students.</span></li>
+        <li>${icon('i-users','ic-sm')}<span>Being in the pool does not mean you will be asked to supervise.</span></li>
+      </ul>
+      <p class="text-sm text-muted" style="margin-top:16px">To change your details later, email <a href="mailto:${esc(RESEARCH_OFFICE_EMAIL)}">${esc(RESEARCH_OFFICE_EMAIL)}</a>.</p></div>`;
+    show('jn-done'); window.scrollTo({top:0,behavior:'smooth'});
+  };
+  if(v('jn-website')){ done(); return; } // filled in by a bot: pretend it worked, write nothing
+  try{
+    await setDoc(doc(db,POOL_COL,joinDocId(d.email)), joinEntry(d,link));
+    done();
+  }catch(e){
+    console.warn('Staff link submit refused:',e.code,e.message);
+    btn.disabled=false;
+    if(e.code!=='permission-denied') return joinError('Could not send your details ('+(e.code||'error')+'): '+e.message+'. Please try again.');
+    // Refused: the link may have closed meanwhile, or this email already joined through a link.
+    let still=null; try{ const s=await getDoc(doc(db,POOL_LINK_COL,link.id)); still=s.exists()?{id:link.id,...s.data()}:null; }catch{}
+    if(!still) return joinClosed('bad');
+    if(still.active===false) return joinClosed('closed',still);
+    if(plkExpired(still)) return joinClosed('expired',still);
+    joinError(`We already have details for ${d.email} from a staff link, so nothing was changed. To update them, please email ${RESEARCH_OFFICE_EMAIL}. (If you have not used this form before, the Research Office may need to update the database rules.)`);
+  }
+}
+window.addEventListener('hashchange',()=>{ if(window.location.hash.startsWith('#join/')) openJoinPortal(); });
 
 
 /* ══════════════════════════════════════════════════════════
@@ -8760,10 +9244,26 @@ async function runDbCheck(){
     await step('Remove the test form again',async()=>{ const b=writeBatch(db); b.delete(doc(db,REG_COL,testId)); b.delete(doc(db,REG_STATUS_COL,testId)); await b.commit(); });
   }
   await step('Save when supervisors see students (settings)',()=>setDoc(doc(db,'settings','global'),{studentAccess:SETTINGS.studentAccess||{}},{merge:true}));
+  // Staff self-add links: the public part runs on a separate, signed-out connection,
+  // so it is tested exactly as a member of staff opening the link would use it.
+  await step('Read staff self-add links (admin)',()=>getDocs(query(collection(db,POOL_LINK_COL),limit(1))));
+  const lkId='rulescheck'+plkToken(), lkEmail='rules-check@example.com';
+  const lkOk=await step('Staff self-add link: create a test link (admin)',async()=>{
+    await deleteDoc(doc(db,POOL_COL,joinDocId(lkEmail))).catch(()=>{}); // left over from an interrupted check
+    await setDoc(doc(db,POOL_LINK_COL,lkId),{affiliation:'internal-ft',label:'Rules check',active:true,expiresAt:Timestamp.fromMillis(Date.now()+3600000),createdAt:serverTimestamp(),createdBy:ME.uid,createdByName:'Rules check'});
+  });
+  if(lkOk){
+    const pApp=provisionApp(); await signOut(getAuth(pApp)).catch(()=>{});
+    const pubDb=getFirestore(pApp);
+    await step('Staff self-add link: open the link (public, not signed in)',()=>getDoc(doc(pubDb,POOL_LINK_COL,lkId)));
+    const addOk=await step('Staff self-add link: add yourself to the pool (public, not signed in)',()=>setDoc(doc(pubDb,POOL_COL,joinDocId(lkEmail)),joinEntry({title:'Dr.',firstName:'Rules',lastName:'Check',email:lkEmail,phone:'0000',affiliation:'internal-ft',position:'Test',institution:'CIHE Australia',disciplines:['it'],level:JOIN_LEVELS[0],campusIds:[],campusNames:['Test campus'],researchAreas:'Test',hdrCompleted:REG_OPTS.hdrCompleted[0],hdrCurrent:REG_OPTS.hdrCurrent[0],profileLink:'',docCv:'',notes:''},{id:lkId,label:'Rules check'})));
+    await step('Remove the test link'+(addOk?' and test pool entry':'')+' again',async()=>{ const b=writeBatch(db); b.delete(doc(db,POOL_LINK_COL,lkId)); if(addOk) b.delete(doc(db,POOL_COL,joinDocId(lkEmail))); await b.commit(); });
+  }
   const failed=rows.filter(r=>r.ok===false);
+  const linkFailed=failed.some(r=>/staff self-add/i.test(r.name));
   out.insertAdjacentHTML('afterbegin', failed.length
-    ? `<div class="alert alert-danger"><strong>${failed.length} check(s) failed.</strong> A <code>permission-denied</code> result almost always means Firebase is not using the latest rules. Open <strong>Firebase Console → Firestore Database → Rules</strong>, replace everything with the contents of the latest <code>firestore.rules</code>, press <strong>Publish</strong>, and make sure no red error appears. Then run this check again.</div>`
-    : `<div class="alert alert-success"><strong>All checks passed.</strong> The registration form can be submitted with the rules currently in Firebase.</div>`);
+    ? `<div class="alert alert-danger"><strong>${failed.length} check(s) failed.</strong> A <code>permission-denied</code> result almost always means Firebase is not using the latest rules. Open <strong>Firebase Console → Firestore Database → Rules</strong>, replace everything with the contents of the latest <code>firestore.rules</code>, press <strong>Publish</strong>, and make sure no red error appears. Then run this check again.</div>${linkFailed?plkRulesHintHTML():''}`
+    : `<div class="alert alert-success"><strong>All checks passed.</strong> The registration form and the staff self-add links work with the rules currently in Firebase.</div>`);
   btn.disabled=false;
 }
 
